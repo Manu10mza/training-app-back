@@ -1,4 +1,4 @@
-import { DataTypes } from "sequelize/types";
+const { DataTypes } = require("sequelize");
 
 
 const Recipe = (sequelize) =>{
@@ -39,4 +39,4 @@ const Recipe = (sequelize) =>{
       });
 }
 
-export default Recipe;
+module.exports = Recipe;

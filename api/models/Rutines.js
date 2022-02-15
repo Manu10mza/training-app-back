@@ -1,4 +1,4 @@
-import { DataTypes } from "sequelize/types";
+const { DataTypes } = require("sequelize");
 
 
 const Rutines = (sequelize) =>{
@@ -13,7 +13,7 @@ const Rutines = (sequelize) =>{
                   allowNull: false
             },
             owner:{
-                  type: DataTypes.UUIDV4,
+                  type: DataTypes.UUID,
                   allowNull: false
             },
             days:{ /*Esquema de los días con sus ejercicios en formato .JSON */
@@ -23,4 +23,4 @@ const Rutines = (sequelize) =>{
       });
 }
 
-export default Rutines;
+module.exports = Rutines;
