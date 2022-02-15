@@ -22,10 +22,12 @@ const User = (sequelize) =>{
             },
             isNutritionist:{
                   type: DataTypes.BOOLEAN,
+                  defaultValue: false,
                   allowNull: true
             },
             isPersonalTraining:{
                   type: DataTypes.BOOLEAN,
+                  defaultValue: false,
                   allowNull: true
             },
             imc:{ /*Indice de masa corporal*/
