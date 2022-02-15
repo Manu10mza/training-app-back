@@ -1,42 +1,42 @@
 import { DataTypes } from "sequelize/types";
 
 
-const Recipe = (sequelize) =>{
+const Recipe = (sequelize) => {
       sequelize.define('Recipe', {
-            id:{
+            id: {
                   type: DataTypes.UUID,
                   defaultValue: DataTypes.UUIDV4,
-                  primaryKey:true
+                  primaryKey: true
             },
-            title:{
+            title: {
                   type: DataTypes.STRING,
                   allowNull: false
             },
-            kcal:{ /*Calorias x Kilo */
+            kcal: { /*Calorias x Kilo */
                   type: DataTypes.FLOAT,
                   allowNull: true
             },
-            carbohydrates:{
+            carbohydrates: {
                   type: DataTypes.FLOAT,
                   allowNull: true
             },
-            grease:{
+            fat: {
                   type: DataTypes.FLOAT,
                   allowNull: true
             },
-            proteins:{
+            proteins: {
                   type: DataTypes.FLOAT,
                   allowNull: true
             },
-            grs:{  /*Gramos recomendados por plato/porcion */
+            grams: {  /*Gramos recomendados por plato/porcion */
                   type: DataTypes.FLOAT,
                   allowNull: true
             },
-            description:{
+            description: {
                   type: DataTypes.TEXT,
                   allowNull: true
             }
       });
-}
+};
 
 export default Recipe;

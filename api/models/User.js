@@ -1,52 +1,51 @@
 import { DataTypes } from "sequelize/types";
 
 
-const User = (sequelize) =>{
-      sequelize.define('Client',{
-            id:{
+const User = (sequelize) => {
+      sequelize.define('User', {
+            id: {
                   type: DataTypes.UUID,
                   defaultValue: DataTypes.UUIDV4,
-                  primaryKey:true
+                  primaryKey: true
             },
-            email:{
+            email: {
                   type: DataTypes.STRING,
                   allowNull: false
             },
-            password:{
+            password: {
                   type: DataTypes.STRING,
                   allowNull: false
             },
-            profile_img:{
+            profile_img: {
                   type: DataTypes.STRING,
                   allowNull: true
             },
-            isNutritionist:{
+            is_nutricionist: {
                   type: DataTypes.BOOLEAN,
                   allowNull: true
             },
-            isPersonalTraining:{
+            is_trainer: {
                   type: DataTypes.BOOLEAN,
                   allowNull: true
             },
-            imc:{ /*Indice de masa corporal*/
+            bmi: { /*Indice de masa corporal*/
                   type: DataTypes.INTEGER,
                   allowNull: true
             },
-            total_day:{ /*Días de entrenamiento */
+            training_days: { /*Días de entrenamiento */
                   type: DataTypes.INTEGER,
                   allowNull: true
             },
-            height:{
+            height: {
                   type: DataTypes.FLOAT,
                   allowNull: true
             },
-            weight:{
+            weight: {
                   type: DataTypes.FLOAT,
-                  allowNull : true
+                  allowNull: true
             },
-
             /*Se añdrá una columna que para las transacciones */
-      })
+      });
 };
 
 export default User;

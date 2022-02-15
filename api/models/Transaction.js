@@ -1,21 +1,22 @@
 import { DataTypes } from "sequelize/types";
 
-const Transactions = (sequelize)=>{
-      sequelize.define('Transactions',{
-            id:{
+
+const Transaction = (sequelize) => {
+      sequelize.define('Transaction', {
+            id: {
                   type: DataTypes.UUID,
                   defaultValue: DataTypes.UUIDV4,
-                  primaryKey:true
+                  primaryKey: true
             },
-            amount:{
+            amount: {
                   type: DataTypes.FLOAT,
-                  allowNull : false
+                  allowNull: false
             },
             isSell: {
                   type: DataTypes.BOOLEAN,
                   allowNull: true
             },
-            isSold:{
+            isSold: {
                   type: DataTypes.BOOLEAN,
                   allowNull: true
 
@@ -28,7 +29,8 @@ const Transactions = (sequelize)=>{
                   type: DataTypes.UUIDV4,
                   allowNull: true
             }
-      })
+      });
+};
 
 
-}
+export default Transaction;

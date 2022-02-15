@@ -1,26 +1,26 @@
 import { DataTypes } from "sequelize/types";
 
 
-const Rutines = (sequelize) =>{
-      sequelize.define('Rutines',{
-            id:{
+const Routine = (sequelize) => {
+      sequelize.define('Routine', {
+            id: {
                   type: DataTypes.UUID,
                   defaultValue: DataTypes.UUIDV4,
-                  primaryKey:true
+                  primaryKey: true
             },
-            title:{
+            title: {
                   type: DataTypes.STRING,
                   allowNull: false
             },
-            owner:{
+            owner: {
                   type: DataTypes.UUIDV4,
                   allowNull: false
             },
-            days:{ /*Esquema de los días con sus ejercicios en formato .JSON */
+            days: { /*Esquema de los días con sus ejercicios en formato .JSON */
                   type: DataTypes.JSON,
                   allowNull: false
             }
       });
-}
+};
 
-export default Rutines;
+export default Routine;
