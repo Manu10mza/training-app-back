@@ -1,5 +1,4 @@
-import { DataTypes } from "sequelize/types";
-
+const { DataTypes } = require("sequelize");
 
 const Diet = (sequelize) =>{
       sequelize.define('Diet',{
@@ -13,7 +12,7 @@ const Diet = (sequelize) =>{
                   allowNull: false
             },
             owner:{
-                  type: DataTypes.UUIDV4,
+                  type: DataTypes.UUID,
                   allowNull : false
             },
             plain:{
@@ -23,4 +22,4 @@ const Diet = (sequelize) =>{
       })
 }
 
-export default Diet;
+module.exports = Diet;

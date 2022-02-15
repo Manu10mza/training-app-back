@@ -1,4 +1,4 @@
-import { DataTypes } from "sequelize/types";
+const { DataTypes } = require("sequelize");
 
 const Transactions = (sequelize)=>{
       sequelize.define('Transactions',{
@@ -21,14 +21,14 @@ const Transactions = (sequelize)=>{
 
             },
             diet: {
-                  type: DataTypes.UUIDV4,
+                  type: DataTypes.UUID,
                   allowNull: true
             },
             rutine: {
-                  type: DataTypes.UUIDV4,
+                  type: DataTypes.UUID,
                   allowNull: true
             }
       })
-
-
 }
+
+module.exports = Transactions;
