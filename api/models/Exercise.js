@@ -1,4 +1,5 @@
-const {DataTypes} = require('sequelize');
+import { DataTypes } from "sequelize/types";
+
 
 const Exercise = (sequelize)=>{
       sequelize.define('Exercise',{
@@ -22,4 +23,4 @@ const Exercise = (sequelize)=>{
       })
 }
 
-module.exports = Exercise;
+export default Exercise;

@@ -1,4 +1,5 @@
-const {DataTypes} = require('sequelize');
+import { DataTypes } from "sequelize/types";
+
 
 const Recipe = (sequelize) =>{
       sequelize.define('Recipe', {
@@ -11,7 +12,7 @@ const Recipe = (sequelize) =>{
                   type: DataTypes.STRING,
                   allowNull: false
             },
-            kcal:{
+            kcal:{ /*Calorias x Kilo */
                   type: DataTypes.FLOAT,
                   allowNull: true
             },
@@ -27,7 +28,7 @@ const Recipe = (sequelize) =>{
                   type: DataTypes.FLOAT,
                   allowNull: true
             },
-            grs:{
+            grs:{  /*Gramos recomendados por plato/porcion */
                   type: DataTypes.FLOAT,
                   allowNull: true
             },
@@ -38,4 +39,4 @@ const Recipe = (sequelize) =>{
       });
 }
 
-module.exports = Recipe;
+export default Recipe;

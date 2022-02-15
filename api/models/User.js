@@ -1,6 +1,7 @@
-const { DataTypes } = require('sequelize');
+import { DataTypes } from "sequelize/types";
 
-const Client = (sequelize) =>{
+
+const User = (sequelize) =>{
       sequelize.define('Client',{
             id:{
                   type: DataTypes.UUID,
@@ -15,15 +16,23 @@ const Client = (sequelize) =>{
                   type: DataTypes.STRING,
                   allowNull: false
             },
-            profileImg:{
+            profile_img:{
                   type: DataTypes.STRING,
                   allowNull: true
             },
-            imc:{
+            isNutritionist:{
+                  type: DataTypes.BOOLEAN,
+                  allowNull: true
+            },
+            isPersonalTraining:{
+                  type: DataTypes.BOOLEAN,
+                  allowNull: true
+            },
+            imc:{ /*Indice de masa corporal*/
                   type: DataTypes.INTEGER,
                   allowNull: true
             },
-            totalDay:{
+            total_day:{ /*Días de entrenamiento */
                   type: DataTypes.INTEGER,
                   allowNull: true
             },
@@ -34,8 +43,10 @@ const Client = (sequelize) =>{
             weight:{
                   type: DataTypes.FLOAT,
                   allowNull : true
-            }
+            },
+
+            /*Se añdrá una columna que para las transacciones */
       })
 };
 
-module.exports = Client;
+export default User;
