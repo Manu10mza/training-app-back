@@ -1,4 +1,5 @@
-const {DataTypes} = require('sequelize');
+import { DataTypes } from "sequelize/types";
+
 
 const Diet = (sequelize) =>{
       sequelize.define('Diet',{
@@ -11,6 +12,10 @@ const Diet = (sequelize) =>{
                   type: DataTypes.STRING,
                   allowNull: false
             },
+            owner:{
+                  type: DataTypes.UUIDV4,
+                  allowNull : false
+            },
             plain:{
                   type:DataTypes.JSON,
                   allowNull: false
@@ -18,4 +23,4 @@ const Diet = (sequelize) =>{
       })
 }
 
-module.exports = Diet;
+export default Diet;

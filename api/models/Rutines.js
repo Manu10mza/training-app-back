@@ -1,4 +1,5 @@
-const {DataTypes} = require('sequelize');
+import { DataTypes } from "sequelize/types";
+
 
 const Rutines = (sequelize) =>{
       sequelize.define('Rutines',{
@@ -11,11 +12,15 @@ const Rutines = (sequelize) =>{
                   type: DataTypes.STRING,
                   allowNull: false
             },
-            days:{
+            owner:{
+                  type: DataTypes.UUIDV4,
+                  allowNull: false
+            },
+            days:{ /*Esquema de los días con sus ejercicios en formato .JSON */
                   type: DataTypes.JSON,
                   allowNull: false
             }
       });
 }
 
-module.exports = Rutines;
+export default Rutines;
