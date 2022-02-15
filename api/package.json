@@ -4,7 +4,7 @@
   "description": "",
   "main": "api/index.js",
   "scripts": {
-    "start": "nodemon -L",
+    "start": "nodemon index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -16,6 +16,7 @@
     "express": "^4.17.2",
     "mongoose": "^6.2.1",
     "nodemon": "^2.0.15",
+    "pg": "^8.7.3",
     "sequelize": "^6.16.1"
   }
 }
