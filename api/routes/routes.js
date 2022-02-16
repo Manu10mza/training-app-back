@@ -4,18 +4,14 @@ const router = express.Router();
 //Enlazamos las rutas
 const registerRoute = require('./Register');
 const logInRoute = require('./User');
-const rutineRout=require('./Rutine');
-const exerciseRout=require('./Rutine');
-const getRecipe = require('./getRecipe');
-const getRecipes = require('./getRecipes');
-const postRecipe = require('./Recipe');
+const rutineRoute = require('./Rutine');
+const exerciseRoute = require('./Rutine');
+const recipeRoute = require('./Recipe');
 
-router.use('/rutine', rutineRout);
-router.use('/exercise', exerciseRout);
+router.use('/rutine', rutineRoute);
+router.use('/exercise', exerciseRoute);
 router.use('/register', registerRoute);
 router.use('/user', logInRoute);
-router.use('/recipe', getRecipe);
-router.use('/recipe', postRecipe);
-router.use('/recipes', getRecipes);
+router.use('/recipe', recipeRoute);
 
 module.exports = router;

@@ -1,8 +1,6 @@
 const router = require('express').Router();
 const Exercise = require('../db.js').models.Rutines;
 
-
-
 router.post("/",async (req,res)=>{
     try {
         const {title,description,video}=req.body;
