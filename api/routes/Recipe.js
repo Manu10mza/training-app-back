@@ -3,6 +3,7 @@ const sequelize = require('../db');
 const Recipe = sequelize.models.Recipe;
 const User = sequelize.models.User;
 
+//CREAR UNA RECETA
 router.post('/', async (req, res) => {
   //Buscamos el usuario que está por crear la receta
   const user = await User.findOne({
@@ -43,13 +44,12 @@ router.post('/', async (req, res) => {
   }
 });
 
-
+//TRAER TODAS LAS RECETAS DE PERTENECIENTE A UN USUARIO
 router.get('/', async (req, res) => {
-  const userId = req.body.userId;
   //Traemos todas las recetas que contenga un usuario
   const user = await User.findOne({
     where:{
-      id : userId
+      id : req.body.userId
     },
     include : Recipe
   });
@@ -62,7 +62,7 @@ router.get('/', async (req, res) => {
   res.status(400).json({error: 'User not found'});
 });
 
-
+//TRAER SOLO UNA DIETA ESPECIFICA
 router.get('/:id', async (req, res) => {
   const { id } = req.params;
   const foundRecipe = await Recipe.findOne({

@@ -10,6 +10,7 @@ const recipeRoute = require('./Recipe');
 
 router.use('/register', registerRoute);
 router.use('/user', logInRoute);
+router.use('/rutine', rutineRoute);
 router.use('/exercise', exerciseRoute);
 router.use('/recipe', recipeRoute);
 
