@@ -18,11 +18,12 @@ router.post('/login', async (req, res) =>{
             const userPassword = CryptoJS.AES.decrypt(userDb.password,process.env.PASSWORD_KEY).toString(CryptoJS.enc.Utf8);
             //Verificamos que sean las contraseñas iguales
             if(userPassword === req.body.password){
+                  userDb.password = userPassword;
                   //Creamos el token de acceso
                   const accessToken = jwt.sign({
-                        id: userDb._id,
-                        isAdmin: userDb.isAdmin
-                  }, process.env.JWT_KEY, { expiresIn: '5d' });
+                        id: userDb.id,
+                        role : userDb.isNutritionist ? 'Nutritionist' : userDb.isPersonalTraining ? 'PersonalTraining' : 'Client'   
+                  }, process.env.JWT_KEY, { expiresIn: 60 * 60 * 24 });
                   return res.status(200).json( {user:userDb,accessToken} );
             }
             return res.status(400).json({error: "Invalid password"})
@@ -31,7 +32,10 @@ router.post('/login', async (req, res) =>{
       return res.status(400).json({error: "Invalid email"})
 });
 
+
+
 /*
+      Todo: Crear ruta de modificacion de usuario
       Todo: Crear ruta de eliminacion de usuario
  */
 
