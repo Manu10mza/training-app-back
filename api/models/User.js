@@ -1,64 +1,64 @@
 const { DataTypes } = require("sequelize");
 
-const User = (sequelize) =>{
-      sequelize.define('User',{
-            id:{
+const User = (sequelize) => {
+      sequelize.define('User', {
+            id: {
                   type: DataTypes.UUID,
                   defaultValue: DataTypes.UUIDV4,
-                  primaryKey:true
+                  primaryKey: true
             },
-            email:{
+            email: {
                   type: DataTypes.STRING,
                   allowNull: false
             },
-            password:{
+            password: {
                   type: DataTypes.STRING,
                   allowNull: false
             },
-            profile_img:{
+            profile_img: {
                   type: DataTypes.STRING,
                   allowNull: true
             },
-            genre:{
+            gender: {
                   type: DataTypes.STRING,
                   allowNull: true
             },
-            country:{
+            country: {
                   type: DataTypes.STRING,
                   allowNull: true
             },
-            is_nutritionist:{
+            is_nutritionist: {
                   type: DataTypes.BOOLEAN,
                   defaultValue: false,
                   allowNull: true
             },
-            is_personalTraining:{
+            is_personalTraining: {
                   type: DataTypes.BOOLEAN,
                   defaultValue: false,
                   allowNull: true
             },
-            bmi:{ /*Indice de masa corporal*/
+            bmi: { /*Indice de masa corporal*/
                   type: DataTypes.FLOAT,
                   allowNull: true
             },
-            training_days:{ /*Días de entrenamiento */
+            training_days: { /*Días de entrenamiento */
                   type: DataTypes.STRING,
                   allowNull: true
             },
-            height:{
+            height: {
                   type: DataTypes.FLOAT,
                   allowNull: true
             },
-            weight:{
+            weight: {
                   type: DataTypes.FLOAT,
-                  allowNull : true
+                  allowNull: true
             },
-            nro_acount:{
-                  type:DataTypes.STRING,
+            nro_acount: {
+                  type: DataTypes.STRING,
                   allowNull: true
             }
             /*Se añadirá una columna para las transacciones */
-      })
+      });
 };
 
 module.exports = User;
