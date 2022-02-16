@@ -10,10 +10,10 @@ router.post("/",async (req,res)=>{
             throw new Error("Missing required data")
         }
         const newExercise=await Exercise.create({title,description,video});
-        res.send(newExercise);
+        res.status(200).send(newExercise);
     } catch (error) {
         console.log(error);
-        res.sendStatus(400);
+        res.status(400).json({error:"Missing required data"});
     }
 })
 module.exports = router;

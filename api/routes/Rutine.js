@@ -18,10 +18,10 @@ router.post("/:ownerId",async (req,res)=>{
             } 
         })
         const newRutine=await Rutines.create({title,owner:ownerId,days,amount});
-        res.send(newRutine);
+        res.status(200).send(newRutine);
     } catch (error) {
         console.log(error);
-        res.sendStatus(400);
+        res.status(400).json({error:"Missing required data"});
     }
 })
 module.exports = router;
