@@ -3,19 +3,10 @@ const sequelize = require('../db');
 const Recipe = sequelize.models.Recipe;
 
 router.post('/', async (req, res) => {
-  /*
-    title: string
-    kcal: number(float)
-    carbohydrates: number(float)
-    grease: number(float)
-    proteins: number(float)
-    grs: number(float)
-    description: string
-  */
   const { title, kcal, carbohydrates, grease, proteins, grs, description } = req.body;
 
   if (!title) {
-    return res.status(304).json({ message: 'You must provide a title.' });
+    return res.status(400).json({ error: 'You must provide a title.' });
   }
 
   const newRecipe = await Recipe.findOrCreate({
@@ -30,7 +21,6 @@ router.post('/', async (req, res) => {
     }
   }).then(res => ({ result: res[0].dataValues, new: res[0]._options.isNewRecord }))
     .catch(err => {
-
       console.log(err);
 
       return {
@@ -47,7 +37,38 @@ router.post('/', async (req, res) => {
   } else {
     res.status(304).json({ message: 'Recipe already exists.', result: newRecipe.result });
   }
+});
 
+
+router.get('/', async (req, res) => {
+  const recipes = await Recipe.findAll().catch(e => console.log(e));
+
+  if (recipes) {
+    res.status(200).json(recipes);
+    
+  } else {
+    res.status(500).json({ message: 'There was an error processing your request.' });
+  }
+});
+
+
+router.get('/:id', async (req, res) => {
+  /*
+    id: string
+  */
+  const { id } = req.params;
+
+  const found = await Recipe.findOne({
+    where: {
+      id
+    }
+  }).catch(e => console.log(e));
+
+  if (found) {
+    res.status(200).json(found);
+  } else {
+    res.status(404).json({ error: 'Invalid id.' });
+  }
 });
 
 

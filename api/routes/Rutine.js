@@ -1,8 +1,6 @@
 const router = require('express').Router();
 const Rutines = require('../db.js').models.Rutines;
 
-
-
 router.post("/:ownerId",async (req,res)=>{
     try {
         const {title,exercises,amount}=req.body;
