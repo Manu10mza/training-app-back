@@ -1,28 +1,68 @@
 const router = require('express').Router();
-const Exercise = require('../db.js').models.Exercise;
+const sequelize = require('../db');
+const Exercise = sequelize.models.Exercise;
+const User = sequelize.models.User;
 
+//CREAR UN EJERCICIO
 router.post("/",async (req,res)=>{
-    try {
-        const {title,description,video}=req.body;
-        if(!title||!description||!video){
-            res.status(400).json({error:"Missing required data"});
-        };
+    const { title,description,video }=req.body.exercise;
+    const user = await User.findOne({
+        where:{
+            id : req.body.userId
+        }
+    });
 
-        const newExercise= await Exercise.create({title,description,video});
-        res.status(200).send(newExercise);
-    } catch (error) {
-        console.log(error);
-        res.status(400).json({error:"Missing required data"});
+    //Verificamos que exista el usuario
+    if(user){
+        //Verificamos que hayan enviado los datos
+        if(title && description && video){
+            const findExercise = await Exercise.findOne({
+                where:{
+                    title: title
+                }
+            });
+
+            //Verificamos que no haya otro ejercicio con el mismo nombre
+            if(!findExercise){
+                try {
+                    const newExercise = await Exercise.create(req.body.exercise);
+                    user.addExercise(newExercise);
+                    return res.status(200).json({success: 'Exercise created successfully'})
+                    
+                } catch (error) {
+                    console.log(error)
+                    return res.status(400).json(error);
+                };
+            } else{
+                return res.status(400).json({error:'An exercise with that title already exists'})
+            } 
+        } else{
+            return res.status(400).json({error:'Missing required data'});
+        }
+    } else {
+        return res.status(400).json({error:'User not found'});
+    }
+});
+
+//OBTENER TODOS LOS EJERICICIOS DE UN USUARIO
+router.get('/', async (req,res)=>{
+    const user = await User.findOne({
+        where:{
+            id : req.body.userId
+        },
+        include: Exercise
+    });
+
+    if(user){
+        const exercises = user.dataValues.Exercises.map(item => item.dataValues);        
+        res.status(200).json(exercises);
+    } else {
+        return res.status(400).json({error:"User not found"});
     }
 });
 
 
-router.get('/', async (req,res)=>{
-    const exercises = await Exercise.findAll();
-    res.status(200).json(exercises);
-});
-
-
+//OBTENER UN EJERCICIO ESPECIFICO
 router.get('/:id', async (req,res)=>{
     const { id } = req.params;
     try{
