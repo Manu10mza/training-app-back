@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const Exercise = require('../db.js').models.Rutines;
+const Exercise = require('../db.js').models.Exercise;
 
 router.post("/",async (req,res)=>{
     try {
