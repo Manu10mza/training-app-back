@@ -20,13 +20,9 @@ const Transactions = (sequelize)=>{
                   allowNull: true
 
             },
-            diet: {
-                  type: DataTypes.UUID,
-                  allowNull: true
-            },
-            rutine: {
-                  type: DataTypes.UUID,
-                  allowNull: true
+            product: {
+                  type: DataTypes.JSON,
+                  allowNull: false
             }
       })
 }
