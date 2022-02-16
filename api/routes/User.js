@@ -21,7 +21,7 @@ router.post('/login', async (req, res) =>{
                   }
             });
       } else {
-            return res.status(400).json({error:"No se enviaron los datos necesarios"})
+            return res.status(400).json({error:"The necessary data to enter was not sent"});
       }
       //De está manera accedemos a los valores 
       const userDb = result?.dataValues
@@ -31,6 +31,7 @@ router.post('/login', async (req, res) =>{
             //Verificamos que sean las contraseñas iguales
             if(userPassword === req.body.password){
                   userDb.password = userPassword;
+                  
                   //Creamos el token de acceso
                   const accessToken = jwt.sign({
                         userId: userDb.id,
@@ -45,8 +46,6 @@ router.post('/login', async (req, res) =>{
 
 router.get('/', verifyToken, (req, res) =>{
       res.status(200).send('Hola')
-
-
 });
 
 /*
