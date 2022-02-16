@@ -11,16 +11,37 @@ sequelize.authenticate()
       .then(()=> console.log('Conection Success...'))
       .catch(err => console.log('Error in connection: ',err))
 
-//Definimos los modelos
 const dirName = path.basename(__filename);
 const modelDefiners = [];
-
+      
+//Inyectamos los modelos
 fs.readdirSync(path.join(__dirname, '/models'))
       .filter((file) => (file.indexOf('.') !== 0) && (file !== dirName) && (file.slice(-3) === '.js'))
       .forEach((file) => {
             modelDefiners.push(require(path.join(__dirname, '/models', file)));
       });
 modelDefiners.forEach(model => model(sequelize));
+
+
+
+const User = sequelize.models.User;
+const Exercise = sequelize.models.Exercise;
+const Rutines = sequelize.models.Rutines;
+const Recipe = sequelize.models.Recipe;
+const Diet = sequelize.models.Diet;
+const Transactions = sequelize.models.Transactions;
+
+User.hasMany(Exercise);
+Exercise.belongsTo(User);
+
+User.hasMany(Recipe);
+Recipe.belongsTo(User);
+
+
+
+
+
+
 console.log(sequelize.models);
 
 

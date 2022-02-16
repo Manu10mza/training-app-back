@@ -44,7 +44,6 @@ router.post('/', async (req, res)=>{
 
       //En el caso de que sea un simple cliente
       } else if(result.length === 0){
-            /*En el caso de que solo sea un cliente */
             try {
                   await User.create(model);
                   return res.status(200).json({success:"successfully created client"})
