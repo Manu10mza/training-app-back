@@ -1,6 +1,5 @@
 const { DataTypes } = require("sequelize");
 
-
 const User = (sequelize) =>{
       sequelize.define('User',{
             id:{
@@ -20,20 +19,30 @@ const User = (sequelize) =>{
                   type: DataTypes.STRING,
                   allowNull: true
             },
-            isNutritionist:{
+            genre:{
+                  type: DataTypes.STRING,
+                  allowNull: true
+            },
+            country:{
+                  type: DataTypes.STRING,
+                  allowNull: true
+            },
+            is_nutritionist:{
                   type: DataTypes.BOOLEAN,
+                  defaultValue: false,
                   allowNull: true
             },
-            isPersonalTraining:{
+            is_personalTraining:{
                   type: DataTypes.BOOLEAN,
+                  defaultValue: false,
                   allowNull: true
             },
-            imc:{ /*Indice de masa corporal*/
-                  type: DataTypes.INTEGER,
+            bmi:{ /*Indice de masa corporal*/
+                  type: DataTypes.FLOAT,
                   allowNull: true
             },
-            total_day:{ /*Días de entrenamiento */
-                  type: DataTypes.INTEGER,
+            training_days:{ /*Días de entrenamiento */
+                  type: DataTypes.STRING,
                   allowNull: true
             },
             height:{
@@ -44,8 +53,11 @@ const User = (sequelize) =>{
                   type: DataTypes.FLOAT,
                   allowNull : true
             },
-
-            /*Se añdrá una columna que para las transacciones */
+            nro_acount:{
+                  type:DataTypes.STRING,
+                  allowNull: true
+            }
+            /*Se añadirá una columna para las transacciones */
       })
 };
 

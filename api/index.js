@@ -8,7 +8,7 @@ const app = express();
 dotenv.config();
 app.use(cors());
 app.use(express.json());
-app.use(router)
+app.use('/api',router);
 
 db.sync({force:true})
   .then(()=>{
@@ -16,5 +16,3 @@ db.sync({force:true})
       console.log("Server on port 8200");
     });
   })
-
-
