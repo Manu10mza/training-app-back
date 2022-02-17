@@ -3,8 +3,9 @@ const Diets = require('../db.js').models.Diet;
 const Rutines = require('../db.js').models.Rutines;
 const Transactions = require('../db.js').models.Transactions;
 const User = require('../db.js').models.User;
+const {verifyPTrainerToken} = require('../controllers/verifyToken');
 
-router.post("/:productId/:userId",async (req,res)=>{
+router.post("/:productId/:userId",verifyPTrainerToken,,async (req,res)=>{
     try {
         const {productId, userId}=req.params;
         const {isSell,isSold, amount}=req.body;
@@ -36,7 +37,7 @@ router.post("/:productId/:userId",async (req,res)=>{
     }
 })
 
-router.get("/history/:userId",async (req,res)=>{
+router.get("/history/:userId",verifyPTrainerToken,,async (req,res)=>{
     try {
         const {userId}=req.params;
         //Se comprueba si falta algun dato obligatorio o el UUID no es válida
