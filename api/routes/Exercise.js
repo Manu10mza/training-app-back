@@ -78,4 +78,7 @@ router.get('/:id',verifyToken, async (req,res)=>{
     }
 });
 
+
+//EDITAR UNA PUBLICACION
+
 module.exports = router;
