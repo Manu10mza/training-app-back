@@ -15,9 +15,9 @@ const verifyNutritionistToken = (req, res, next) => {
       const token = req.headers.token;
       if (token) {
             const decoded = jwt.verify(token, process.env.JWT_KEY);
-            if (decoded.role.includes('Nutritionist')) {
+            if (decoded.role.includes('Nutritionist') && decoded.userId === req.params.userId  ) {
                   next();
-            } else return res.status(401).json({ error: 'You are not allowed to do that' });
+            } else return res.status(401).json({ error: 'You are not allowed to do that or the id not found' });
 
       } else {
             return res.status(400).json({ error: 'You did not provide a token!' });
