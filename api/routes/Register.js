@@ -4,56 +4,26 @@ const sequelize = require('../db')
 const User = sequelize.models.User
 
 router.post('/', async (req, res)=>{
-      /*Por Querys deben enviar el tipo de usuario que será*/
-      let personal = req.query.isPersonalTrainer;
-      let nutritionist = req.query.isNutritionist;
-      let model = req.body.user;
       //Encriptamos la contraseña antes de guardarla
-      model.password = CryptoJS.AES.encrypt(model.password, process.env.PASSWORD_KEY).toString()
-
+      req.body.password = CryptoJS.AES.encrypt(req.body.password, process.env.PASSWORD_KEY).toString()
+      
       //Comprueba que no exista un email igual en la base de datos
-      const result = await User.findAll({
+      const result = await User.findOne({
             where:{
-                  email: model.email
+                  email: req.body.email
             }
       })
 
-      //En el caso de que sea personalTraining
-      if(result.length === 0 && personal){
-            model.isPersonalTrainer = true;
+      if(!result){
             try {
-                  await User.create(model);
-                  return res.status(200).json({success:"successfully created personal trainer"})
+                  await User.create(req.body);
+                  return res.status(200).json({success:"User created successfuly"})
                   
             } catch (error) {
                   console.log(error);
-                  return res.status(200).json(error)
+                  return res.status(400).json(error)
             };
-
-      //En el caso de que sea nutritionist
-      } else if(result.length === 0 && nutritionist){
-            model.isNutritionist = true;
-            try {
-                  await User.create(model);
-                  return res.status(200).json({success:"successfully created nutritionist"})
-                  
-            } catch (error) {
-                  console.log(error);
-                  return res.status(200).json(error)
-            };
-
-      //En el caso de que sea un simple cliente
-      } else if(result.length === 0){
-            try {
-                  await User.create(model);
-                  return res.status(200).json({success:"successfully created client"})
-            } catch (error) {
-                  console.log(error);
-                  return res.status(200).json(error)
-            }
-
       }
-      //Si es que ya existe un email igual en la base de datos
       res.status(400).json({error:'User already exists'})
 
 });

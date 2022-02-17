@@ -17,7 +17,7 @@ const Exercise = (sequelize)=>{
             },
             video:{
                   type: DataTypes.STRING,
-                  allowNull: false
+                  allowNull: true
             }
       })
 }

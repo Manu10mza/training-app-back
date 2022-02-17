@@ -8,7 +8,8 @@ const { verifyToken } = require('../controllers/verifyToken');
 //LOGEO
 router.post('/login', async (req, res) =>{
       //Para loguearse deben enviar Username o Mail
-      if(req.body.username  ){
+      let result;
+      if(req.body.username){
             result = await User.findOne({
                   where:{
                         username: req.body.username
