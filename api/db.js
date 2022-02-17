@@ -13,7 +13,6 @@ sequelize.authenticate()
 
 const dirName = path.basename(__filename);
 const modelDefiners = [];
-
 //Inyectamos los modelos
 fs.readdirSync(path.join(__dirname, '/models'))
       .filter((file) => (file.indexOf('.') !== 0) && (file !== dirName) && (file.slice(-3) === '.js'))
@@ -21,13 +20,20 @@ fs.readdirSync(path.join(__dirname, '/models'))
             modelDefiners.push(require(path.join(__dirname, '/models', file)));
       });
 modelDefiners.forEach(model => model(sequelize));
-const { User, Exercise, Rutines, Recipe, Diet, Transactions } = sequelize.models;
 
+const { User, Exercise, Rutines, Recipe, Diet, Transactions } = sequelize.models;
+//Generamos las relaciones
 User.hasMany(Exercise);
 Exercise.belongsTo(User);
 
 User.hasMany(Recipe);
 Recipe.belongsTo(User);
+
+User.belongsToMany(Diet, { through: "User_diets" });
+Diet.belongsToMany(User, { through: "User_diets" });
+
+User.belongsToMany(Rutines, { through: "User_rutines" });
+Rutines.belongsToMany(User, { through: "User_rutines" });
 
 User.hasMany(Diet);
 Diet.belongsTo(User);
