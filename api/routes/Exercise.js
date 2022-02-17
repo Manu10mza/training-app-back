@@ -1,10 +1,11 @@
 const router = require('express').Router();
 const sequelize = require('../db');
+const {verifyToken,verifyPTrainerToken} = require('../controllers/verifyToken');
 const Exercise = sequelize.models.Exercise;
 const User = sequelize.models.User;
 
 //CREAR UN EJERCICIO
-router.post("/",async (req,res)=>{
+router.post("/",verifyPTrainerToken, async (req,res)=>{
     const { title,description,video }=req.body.exercise;
     const user = await User.findOne({
         where:{
@@ -45,7 +46,7 @@ router.post("/",async (req,res)=>{
 });
 
 //OBTENER TODOS LOS EJERICICIOS DE UN USUARIO
-router.get('/', async (req,res)=>{
+router.get('/', verifyToken, async (req,res)=>{
     const user = await User.findOne({
         where:{
             id : req.body.userId
@@ -63,7 +64,7 @@ router.get('/', async (req,res)=>{
 
 
 //OBTENER UN EJERCICIO ESPECIFICO
-router.get('/:id', async (req,res)=>{
+router.get('/:id',verifyToken, async (req,res)=>{
     const { id } = req.params;
     try{
         let result = await Exercise.findAll({
