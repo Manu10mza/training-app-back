@@ -1,15 +1,15 @@
 require('dotenv').config(); 
 const { Sequelize } = require('sequelize');
-const {DB_USER, DB_PASSWORD, DB_HOST,} = process.env;
+const { DB_USER, DB_PASSWORD, DB_HOST, } = process.env;
 const fs = require('fs');
 const path = require('path');
 const { dirname, basename } = require('path');
 
-const sequelize = new Sequelize(`postgres://${DB_USER}:${DB_PASSWORD}@${DB_HOST}/trainingapp`,{logging:false});
+const sequelize = new Sequelize(`postgres://${DB_USER}:${DB_PASSWORD}@${DB_HOST}/trainingapp`, { logging: false });
 //Verificamos que se haya conectado 
 sequelize.authenticate()
-      .then(()=> console.log('Conection Success...'))
-      .catch(err => console.log('Error in connection: ',err))
+      .then(() => console.log('Conection Success...'))
+      .catch(err => console.log('Error in connection: ', err));
 
 const dirName = path.basename(__filename);
 const modelDefiners = [];
@@ -22,14 +22,7 @@ fs.readdirSync(path.join(__dirname, '/models'))
       });
 modelDefiners.forEach(model => model(sequelize));
 
-
-
-const User = sequelize.models.User;
-const Exercise = sequelize.models.Exercise;
-const Rutines = sequelize.models.Rutines;
-const Recipe = sequelize.models.Recipe;
-const Diet = sequelize.models.Diet;
-const Transactions = sequelize.models.Transactions;
+const { User, Exercise, Rutines, Recipe, Diet, Transactions } = sequelize.models;
 
 User.hasMany(Exercise);
 Exercise.belongsTo(User);
@@ -37,7 +30,8 @@ Exercise.belongsTo(User);
 User.hasMany(Recipe);
 Recipe.belongsTo(User);
 
-
+User.hasMany(Diet);
+Diet.belongsTo(User);
 
 
 
