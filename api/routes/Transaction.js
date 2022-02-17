@@ -8,7 +8,7 @@ router.post("/:productId/:userId",async (req,res)=>{
     try {
         const {productId, userId}=req.params;
         const {isSell,isSold, amount}=req.body;
-
+        
         //Se comprueba si falta algun dato obligatorio o el UUID no es válida
         const isUUID=/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
         if (!amount) throw new Error("Missing required data");

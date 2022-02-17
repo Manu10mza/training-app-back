@@ -5,11 +5,11 @@ const Recipe = sequelize.models.Recipe;
 const User = sequelize.models.User;
 
 //CREAR UNA RECETA
-router.post('/', verifyNutritionistToken, async (req, res) => {
+router.post('/:userId', verifyNutritionistToken, async (req, res) => {
   //Buscamos el usuario que está por crear la receta
   const user = await User.findOne({
     where:{
-      id : req.body.userId
+      id : req.params.userId
     }
   });
   //Nos aseguramos que este exista
@@ -18,19 +18,19 @@ router.post('/', verifyNutritionistToken, async (req, res) => {
   };
 
   //Se necesita haber proporcionado al menos el titulo
-  if (!req.body.recipe.title) {
+  if (!req.body.title) {
     return res.status(400).json({ error: 'You must provide a title.' });
   };
   //Nos aseguramos de que no existe algo con el mismo titulo
   const findRecipe = await Recipe.findOne({
     where:{
-      title : req.body.recipe.title
+      title : req.body.title
     }
   })
 
   if(!findRecipe){
     try {
-      const recipe = await Recipe.create(req.body.recipe);
+      const recipe = await Recipe.create(req.body);
       //Vinculamos el usuario con la receta
       await user.addRecipe(recipe);
       return res.status(200).json({success: 'Recipe created successfully'})
@@ -46,11 +46,11 @@ router.post('/', verifyNutritionistToken, async (req, res) => {
 });
 
 //TRAER TODAS LAS RECETAS DE PERTENECIENTE A UN USUARIO
-router.get('/', verifyToken, async (req, res) => {
+router.get('/user/:userId', verifyToken, async (req, res) => {
   //Traemos todas las recetas que contenga un usuario
   const user = await User.findOne({
     where:{
-      id : req.body.userId
+      id : req.params.userId
     },
     include : Recipe
   });

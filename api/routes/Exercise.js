@@ -5,11 +5,11 @@ const Exercise = sequelize.models.Exercise;
 const User = sequelize.models.User;
 
 //CREAR UN EJERCICIO
-router.post("/",verifyPTrainerToken, async (req,res)=>{
-    const { title,description,video }=req.body.exercise;
+router.post("/:userId",verifyPTrainerToken, async (req,res)=>{
+    const { title,description,video }=req.body;
     const user = await User.findOne({
         where:{
-            id : req.body.userId
+            id : req.params.userId
         }
     });
 
@@ -26,7 +26,7 @@ router.post("/",verifyPTrainerToken, async (req,res)=>{
             //Verificamos que no haya otro ejercicio con el mismo nombre
             if(!findExercise){
                 try {
-                    const newExercise = await Exercise.create(req.body.exercise);
+                    const newExercise = await Exercise.create(req.body);
                     user.addExercise(newExercise);
                     return res.status(200).json({success: 'Exercise created successfully'})
                     
@@ -46,10 +46,10 @@ router.post("/",verifyPTrainerToken, async (req,res)=>{
 });
 
 //OBTENER TODOS LOS EJERICICIOS DE UN USUARIO
-router.get('/', verifyToken, async (req,res)=>{
+router.get('/user/:userId', verifyToken, async (req,res)=>{
     const user = await User.findOne({
         where:{
-            id : req.body.userId
+            id : req.params.userId
         },
         include: Exercise
     });
@@ -65,14 +65,13 @@ router.get('/', verifyToken, async (req,res)=>{
 
 //OBTENER UN EJERCICIO ESPECIFICO
 router.get('/:id',verifyToken, async (req,res)=>{
-    const { id } = req.params;
     try{
         let result = await Exercise.findAll({
             where:{
-                id
+                id: req.params.id
             }
         });
-        return res.status(200).json(result);
+        return res.status(200).send(result);
 
     } catch(error) {
         return res.status(400).json({error});
