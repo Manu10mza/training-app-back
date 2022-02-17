@@ -5,15 +5,13 @@ const User = sequelize.models.User
 
 router.post('/', async (req, res)=>{
       //Encriptamos la contraseña antes de guardarla
-      req.body.password = CryptoJS.AES.encrypt(req.body.password, process.env.PASSWORD_KEY).toString()
-      
+      req.body.password = CryptoJS.AES.encrypt(req.body.password, process.env.PASSWORD_KEY).toString();
       //Comprueba que no exista un email igual en la base de datos
       const result = await User.findOne({
             where:{
                   email: req.body.email
             }
       })
-
       if(!result){
             try {
                   await User.create(req.body);
