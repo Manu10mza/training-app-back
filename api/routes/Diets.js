@@ -1,5 +1,5 @@
 const router = require('express').Router();
-const { verifyNutritionistToken } = require('../controllers/verifyToken');
+const { verifyToken, verifyNutritionistToken } = require('../controllers/verifyToken');
 const sequelize = require('../db');
 const Diet = sequelize.models.Diet;
 const User = sequelize.models.User;
@@ -65,7 +65,7 @@ router.post('/', verifyNutritionistToken, async (req, res) => {
 });
 
 
-router.get('/:id', verifyNutritionistToken, async (req, res) => {
+router.get('/:id', verifyToken, async (req, res) => {
 
   const { id } = req.params;
 

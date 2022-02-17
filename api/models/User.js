@@ -60,6 +60,10 @@ const User = (sequelize) => {
             nro_acount: {
                   type: DataTypes.STRING,
                   allowNull: true
+            },
+            is_admin:{
+                  type: DataTypes.BOOLEAN,
+                  defaultValue: false
             }
             /*Se añadirá una columna para las transacciones */
       });
