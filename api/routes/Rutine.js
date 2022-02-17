@@ -1,9 +1,8 @@
 const router = require('express').Router();
 const Rutines = require('../db.js').models.Rutines;
+const {verifyPTrainerToken} = require('../controllers/verifyToken');
 
-
-
-router.post("/:ownerId",async (req,res)=>{
+router.post("/:ownerId", verifyPTrainerToken ,async (req,res)=>{
     try {
         const {title,exercises,amount}=req.body;
         const {ownerId}=req.params;

@@ -7,6 +7,10 @@ const User = (sequelize) => {
                   defaultValue: DataTypes.UUIDV4,
                   primaryKey: true
             },
+            username:{
+                  type: DataTypes.STRING,
+                  allowNull: false
+            },
             email: {
                   type: DataTypes.STRING,
                   allowNull: false
@@ -32,7 +36,7 @@ const User = (sequelize) => {
                   defaultValue: false,
                   allowNull: true
             },
-            is_personalTraining: {
+            is_personal_trainer: {
                   type: DataTypes.BOOLEAN,
                   defaultValue: false,
                   allowNull: true
