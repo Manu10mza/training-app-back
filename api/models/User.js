@@ -36,7 +36,7 @@ const User = (sequelize) => {
                   defaultValue: false,
                   allowNull: true
             },
-            is_personalTraining: {
+            is_personal_trainer: {
                   type: DataTypes.BOOLEAN,
                   defaultValue: false,
                   allowNull: true

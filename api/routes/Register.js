@@ -5,7 +5,7 @@ const User = sequelize.models.User
 
 router.post('/', async (req, res)=>{
       /*Por Querys deben enviar el tipo de usuario que será*/
-      let personal = req.query.isPersonalTraining;
+      let personal = req.query.isPersonalTrainer;
       let nutritionist = req.query.isNutritionist;
       let model = req.body.user;
       //Encriptamos la contraseña antes de guardarla
@@ -20,7 +20,7 @@ router.post('/', async (req, res)=>{
 
       //En el caso de que sea personalTraining
       if(result.length === 0 && personal){
-            model.isPersonalTraining = true;
+            model.isPersonalTrainer = true;
             try {
                   await User.create(model);
                   return res.status(200).json({success:"successfully created personal trainer"})

@@ -1,10 +1,11 @@
 const router = require('express').Router();
 const sequelize = require('../db');
+const { verifyToken, verifyNutritionistToken } = require('../controllers/verifyToken');
 const Recipe = sequelize.models.Recipe;
 const User = sequelize.models.User;
 
 //CREAR UNA RECETA
-router.post('/', async (req, res) => {
+router.post('/', verifyNutritionistToken, async (req, res) => {
   //Buscamos el usuario que está por crear la receta
   const user = await User.findOne({
     where:{
@@ -45,7 +46,7 @@ router.post('/', async (req, res) => {
 });
 
 //TRAER TODAS LAS RECETAS DE PERTENECIENTE A UN USUARIO
-router.get('/', async (req, res) => {
+router.get('/', verifyToken, async (req, res) => {
   //Traemos todas las recetas que contenga un usuario
   const user = await User.findOne({
     where:{
@@ -63,7 +64,7 @@ router.get('/', async (req, res) => {
 });
 
 //TRAER SOLO UNA DIETA ESPECIFICA
-router.get('/:id', async (req, res) => {
+router.get('/:id',verifyToken, async (req, res) => {
   const { id } = req.params;
   const foundRecipe = await Recipe.findOne({
     where: {
