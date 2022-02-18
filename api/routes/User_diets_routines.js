@@ -1,6 +1,6 @@
 const { Router } = require("express");
-const { Diets, Rutines, Users } = require("../db");
-const axios = require("axios");
+const { Diet, Routine, User } = require("../db");
+
 const router = Router();
 
 /*
@@ -8,17 +8,17 @@ const router = Router();
 */
 
 //Funciones
-//trae todos los usuarios incluyendo los modelos Diets y Routines
+//trae todos los usuarios incluyendo los modelos Diet y Routine
 const getDbInfo = async () => {
   try {
-    return await Users.findAll({
+    return await User.findAll({
       include: {
-        model: Diets,
+        model: Diet,
         attributes: ["id"],
         through: {
           attributes: [],
         },
-        model: Rutines,
+        model: Routine,
         attributes: ["id"],
         through: {
           attributes: [],
@@ -29,7 +29,7 @@ const getDbInfo = async () => {
     console.log("Error en la llamada a BD", error);
   }
 };
-//get devuelve un arreglo con [0] = Diets del usuario [1] = Rutinas del usuario.
+//get devuelve un arreglo con [0] = Diet del usuario [1] = Rutinas del usuario.
 router.get("/userDietsRoutines", async (req, res) => {
   try {
     const id = req.query.id;
@@ -39,7 +39,7 @@ router.get("/userDietsRoutines", async (req, res) => {
         e.id.toLowerCase().includes(id.toLowerCase())
       );
       userId.length
-        ? res.status(200).send([userId.Diets, userId.Routines])
+        ? res.status(200).send([userId.Diet, userId.Routine])
         : res.status(404).send("User not found");
     } else {
       res.status(404).send("User not found");
@@ -59,13 +59,13 @@ router.get("/soldItems", async (req, res) => {
       e.diets.some((d) => d === idProduct)
     );
 
-    let usersRutines = await userTotal.filter((e) =>
-      e.rutines.some((d) => d === idProduct)
+    let usersRoutines = await userTotal.filter((e) =>
+      e.routines.some((d) => d === idProduct)
     );
     //aca se asume que el id del producto existe, que esta checkeado desde el front, por eso no manda status(404)
     usersDiets.length
       ? res.status(200).send(usersDiets)
-      : res.status(200).send(usersRutines);
+      : res.status(200).send(usersRoutines);
   } catch (error) {
     console.log(error);
   }
