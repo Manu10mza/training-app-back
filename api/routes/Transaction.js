@@ -5,7 +5,6 @@ const Transaction = require('../db.js').models.Transaction;
 const User = require('../db.js').models.User;
 const { verifyPTrainerToken } = require('../controllers/verifyToken');
 
-
 /*
 !DEBERIA HACER PEDIR POR PARAMS EL ID DEL USUARIO Y EL ID OBJETIVO POR BODY 
 */

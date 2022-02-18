@@ -61,7 +61,7 @@ router.post('/login', async (req, res) => {
 
 /*
       Todo: Crear ruta de eliminacion de usuario
- */
+*/
 
 
 //OBTENER TODOS LOS DATOS DE UN USUARIO
@@ -80,10 +80,10 @@ router.get('/:userId', verifyToken, async (req, res) => {
 //MODIFICAR DATOS DEL USUARIO
 /*
 !DEBE PODER ACTUALIZAR TODOS DATOS QUE FIGURAN EN EL MODELO DEL USUARIO
- */
+*/
 router.put('/update/:userId', verifyToken, async (req, res) => {
       /* 
-      ! En este caso se pretende que envien un solo campo por peticion, para agilizar las cosas deberia tener la capacidad de procesar más de una propiedad en una sola petición
+            ! En este caso se pretende que envien un solo campo por peticion, para agilizar las cosas deberia tener la capacidad de procesar más de una propiedad en una sola petición
       */
       const { userId } = req.params;
       const { field, value } = req.body;
