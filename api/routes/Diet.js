@@ -1,9 +1,7 @@
 const router = require('express').Router();
 const { verifyToken, verifyNutritionistToken } = require('../controllers/verifyToken');
 const sequelize = require('../db');
-const Diet = sequelize.models.Diet;
-const User = sequelize.models.User;
-const Recipe = sequelize.models.Recipe;
+const { Diet, User, Recipe } = sequelize.models;
 
 router.post('/', verifyNutritionistToken, async (req, res) => {
   const { title, price, owner, plan } = req.body;
@@ -15,7 +13,7 @@ router.post('/', verifyNutritionistToken, async (req, res) => {
 
   for (const entry of plan) {
     const day = entry.day;
-    const course = entry.plan;
+    const course = entry.meals;
     for (const m in course) {
       const meal = await Recipe.findByPk(course[m]).then(r => r.dataValues);
       plain[day] = meal;
@@ -96,7 +94,7 @@ router.get('/:id', verifyToken, async (req, res) => {
 });
 
 //TRAER TODAS LAS DIETAS DE LA DB
-router.get('/', async (req, res)=>{
+router.get('/', async (req, res) => {
   const result = await Diet.findAll();
   res.status(200).json(result);
 });
