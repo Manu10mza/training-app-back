@@ -1,5 +1,5 @@
 const { Router } = require("express");
-const { Diets, Routines, Users } = require("../db");
+const { Diets, Rutines, Users } = require("../db");
 const axios = require("axios");
 const router = Router();
 
@@ -18,7 +18,7 @@ const getDbInfo = async () => {
         through: {
           attributes: [],
         },
-        model: Routines,
+        model: Rutines,
         attributes: ["id"],
         through: {
           attributes: [],
@@ -46,5 +46,27 @@ router.get("/userDietsRoutines", async (req, res) => {
     }
   } catch (error) {
     console.log("Error en la ruta GET diets routine", error);
+  }
+});
+//para llamar a esta ruta, se deberá primero validar desde el front q el ID existe en la lista del personal/nutricionista
+router.get("/soldItems", async (req, res) => {
+  //call all users as an array
+  let userTotal = await getDbInfo();
+  //recieve the product id
+  const idProduct = req.query.id;
+  try {
+    let usersDiets = await userTotal.filter((e) =>
+      e.diets.some((d) => d === idProduct)
+    );
+
+    let usersRutines = await userTotal.filter((e) =>
+      e.rutines.some((d) => d === idProduct)
+    );
+    //aca se asume que el id del producto existe, que esta checkeado desde el front, por eso no manda status(404)
+    usersDiets.length
+      ? res.status(200).send(usersDiets)
+      : res.status(200).send(usersRutines);
+  } catch (error) {
+    console.log(error);
   }
 });
