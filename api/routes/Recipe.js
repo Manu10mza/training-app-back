@@ -56,9 +56,7 @@ router.get('/user/:userId', verifyToken, async (req, res) => {
   });
 
   if(user){
-    //Separamos los datos de las recetas del resto de datos del usuario
-    const recipes = user.dataValues.Recipes.map( item => item.dataValues );
-    return res.status(200).json(recipes);
+    return res.status(200).json(user.dataValues.Recipes);
   }
   res.status(400).json({error: 'User not found'});
 });
