@@ -16,6 +16,10 @@ const Rutines = (sequelize) =>{
                   type: DataTypes.UUID,
                   allowNull: false
             },
+            price:{
+                  type: DataTypes.FLOAT,
+                  allowNull: false
+            },
             days:{ /*Esquema de los días con sus ejercicios en formato .JSON */
                   type: DataTypes.JSON,
                   allowNull: false

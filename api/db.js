@@ -38,6 +38,9 @@ Rutines.belongsToMany(User, { through: "User_rutines" });
 User.hasMany(Diet);
 Diet.belongsTo(User);
 
+User.hasMany(Transactions);
+Transactions.belongsTo(User);
+
 console.log(sequelize.models);
 
 module.exports = sequelize;
