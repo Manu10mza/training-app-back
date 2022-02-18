@@ -1,6 +1,6 @@
 const { DataTypes } = require("sequelize");
 
-const Rutines = (sequelize) => {
+const Routine = (sequelize) => {
   sequelize.define("Routine", {
     id: {
       type: DataTypes.UUID,
@@ -27,4 +27,4 @@ const Rutines = (sequelize) => {
   });
 };
 
-module.exports = Rutines;
+module.exports = Routine;

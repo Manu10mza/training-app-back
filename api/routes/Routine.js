@@ -101,4 +101,10 @@ router.put("/update/:ownerId/:rutineId",verifyPTrainerToken,async (req,res)=>{
     }
 })
 
+//TRAER TODAS LAS RUTINAS DE LA DB
+router.get('/', async (req, res)=>{
+    const result = await Routine.findAll();
+    res.status(200).json(result);
+});
+
 module.exports = router;

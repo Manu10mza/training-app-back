@@ -41,12 +41,8 @@ const User = (sequelize) => {
                   defaultValue: false,
                   allowNull: true
             },
-            bmi: { /*Indice de masa corporal*/
-                  type: DataTypes.FLOAT,
-                  allowNull: true
-            },
             training_days: { /*Días de entrenamiento */
-                  type: DataTypes.STRING,
+                  type: DataTypes.INTEGER,
                   allowNull: true
             },
             height: {

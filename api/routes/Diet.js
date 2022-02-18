@@ -6,9 +6,7 @@ const User = sequelize.models.User;
 const Recipe = sequelize.models.Recipe;
 
 router.post('/', verifyNutritionistToken, async (req, res) => {
-
   const { title, price, owner, plan } = req.body;
-
   if (!title || !price || !owner || !plan) {
     return res.status(400).json({ success: false, message: 'Invalid data format' });
   }
@@ -30,7 +28,6 @@ router.post('/', verifyNutritionistToken, async (req, res) => {
     }
   });
 
-
   if (!ownerModel) {
     return res.status(400).json({ success: false, message: 'Invalid owner ID.' });
   }
@@ -44,11 +41,9 @@ router.post('/', verifyNutritionistToken, async (req, res) => {
     }
   }).then(res => res[0]).catch(e => console.log(e));
 
-
   if (!targetDiet) {
     return res.status(500).json({ success: false, message: 'There was an error processing your request.' });
   }
-
   if (targetDiet._options.isNewRecord) {
     const assigned = await ownerModel.addDiet(targetDiet).catch(e => console.log(e));
 
@@ -66,9 +61,7 @@ router.post('/', verifyNutritionistToken, async (req, res) => {
 
 
 router.get('/:id', verifyToken, async (req, res) => {
-
   const { id } = req.params;
-
   if (!id) {
     return res.status(400).json({ success: false, message: 'You must provide a user ID.' });
   }
@@ -100,8 +93,12 @@ router.get('/:id', verifyToken, async (req, res) => {
   } else {
     res.status(404).json({ success: false, message: 'User has not created any diets.' });
   }
-
 });
 
+//TRAER TODAS LAS DIETAS DE LA DB
+router.get('/', async (req, res)=>{
+  const result = await Diet.findAll();
+  res.status(200).json(result);
+});
 
 module.exports = router;
