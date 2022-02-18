@@ -1,7 +1,7 @@
 const { DataTypes } = require("sequelize");
 
 const Rutines = (sequelize) => {
-  sequelize.define("Rutine", {
+  sequelize.define("Routine", {
     id: {
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4,
