@@ -25,3 +25,5 @@ const Review = (sequelize) => {
     },
   });
 };
+
+module.exports = Review;

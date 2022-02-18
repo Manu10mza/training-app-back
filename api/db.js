@@ -17,18 +17,24 @@ sequelize
 const dirName = path.basename(__filename);
 const modelDefiners = [];
 //Inyectamos los modelos
-fs.readdirSync(path.join(__dirname, "/models"))
-  .filter(
-    (file) =>
-      file.indexOf(".") !== 0 && file !== dirName && file.slice(-3) === ".js"
-  )
-  .forEach((file) => {
-    modelDefiners.push(require(path.join(__dirname, "/models", file)));
-  });
-modelDefiners.forEach((model) => model(sequelize));
+// fs.readdirSync(path.join(__dirname, "/models"))
+//   .filter((file) => file.indexOf(".") !== 0 && file !== dirName && file.slice(-3) === ".js")
+//   .forEach((file) => {
+//     modelDefiners.push(require(path.join(__dirname, "/models", file)));
+//   });
+// modelDefiners.forEach((model) => model(sequelize));
 
-const { User, Exercise, Rutines, Recipe, Diet, Transactions, Review } =
-  sequelize.models;
+fs.readdirSync(path.join(__dirname, '/models'))
+      .filter((file) => (file.indexOf('.') !== 0) && (file !== dirName) && (file.slice(-3) === '.js'))
+      .forEach((file) => {
+            modelDefiners.push(require(path.join(__dirname, '/models', file)));
+      });
+modelDefiners.forEach(model => model(sequelize));
+console.log(sequelize.models);
+
+
+
+const { User, Exercise, Rutine, Recipe, Diet, Transaction, Review } = sequelize.models;
 //Generamos las relaciones
 User.hasMany(Exercise);
 Exercise.belongsTo(User);
@@ -36,17 +42,17 @@ Exercise.belongsTo(User);
 User.hasMany(Recipe);
 Recipe.belongsTo(User);
 
-User.hasMany(Transactions);
-Transactions.belongsTo(User);
+User.hasMany(Transaction);
+Transaction.belongsTo(User);
 
 User.belongsToMany(Diet, { through: "User_diets" });
 Diet.belongsToMany(User, { through: "User_diets" });
 
-User.belongsToMany(Rutines, { through: "User_rutines" });
-Rutines.belongsToMany(User, { through: "User_rutines" });
+User.belongsToMany(Rutine, { through: "User_rutines" });
+Rutine.belongsToMany(User, { through: "User_rutines" });
 
 Diet.hasMany(Review);
-Rutines.hasMany(Review);
+Rutine.hasMany(Review);
 
 console.log(sequelize.models);
 module.exports = sequelize;
