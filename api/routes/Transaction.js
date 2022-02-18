@@ -5,6 +5,10 @@ const Transactions = require('../db.js').models.Transactions;
 const User = require('../db.js').models.User;
 const {verifyPTrainerToken} = require('../controllers/verifyToken');
 
+
+/*
+!DEBERIA HACER PEDIR POR PARAMS EL ID DEL USUARIO Y EL ID OBJETIVO POR BODY 
+*/
 router.post("/:productId/:userId",verifyPTrainerToken,async (req,res)=>{
     try {
         const {productId, userId}=req.params;
@@ -36,6 +40,7 @@ router.post("/:productId/:userId",verifyPTrainerToken,async (req,res)=>{
     }
 })
 
+
 router.get("/history/:userId",verifyPTrainerToken,async (req,res)=>{
     try {
         const {userId}=req.params;
@@ -57,6 +62,10 @@ router.get("/history/:userId",verifyPTrainerToken,async (req,res)=>{
         res.status(400).json({error:error.message});
     }
 })
+
+/*
+!ESTÁ RUTA TRAE EL MONTO TOTAL OBTENIDOS?
+*/
 router.get('/:userId',verifyPTrainerToken,async(req,res)=>{
     try {
         const {userId}=req.params

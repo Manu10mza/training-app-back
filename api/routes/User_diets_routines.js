@@ -3,6 +3,10 @@ const { Diets, Rutines, Users } = require("../db");
 const axios = require("axios");
 const router = Router();
 
+/*
+!ESTO NO DEBERÍA ESTAR EN ESTA CARPETA, DEBERIA ESTAR EN CONTROLLERS
+*/
+
 //Funciones
 //trae todos los usuarios incluyendo los modelos Diets y Routines
 const getDbInfo = async () => {

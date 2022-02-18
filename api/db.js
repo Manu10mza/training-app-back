@@ -3,7 +3,6 @@ const { Sequelize } = require("sequelize");
 const { DB_USER, DB_PASSWORD, DB_HOST } = process.env;
 const fs = require("fs");
 const path = require("path");
-const { dirname, basename } = require("path");
 
 const sequelize = new Sequelize(
   `postgres://${DB_USER}:${DB_PASSWORD}@${DB_HOST}/trainingapp`,
@@ -37,21 +36,17 @@ Exercise.belongsTo(User);
 User.hasMany(Recipe);
 Recipe.belongsTo(User);
 
+User.hasMany(Transactions);
+Transactions.belongsTo(User);
+
 User.belongsToMany(Diet, { through: "User_diets" });
 Diet.belongsToMany(User, { through: "User_diets" });
 
 User.belongsToMany(Rutines, { through: "User_rutines" });
 Rutines.belongsToMany(User, { through: "User_rutines" });
 
-User.hasMany(Diet);
-Diet.belongsTo(User);
-
-User.hasMany(Transactions);
-Transactions.belongsTo(User);
-
 Diet.hasMany(Review);
 Rutines.hasMany(Review);
 
 console.log(sequelize.models);
-
 module.exports = sequelize;
