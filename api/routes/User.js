@@ -52,7 +52,7 @@ router.post('/login', async (req, res) =>{
                         userId: userDb.id,
                         role
                   }, process.env.JWT_KEY, { expiresIn: 60 * 60 * 24 });
-                  return res.status(200).json( {user:userDb,accessToken} );
+                  return res.status(200).json( {userId:userDb.id, accessToken} );
             }
             return res.status(400).json({error: "Invalid password"})
       }
