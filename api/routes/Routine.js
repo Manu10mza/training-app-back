@@ -23,4 +23,11 @@ router.post("/:ownerId", verifyPTrainerToken, async (req, res) => {
         res.status(400).json({ error: "Missing required data" });
     }
 });
+
+//TRAER TODAS LAS RUTINAS DE LA DB
+router.get('/', async (req, res)=>{
+    const result = await Routine.findAll();
+    res.status(200).json(result);
+});
+
 module.exports = router;
