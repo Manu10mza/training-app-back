@@ -8,7 +8,7 @@ const rutineRoute = require('./Rutine');
 const exerciseRoute = require('./Exercise');
 const recipeRoute = require('./Recipe');
 const transactionRoute = require('./Transaction');
-const dietRoutes = require('./Diets');
+const dietRoutes = require('./Diet');
 
 router.use('/register', registerRoute);
 router.use('/user', logInRoute);
