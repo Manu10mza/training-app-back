@@ -2,11 +2,11 @@ const router = require('express').Router();
 const Rutines = require('../db.js').models.Rutines;
 const {verifyPTrainerToken} = require('../controllers/verifyToken');
 
-router.post("/:ownerId", verifyPTrainerToken ,async (req,res)=>{
+router.post("/:ownerId",verifyPTrainerToken,async (req,res)=>{
     try {
-        const {title,exercises,amount}=req.body;
+        const {title,exercises,price}=req.body;
         const {ownerId}=req.params;
-        if(!title||!exercises||!ownerId||!amount){
+        if(!title||!exercises||!ownerId||!price){
             throw new Error("Missing required data")
         }
         let weekDays=["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
@@ -16,7 +16,7 @@ router.post("/:ownerId", verifyPTrainerToken ,async (req,res)=>{
                 days[weekDays[i]]=e;
             } 
         })
-        const newRutine=await Rutines.create({title,owner:ownerId,days,amount});
+        const newRutine=await Rutines.create({title,owner:ownerId,days,price});
         res.status(200).send(newRutine);
     } catch (error) {
         console.log(error);
