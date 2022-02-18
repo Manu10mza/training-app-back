@@ -1,10 +1,21 @@
-POST => Path : http://localhost:8200/api/exercise/:userId
+##### Route :  
+ - http://localhost:8200/api/exercise/:userId
 
-Headers : token => en minusculas
+##### Headers:
+ - Token (en minusculas)
 
-Body: 
+##### Method:
+ - POST
+
+##### Params:
+ - userId
+
+##### Body:
+
+```js
 {
-    "title": "Abdominales",  //Required
-    "description": "Para marcar los ravioles papa", //Required
-    "video": "video_url" 
+    title: "Abdominales",                         // Required
+    description: "Para marcar los ravioles papa", // Required
+    video: "video_url" 
 }
+```

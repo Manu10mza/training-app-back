@@ -1,8 +1,21 @@
-PUT => Path : http://localhost:8200/api/recipe/:recipeId/:userId
-Headers => token => en minusculas
+##### Route :  
+ - http://localhost:8200/api/recipe/:recipeId/:userId
 
-Body:
+##### Method:
+ - POST
+
+##### Headers:
+ - Token (en minusculas)
+
+##### Params:
+ - recipeId
+ - userId
+
+##### Body:
+
+```js
 {
-      "field",
-      "newValue"
+    field: "field_name",            // Required
+    newValue: "new_field_value"     // Required
 }
+```

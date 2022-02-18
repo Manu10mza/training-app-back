@@ -1,13 +1,24 @@
-POST => Path: http://localhost:8200/api/recipe/:userId
+##### Route :  
+ - http://localhost:8200/api/recipe/:userId
 
-Headers : token => en minusculas
+##### Headers:
+ - Token (en minusculas)
 
-Body
+##### Method:
+ - POST
+
+##### Params:
+ - userId
+
+##### Body:
+
+```js
 {
-    "title":"pollo al disco", //Required
-    "description": "Tremendo plato con queso paadre", //Required
-    "kcal": 12,
-    "carbohydrates": 15.4,
-    "grease": 154,
-    "proteins": 12.3
+    title: "pollo al disco",                           // Required
+    description: "Tremendo plato con queso paadre",    // Required
+    kcal: 12,
+    carbohydrates: 15.4,
+    grease: 154,
+    proteins: 12.3
 }
+```
