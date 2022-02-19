@@ -9,6 +9,7 @@ const exerciseRoute = require('./Exercise');
 const recipeRoute = require('./Recipe');
 const transactionRoute = require('./Transaction');
 const dietRoutes = require('./Diet');
+const reviewRoutes = require('./Review');
 
 router.use('/register', registerRoute);
 router.use('/user', logInRoute);
@@ -17,5 +18,6 @@ router.use('/recipe', recipeRoute);
 router.use('/diet', dietRoutes);
 router.use('/routine', routineRoute);
 router.use('/transaction', transactionRoute);
+router.use('/review', reviewRoutes);
 
 module.exports = router;

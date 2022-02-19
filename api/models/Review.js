@@ -11,7 +11,7 @@ const Review = (sequelize) => {
       type: DataTypes.STRING,
       allowNull: true /*permite que la votación sea anónima */,
     },
-    idTarget: {
+    productId: {
       type: DataTypes.STRING,
       allowNull: false,
     },
