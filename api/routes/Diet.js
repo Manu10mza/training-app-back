@@ -16,7 +16,8 @@ router.post('/', verifyNutritionistToken, async (req, res) => {
     const course = entry.meals;
     for (const m in course) {
       const meal = await Recipe.findByPk(course[m]).then(r => r.dataValues);
-      plain[day] = meal;
+      plain[day] = plain[day] || {};
+      plain[day][m] = meal;
     }
   }
 
