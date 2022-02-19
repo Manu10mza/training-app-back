@@ -29,8 +29,9 @@ router.post("/:productId/:userId", verifyPTrainerToken, async (req, res) => {
         else product = diet;
 
         //Se crea la transacción y se relaciona con el usuario
-        const transaction = await Transaction.create({ amount, isSell, isSold, product });
-        const user = await User.findByPk(userId);
+        const transaction= await Transaction.create({amount,isSell,isSold,product});
+        const user= await User.findByPk(userId);
+        if(!user) throw new Error("User with UUID not found")
         user.addTransaction(transaction.id);
         res.status(200).send(transaction);
     } catch (error) {
@@ -47,12 +48,13 @@ router.get("/history/:userId", verifyPTrainerToken, async (req, res) => {
         const isUUID = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
         if (!isUUID.test(userId)) throw new Error("UUID not valid");
         //Se busca el usuario
-        let user = await User.findAll({
+        let user= await User.findAll({
             include: Transaction,
             where: {
                 id: userId,
             }
-        });
+        })
+        if(user.length===0) throw new Error("User with UUID not found")
         //Se buscan las transacciones hechas por el usuario
         if (user) res.status(200).send(user[0].dataValues.Transaction);
         else throw new Error("User not found");
@@ -69,9 +71,9 @@ router.get('/:userId', verifyPTrainerToken, async (req, res) => {
     try {
         const { userId } = req.params;
         //Se comprueba si falta algun dato obligatorio o el UUID no es válida
-        const isUUID = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
-        if (!isUUID.test(userId)) throw new Error("UUID not valid");
-        const user = await User.findOne({
+        const isUUID=/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
+        if(!isUUID.test(userId)) throw new Error("UUID not valid");
+        const user=await User.findOne({
             include: Transaction,
             where: {
                 id: userId
