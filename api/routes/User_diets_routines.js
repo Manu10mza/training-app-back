@@ -1,35 +1,14 @@
 const { Router } = require("express");
 const { Diet, Routine, User } = require("../db");
+const { getDbInfo } = require("../controllers/allUsers.js");
 
 const router = Router();
 
-/*
-!ESTO NO DEBERÍA ESTAR EN ESTA CARPETA, DEBERIA ESTAR EN CONTROLLERS
-*/
-
-//Funciones
-//trae todos los usuarios incluyendo los modelos Diet y Routine
-const getDbInfo = async () => {
-  try {
-    return await User.findAll({
-      include: {
-        model: Diet,
-        attributes: ["id"],
-        through: {
-          attributes: [],
-        },
-        model: Routine,
-        attributes: ["id"],
-        through: {
-          attributes: [],
-        },
-      },
-    });
-  } catch (error) {
-    console.log("Error en la llamada a BD", error);
-  }
-};
-//get devuelve un arreglo con [0] = Diet del usuario [1] = Rutinas del usuario.
+/**
+ * devuelve un arreglo con [0] = Diet del usuario [1] = Rutinas del usuario.
+ * @query  {id} user's id
+ * @response [user diets, user routines]
+ */
 router.get("/userDietsRoutines", async (req, res) => {
   try {
     const id = req.query.id;
@@ -48,7 +27,15 @@ router.get("/userDietsRoutines", async (req, res) => {
     console.log("Error en la ruta GET diets routine", error);
   }
 });
-//para llamar a esta ruta, se deberá primero validar desde el front q el ID existe en la lista del personal/nutricionista
+
+/**
+ * Devuelve los usuarios que compraron cierta dieta o rutina especificada por query.
+ * @query  {id} item's id
+ * @response sends all users who bought the item
+ * @considerations para llamar a esta ruta,
+ *  se deberá primero validar desde el front q el ID existe
+ *  en la lista del personal/nutricionista
+ */
 router.get("/soldItems", async (req, res) => {
   //call all users as an array
   let userTotal = await getDbInfo();
@@ -62,11 +49,12 @@ router.get("/soldItems", async (req, res) => {
     let usersRoutines = await userTotal.filter((e) =>
       e.routines.some((d) => d === idProduct)
     );
-    //aca se asume que el id del producto existe, que esta checkeado desde el front, por eso no manda status(404)
+    //aca se asume que el id del producto existe,
+    //que esta checkeado desde el front, por eso no manda status(404)
     usersDiets.length
       ? res.status(200).send(usersDiets)
       : res.status(200).send(usersRoutines);
   } catch (error) {
-    console.log(error);
+    console.log("Error en la ruta soldItems", error);
   }
 });
