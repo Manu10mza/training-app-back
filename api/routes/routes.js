@@ -10,6 +10,7 @@ const recipeRoute = require('./Recipe');
 const transactionRoute = require('./Transaction');
 const dietRoutes = require('./Diet');
 const reviewRoutes = require('./Review');
+const stripeRoutes = require('./stripe');
 
 router.use('/register', registerRoute);
 router.use('/user', logInRoute);
@@ -19,5 +20,6 @@ router.use('/diet', dietRoutes);
 router.use('/routine', routineRoute);
 router.use('/transaction', transactionRoute);
 router.use('/review', reviewRoutes);
+router.use('/checkout', stripeRoutes);
 
 module.exports = router;
