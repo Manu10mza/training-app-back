@@ -1,4 +1,4 @@
-const {decrypt, encrypt} = require('../controllers/encrypt');
+const { decrypt, encrypt } = require('../controllers/encrypt');
 const router = require('express').Router();
 const jwt = require('jsonwebtoken'); //REQUIRE JSON WEB TOKEN PARA CREAR TOKEN DE AUTHORIZACION
 const sequelize = require('../db'); //LA BASE DE DATOS
@@ -54,10 +54,10 @@ router.post('/login', async (req, res) => {
                         role
                   }, process.env.JWT_KEY, { expiresIn: 60 * 60 * 24 });
                   return res.status(200).json({ userId: userDb.id, username: userDb.username, email: userDb.email, profileImg: userDb.profile_img, accessToken });
+            }
+            return res.status(400).json({ error: "Invalid password" });
       }
-      return res.status(400).json({ error: "Invalid password" });
-      }
-return res.status(400).json({ error: "Invalid email" });
+      return res.status(400).json({ error: "Invalid email" });
 });
 
 /*
@@ -68,7 +68,7 @@ return res.status(400).json({ error: "Invalid email" });
 //OBTENER TODOS LOS DATOS DE UN USUARIO
 router.get('/:userId', verifyToken, async (req, res) => {
       const result = await User.findOne({ // findByPK
-            attributes: ['id','username','email','profile_img', 'gender', 'country', 'training_days', 'height', 'weight', 'createdAt', 'is_nutritionist', 'is_personal_trainer'],
+            attributes: ['id', 'username', 'email', 'profile_img', 'gender', 'country', 'training_days', 'height', 'weight', 'createdAt', 'is_nutritionist', 'is_personal_trainer'],
             where: {
                   id: req.params.userId
             }
@@ -129,25 +129,69 @@ router.put('/update/:userId', verifyToken, async (req, res) => {
       }
 });
 
-//TRAE TODOS LOS NUTRISIONISTAS
-router.get('/nutritionists', async (req, res) => {
+
+//TRAE TODOS LOS NUTRICIONISTAS
+router.get('/get/nutritionists', async (req, res) => {
+
       const nutritionists = await User.findAll({
-            where: {
-                  is_nutritionist: true
-            },
-            include: [Diet, Recipe]
-      }).then(result => result.map(user => template(user)));
-      res.status(200).json(nutritionists);
+            attributes: ['id', 'profile_img'],
+            include: [{
+                  model: Diet,
+                  attributes: ['id']
+            }, {
+                  model: Exercise,
+                  attributes: ['id']
+            }, {
+                  model: Recipe,
+                  attributes: ['id']
+            }, {
+                  model: Routine,
+                  attributes: ['id']
+            }]
+      }).then(result => result.map(e => {
+            const diets = e?.Diets.map(entry => ({ id: entry.dataValues.User_diets.DietId }));
+            const routines = e?.Routines.map(entry => ({ id: entry.dataValues.User_routines.RoutineId }));
+
+            return {
+                  ...e.dataValues,
+                  Diets: diets,
+                  Routines: routines
+            };
+      }));
+
+
+      return res.status(200).send(nutritionists);
 });
 
 //TRAE TODOS LOS PTRAINERS
-router.get('/trainers', async (req, res) => {
+router.get('/get/trainers', async (req, res) => {
+
       const trainers = await User.findAll({
-            where: {
-                  is_personal_trainer: true
-            },
-            include: [Exercise, Routine]
-      }).then(result => result.map(user => template(user)));
+            attributes: ['id', 'profile_img'],
+            include: [{
+                  model: Diet,
+                  attributes: ['id']
+            }, {
+                  model: Exercise,
+                  attributes: ['id']
+            }, {
+                  model: Recipe,
+                  attributes: ['id']
+            }, {
+                  model: Routine,
+                  attributes: ['id']
+            }]
+      }).then(result => result.map(e => {
+            const diets = e?.Diets.map(entry => ({ id: entry.dataValues.User_diets.DietId }));
+            const routines = e?.Routines.map(entry => ({ id: entry.dataValues.User_routines.RoutineId }));
+
+            return {
+                  ...e.dataValues,
+                  Diets: diets,
+                  Routines: routines
+            };
+      }));
+
       return res.status(200).send(trainers);
 });
 
