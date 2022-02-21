@@ -3,7 +3,7 @@ const { verifyToken, verifyNutritionistToken } = require('../controllers/verifyT
 const sequelize = require('../db');
 const { Diet, User, Recipe } = sequelize.models;
 
-router.post('/',async (req, res) => {
+router.post('/',verifyNutritionistToken,async (req, res) => {
   const { title, price, owner, plan } = req.body;
   if (!title || !price || !owner || !plan) {
     return res.status(400).json({ success: false, message: 'Invalid data format' });
@@ -101,7 +101,7 @@ router.get('/', async (req, res) => {
 });
 
 //EDITAR UNA DIETA
-router.put('/update/:userId/:dietId', async (req, res) => {
+router.put('/update/:userId/:dietId',verifyNutritionistToken,async (req, res) => {
   try{
     const { title, price, plan } = req.body;
     const {userId,dietId} = req.params;
@@ -150,13 +150,13 @@ router.put('/update/:userId/:dietId', async (req, res) => {
                   id: dietId
               }
       })
-      if(!success) throw new Error("Error updating exercise")
+      if(!success) return res.status(400).json({ success: false, message: "Error updating exercise" });
   }
   let diet=await Diet.findByPk(dietId);
   return res.status(200).send(diet);
 
 } catch(error) {
-    return res.status(400).json({error:error.message});
+    return res.status(400).json({error:error});
 }
 });
 
