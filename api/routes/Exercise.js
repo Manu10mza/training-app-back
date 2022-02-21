@@ -5,7 +5,7 @@ const Exercise = sequelize.models.Exercise;
 const User = sequelize.models.User;
 
 //CREAR UN EJERCICIO
-router.post("/:userId",verifyPTrainerToken, async (req,res)=>{
+router.post("/:userId",verifyToken,async (req,res)=>{
     const { title,description,video }=req.body;
     const user = await User.findOne({
         where:{
@@ -28,7 +28,7 @@ router.post("/:userId",verifyPTrainerToken, async (req,res)=>{
                 try {
                     const newExercise = await Exercise.create(req.body);
                     user.addExercise(newExercise);
-                    return res.status(200).json({success: 'Exercise created successfully'})
+                    return res.status(200).send(newExercise) //json({success: 'Exercise created successfully'}
                     
                 } catch (error) {
                     console.log(error)
@@ -80,5 +80,45 @@ router.get('/:id',verifyToken, async (req,res)=>{
 
 
 //EDITAR UNA PUBLICACION
+router.put('/update/:userId/:exerciseId',verifyToken, async (req,res)=>{
+    try{
+        const {exerciseId,userId}=req.params;
+        const {value}=req.body;
+        let updateValue={};
+        let isOwner;
+
+        if(!value) throw new Error("Value is required");
+
+        let user= await User.findOne({
+            include: Exercise,
+            where:{
+                id: userId
+            }
+        }).then(r=>r&&r.dataValues);
+        isOwner=user?.Exercises.find(e=>e.dataValues.id===exerciseId)
+        if(!isOwner) throw new Error("The user does not own this exercise");
+
+        if(value.title) updateValue.title=value.title;
+        if(value.description) updateValue.description=value.description;
+        if(value.video) updateValue.video=value.video;
+
+
+        for (const key in value) {
+            let success=await Exercise.update({
+                [key]: updateValue[key]
+            }, {
+                    where: {
+                        id: exerciseId
+                    }
+            })
+            if(!success) throw new Error("Error updating exercise")
+        }
+        let exercise=await Exercise.findByPk(exerciseId);
+        return res.status(200).send(exercise);
+
+    } catch(error) {
+        return res.status(400).json({error:error.message});
+    }
+});
 
 module.exports = router;
