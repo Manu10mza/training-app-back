@@ -1,9 +1,10 @@
 const router = require('express').Router(); 
-const CryptoJS = require('crypto-js'); //PARA DESENCRIPTAR EL PASSWORD
+const {decrypt, encrypt} = require('../controllers/encrypt');
 const jwt = require('jsonwebtoken'); //REQUIRE JSON WEB TOKEN PARA CREAR TOKEN DE AUTHORIZACION
 const sequelize = require('../db'); //LA BASE DE DATOS
 const { User, Recipe, Diet, Exercise, Routine } = sequelize.models; //EL MODELO USER
 const { verifyToken } = require('../controllers/verifyToken');
+const template = require('../controllers/template');
 
 //LOGEO
 router.post('/login', async (req, res) => {
@@ -28,7 +29,7 @@ router.post('/login', async (req, res) => {
       const userDb = result?.dataValues;
       if (userDb) {
             //Desencriptamos la contraseña
-            const userPassword = CryptoJS.AES.decrypt(userDb.password, process.env.PASSWORD_KEY).toString(CryptoJS.enc.Utf8);
+            const userPassword = decrypt(userDb.password);
             //Verificamos que sean las contraseñas iguales
             if (userPassword === req.body.password) {
                   userDb.password = userPassword;
@@ -65,26 +66,20 @@ router.post('/login', async (req, res) => {
 
 
 //OBTENER TODOS LOS DATOS DE UN USUARIO
-// 
-// [!] nepundir: esta ruta trae literalmente todos los datos
-//               incluyendo contraseña y datos de tarjeta
-//
-// router.get('/:userId', verifyToken, async (req, res) => {
-//       const result = await User.findOne({ // findByPK
-//             where: {
-//                   id: req.params.userId
-//             }
-//       });
-//       if (result) return res.status(200).json(result);
-//       return res.status(400).json({ error: 'User not found' });
-// });
+router.get('/:userId', verifyToken, async (req, res) => {
+      const result = await User.findOne({ // findByPK
+            attributes: ['id','username','email','profile_img', 'gender', 'country', 'training_days', 'height', 'weight', 'createdAt', 'is_nutritionist', 'is_personal_trainer'],
+            where: {
+                  id: req.params.userId
+            }
+      });
+      if (result) return res.status(200).json(result);
+      return res.status(400).json({ error: 'User not found' });
+});
 
 
 
 //MODIFICAR DATOS DEL USUARIO
-/*
-!DEBE PODER ACTUALIZAR TODOS DATOS QUE FIGURAN EN EL MODELO DEL USUARIO
-*/
 router.put('/update/:userId', verifyToken, async (req, res) => {
       /* 
             ! En este caso se pretende que envien un solo campo por peticion, para agilizar las cosas deberia tener la capacidad de procesar más de una propiedad en una sola petición
@@ -102,7 +97,7 @@ router.put('/update/:userId', verifyToken, async (req, res) => {
       }
       //Evaluamos que lo que nos envían corresponda con lo que se debe guardar
       if (field === 'password') {
-            newValue = CryptoJS.AES.encrypt(value, process.env.PASSWORD_KEY).toString();
+            newValue = encrypt(value);
       
       } else if (field === 'email') {
             if (!/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(value)) {
@@ -135,65 +130,13 @@ router.put('/update/:userId', verifyToken, async (req, res) => {
 });
 
 // posiblemente haya que mover los siguientes endpoints a un archivo distinto
-
-const template = (entry) => {
-
-      const diets = entry.Diets.length && entry.Diets.map(diet => {
-            return {
-                  id: diet.id,
-                  plan: diet.plain // plain => plan
-            };
-      });
-
-      const exercises = entry.Exercises.length && entry.Exercises.map(exercise => {
-            return {
-                  id: exercise.id,
-                  description: exercise.description,
-                  video: exercise.video
-            };
-      });
-
-      const routines = entry.Routines.length && entry.Routines.map(routine => {
-            return {
-                  id: routine.id,
-                  title: routine.title,
-                  price: routine.price,
-                  days: routine.days
-            };
-      });
-
-      const recipes = entry.Recipes.length && entry.Recipes;
-
-      if (entry.is_nutritionist && entry.is_personal_trainer) {
-            return {
-                  user_id: entry.id,
-                  routines: routines || null,
-                  exercises: exercises || null,
-                  recipes: recipes || null,
-                  diets: diets || null
-            };      
-      } else if (entry.is_personal_trainer) {
-            return {
-                  user_id: entry.id,
-                  routines: routines || null,
-                  exercises: exercises || null,
-            };     
-      } else if (entry.is_nutritionist) {
-            return {
-                  uesr_id: entry.id,
-                  recipes: recipes || null,
-                  diets: diets || null
-            };
-      }
-};
-
 router.get('/nutritionists', async (req, res) => {
 
       const nutritionists = await User.findAll({
             where: {
                   is_nutritionist: true
             },
-            include: [Diet, Exercise, Recipe, Routine]
+            include: [Diet, Recipe]
       }).then(result => result.map(user => template(user)));
 
 
@@ -207,7 +150,7 @@ router.get('/trainers', async (req, res) => {
             where: {
                   is_personal_trainer: true
             },
-            include: [Diet, Exercise, Recipe, Routine]
+            include: [Exercise, Routine]
       }).then(result => result.map(user => template(user)));
 
       return res.status(200).send(trainers);

@@ -36,6 +36,10 @@ const Recipe = (sequelize) =>{
                   type: DataTypes.TEXT,
                   allowNull: false
             },
+            instructions:{
+                  type: DataTypes.TEXT,
+                  allowNull: true
+            }
       });
 }
 
