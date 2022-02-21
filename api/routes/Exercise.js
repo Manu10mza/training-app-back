@@ -5,7 +5,7 @@ const Exercise = sequelize.models.Exercise;
 const User = sequelize.models.User;
 
 //CREAR UN EJERCICIO
-router.post("/:userId", async (req,res)=>{
+router.post("/:userId",verifyToken,async (req,res)=>{
     const { title,description,video }=req.body;
     const user = await User.findOne({
         where:{
