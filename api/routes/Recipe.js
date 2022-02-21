@@ -5,7 +5,7 @@ const Recipe = sequelize.models.Recipe;
 const User = sequelize.models.User;
 
 //CREAR UNA RECETA
-router.post('/:userId', verifyNutritionistToken, async (req, res) => {
+router.post('/:userId', async (req, res) => {
   //Buscamos el usuario que está por crear la receta
   const user = await User.findOne({
     where:{
