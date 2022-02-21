@@ -1,11 +1,12 @@
 const router = require('express').Router();
-const CryptoJS = require('crypto-js');
 const sequelize = require('../db')
 const User = sequelize.models.User
+const {encrypt, decrypt} = require('../controllers/encrypt');
 
 router.post('/', async (req, res)=>{
       //Encriptamos la contraseña antes de guardarla
-      req.body.password = CryptoJS.AES.encrypt(req.body.password, process.env.PASSWORD_KEY).toString();
+      req.body.password = encrypt(req.body.password);
+      req.body.nro_acount ? req.body.nro_acount = encrypt( req.body.nro_acount ) : '';  
       //Comprueba que no exista un email igual en la base de datos
       const result = await User.findOne({
             where:{
@@ -22,8 +23,7 @@ router.post('/', async (req, res)=>{
                   return res.status(400).json(error)
             };
       }
-      res.status(400).json({error:'User already exists'})
-
+      res.status(400).json({error:'User already exists'});
 });
 
 

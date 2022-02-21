@@ -45,6 +45,7 @@ router.post("/:userId",verifyToken,async (req,res)=>{
     }
 });
 
+
 //OBTENER TODOS LOS EJERICICIOS DE UN USUARIO
 router.get('/user/:userId', verifyToken, async (req,res)=>{
     const user = await User.findOne({
