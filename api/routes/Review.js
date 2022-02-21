@@ -1,7 +1,7 @@
 const router = require('express').Router();
 const { verifyToken } = require('../controllers/verifyToken');
 const sequelize = require('../db');
-const { User, Review } = sequelize.models;
+const { User, Review, Diet, Routine } = sequelize.models;
 
 
 router.post('/', verifyToken, async (req, res) => {
@@ -18,22 +18,37 @@ router.post('/', verifyToken, async (req, res) => {
     return res.status(400).send({ error: 'Missing or invalid product ID.' });
   }
 
-  const userTransactions = await sender.getTransactions();
+  if (!points) {
+    return res.status(400).send({ error: 'You must include a punctuation.' });
+  }
 
+  const product = await Diet.findByPk(productId).catch(() => false) || await Routine.findByPk(productId).catch(() => false);
+
+  if (!product) {
+    return res.status(404).send({ error: 'Product does not exist.' });
+  }
+
+  const userTransactions = await sender.getTransactions();
   const acquired = userTransactions.find(transaction => transaction.product.id === productId);
 
   if (!acquired) {
     return res.status(400).send({ error: 'User cannot review this product.' });
-  } else {
-    await Review.create({
-      userId: senderId,
-      productId,
-      points,
-      comments
-    });
   }
 
-  res.status(200).send({ success: 'Successfully added a review.', result: userReview.id });
+  const newReview = await Review.create({
+    userId: senderId,
+    productId,
+    points,
+    comments
+  });
+
+  const review = await product.addReview(newReview).catch(e => { console.log(e); return false; });
+
+  if (review) {
+    res.status(200).send({ success: 'Successfully added a review.', result: newReview.id });
+  } else {
+    res.status(503).send({ error: 'There was a problem processing your request.' });
+  }
 
 });
 

@@ -1,7 +1,7 @@
 const router = require('express').Router();
 const { verifyToken, verifyNutritionistToken } = require('../controllers/verifyToken');
 const sequelize = require('../db');
-const { Diet, User, Recipe } = sequelize.models;
+const { Diet, User, Recipe, Review } = sequelize.models;
 
 router.post('/', verifyNutritionistToken, async (req, res) => {
   const { title, price, owner, plan } = req.body;
@@ -96,7 +96,25 @@ router.get('/:id', verifyToken, async (req, res) => {
 
 //TRAER TODAS LAS DIETAS DE LA DB
 router.get('/', async (req, res) => {
-  const result = await Diet.findAll();
+
+  const template = (entry) => {    
+
+    var reviews = entry?.Reviews.map(r => r.dataValues.points);
+
+    return {
+      id: entry.id,
+      author: entry.owner,
+      authorTitle: (entry.is_nutritionist && 'Nutritionist') || (entry.is_personal_trainer && 'Personal Trainer') || null,
+      rating: reviews.length && reviews.reduce((prev, curr) => prev + curr, 0),
+      reviews: reviews.length,
+      price: entry.price,
+      thumbnail: entry.thumbnail || 'https://i.imgur.com/c6o0KhX.png',
+      author_thumbnail: 'https://i.imgur.com/UOk3zAg.png' // TODO: owner profile picture
+    };
+  };
+
+  const result = await Diet.findAll({ include: Review }).then(result => result.map(product => template(product.dataValues)));
+
   res.status(200).json(result);
 });
 
