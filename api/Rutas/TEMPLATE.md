@@ -2,12 +2,16 @@
  - url
 
 ##### Headers:
- - header1
- - header2
- ...
+```js
+{
+    headerName: 'value',
+    headerName: 'value',
+    ...
+}
+```
 
 ##### Method:
- - METHOD
+ - METHOD (GET, POST, PUT, DELETE)
 
 ##### Params:
  - param1
@@ -25,5 +29,12 @@
 {
     property1: "value",   // Required (if required)
     ...
+}
+```
+
+##### Response:
+```js
+{
+    ... // Response body
 }
 ```
