@@ -54,10 +54,10 @@ router.post('/login', async (req, res) => {
                         role
                   }, process.env.JWT_KEY, { expiresIn: 60 * 60 * 24 });
                   return res.status(200).json({ userId: userDb.id, username: userDb.username, email: userDb.email, profileImg: userDb.profile_img, accessToken });
-        }
-        return res.status(400).json({ error: "Invalid password" });
-    }
-    return res.status(400).json({ error: "Invalid email" });
+      }
+      return res.status(400).json({ error: "Invalid password" });
+      }
+return res.status(400).json({ error: "Invalid email" });
 });
 
 /*
@@ -129,25 +129,26 @@ router.put('/update/:userId', verifyToken, async (req, res) => {
       }
 });
 
+//TRAE TODOS LOS NUTRISIONISTAS
 router.get('/nutritionists', async (req, res) => {
-
       const nutritionists = await User.findAll({
             where: {
                   is_nutritionist: true
             },
             include: [Diet, Recipe]
       }).then(result => result.map(user => template(user)));
+      res.status(200).json(nutritionists);
+});
 
-  
+//TRAE TODOS LOS PTRAINERS
 router.get('/trainers', async (req, res) => {
-
       const trainers = await User.findAll({
             where: {
                   is_personal_trainer: true
             },
             include: [Exercise, Routine]
       }).then(result => result.map(user => template(user)));
-    return res.status(200).send(trainers);
+      return res.status(200).send(trainers);
 });
 
 
