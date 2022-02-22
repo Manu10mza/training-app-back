@@ -54,7 +54,15 @@ router.post('/login', async (req, res) => {
                         userId: userDb.id,
                         role
                   }, process.env.JWT_KEY, { expiresIn: 60 * 60 * 24 });
-                  return res.status(200).json({ userId: userDb.id, username: userDb.username, email: userDb.email, profileImg: userDb.profile_img, accessToken });
+
+                  return res.status(200).json({ userId: userDb.id, 
+                                                username: userDb.username, 
+                                                email: userDb.email, 
+                                                profileImg: userDb.profile_img, 
+                                                PTrainer:userDb.is_personal_trainer, 
+                                                Nutritionist:userDb.is_nutritionist,
+                                                accessToken 
+                                          });
             }
             return res.status(400).json({ error: "Invalid password" });
       }
