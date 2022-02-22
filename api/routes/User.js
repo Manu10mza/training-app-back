@@ -64,7 +64,6 @@ return res.status(400).json({ error: "Invalid email" });
       Todo: Crear ruta de eliminacion de usuario
 */
 
-
 //OBTENER TODOS LOS DATOS DE UN USUARIO
 router.get('/:userId', verifyToken, async (req, res) => {
       const result = await User.findOne({ // findByPK
@@ -76,7 +75,6 @@ router.get('/:userId', verifyToken, async (req, res) => {
       if (result) return res.status(200).json(result);
       return res.status(400).json({ error: 'User not found' });
 });
-
 
 
 //MODIFICAR DATOS DEL USUARIO
@@ -129,6 +127,7 @@ router.put('/update/:userId', verifyToken, async (req, res) => {
       }
 });
 
+
 //TRAE TODOS LOS NUTRISIONISTAS
 router.get('/nutritionists', async (req, res) => {
       const nutritionists = await User.findAll({
@@ -139,6 +138,7 @@ router.get('/nutritionists', async (req, res) => {
       }).then(result => result.map(user => template(user)));
       res.status(200).json(nutritionists);
 });
+
 
 //TRAE TODOS LOS PTRAINERS
 router.get('/trainers', async (req, res) => {

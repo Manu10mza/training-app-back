@@ -1,5 +1,5 @@
 ##### Route :  
- - http://localhost:8200/api/diet
+ - http://localhost:8200/api/diet/:userId
 
 ##### Headers:
  - Token (en minusculas)
@@ -13,7 +13,6 @@
 {
   title: 'test diet title',                       // Required
   price: '19.99',                                 // Required
-  owner: '6be67672-3511-4c53-88d7-86eb2107aaee',  // Required
   plan: [                                         // Required
     {
       day: 'monday',

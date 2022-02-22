@@ -106,7 +106,6 @@ router.put("/update/:ownerId/:rutineId", verifyPTrainerToken, async (req, res) =
 
 //TRAER TODAS LAS RUTINAS DE LA DB
 router.get('/', async (req, res) => {
-
     const template = (entry) => {    
 
         var reviews = entry?.Reviews.map(r => r.dataValues.points);
