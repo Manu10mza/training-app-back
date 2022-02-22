@@ -44,6 +44,8 @@ router.post('/login', async (req, res) => {
                         };
                   } else if (userDb.is_personal_trainer) {
                         role = 'PTrainer';
+                  } else if (userDb.is_admin) {
+                        role = 'Admin';
                   } else {
                         role = 'Client';
                   }
@@ -77,6 +79,17 @@ router.get('/:userId', verifyToken, async (req, res) => {
       return res.status(400).json({ error: 'User not found' });
 });
 
+
+router.get('/:userId', verifyToken, async (req, res) => {
+      const result = await User.findOne({ // findByPK
+            attributes: ['id', 'username', 'email', 'profile_img', 'gender', 'country', 'training_days', 'height', 'weight', 'createdAt', 'is_nutritionist', 'is_personal_trainer'],
+            where: {
+                  id: req.params.userId
+            }
+      });
+      if (result) return res.status(200).json(result);
+      return res.status(400).json({ error: 'User not found' });
+});
 
 
 //MODIFICAR DATOS DEL USUARIO
