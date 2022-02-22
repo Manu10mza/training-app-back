@@ -3,8 +3,10 @@ const { verifyToken, verifyNutritionistToken } = require('../controllers/verifyT
 const sequelize = require('../db');
 const { Diet, User, Recipe, Review } = sequelize.models;
 
-router.post('/', verifyNutritionistToken, async (req, res) => {
-  const { title, price, owner, plan } = req.body;
+router.post('/:userId',verifyNutritionistToken,async (req, res) => {
+  const { title, price, plan } = req.body;
+  const { owner } = req.params.userId;
+
   if (!title || !price || !owner || !plan) {
     return res.status(400).json({ success: false, message: 'Invalid data format' });
   }

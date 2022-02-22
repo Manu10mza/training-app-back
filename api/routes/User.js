@@ -4,7 +4,6 @@ const jwt = require('jsonwebtoken'); //REQUIRE JSON WEB TOKEN PARA CREAR TOKEN D
 const sequelize = require('../db'); //LA BASE DE DATOS
 const { User, Recipe, Diet, Exercise, Routine } = sequelize.models; //EL MODELO USER
 const { verifyToken } = require('../controllers/verifyToken');
-const template = require('../controllers/template');
 
 //LOGEO
 router.post('/login', async (req, res) => {
@@ -55,7 +54,15 @@ router.post('/login', async (req, res) => {
                         userId: userDb.id,
                         role
                   }, process.env.JWT_KEY, { expiresIn: 60 * 60 * 24 });
-                  return res.status(200).json({ userId: userDb.id, username: userDb.username, email: userDb.email, profileImg: userDb.profile_img, accessToken });
+
+                  return res.status(200).json({ userId: userDb.id, 
+                                                username: userDb.username, 
+                                                email: userDb.email, 
+                                                profileImg: userDb.profile_img, 
+                                                PTrainer:userDb.is_personal_trainer, 
+                                                Nutritionist:userDb.is_nutritionist,
+                                                accessToken 
+                                          });
             }
             return res.status(400).json({ error: "Invalid password" });
       }
@@ -65,7 +72,6 @@ router.post('/login', async (req, res) => {
 /*
       Todo: Crear ruta de eliminacion de usuario
 */
-
 
 //OBTENER TODOS LOS DATOS DE UN USUARIO
 router.get('/:userId', verifyToken, async (req, res) => {
@@ -78,6 +84,7 @@ router.get('/:userId', verifyToken, async (req, res) => {
       if (result) return res.status(200).json(result);
       return res.status(400).json({ error: 'User not found' });
 });
+
 
 //MODIFICAR DATOS DEL USUARIO
 router.put('/update/:userId', verifyToken, async (req, res) => {
@@ -130,9 +137,8 @@ router.put('/update/:userId', verifyToken, async (req, res) => {
 });
 
 
-//TRAE TODOS LOS NUTRICIONISTAS
-router.get('/get/nutritionists', async (req, res) => {
-
+//TRAE TODOS LOS NUTRISIONISTAS
+router.get('/nutritionists', async (req, res) => {
       const nutritionists = await User.findAll({
             attributes: ['id', 'profile_img'],
             where: {
@@ -202,4 +208,21 @@ router.get('/get/trainers', async (req, res) => {
 
       return res.status(200).send(trainers);
 });
+
+router.get('/exists/:email', async (req, res) => {
+      const { email } = req.params;
+
+      const result = await User.findOne({
+            where: {
+                  email
+            }
+      });
+
+      if (result) {
+            res.status(200).send({ exists: true });
+      } else {
+            res.status(200).send({ exists: false });
+      }
+});
+
 module.exports = router;
