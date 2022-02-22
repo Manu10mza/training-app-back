@@ -135,6 +135,9 @@ router.get('/get/nutritionists', async (req, res) => {
 
       const nutritionists = await User.findAll({
             attributes: ['id', 'profile_img'],
+            where: {
+                  is_nutritionist:true
+            },
             include: [{
                   model: Diet,
                   attributes: ['id']
@@ -151,11 +154,13 @@ router.get('/get/nutritionists', async (req, res) => {
       }).then(result => result.map(e => {
             const diets = e?.Diets.map(entry => ({ id: entry.dataValues.User_diets.DietId }));
             const routines = e?.Routines.map(entry => ({ id: entry.dataValues.User_routines.RoutineId }));
+            const a=e?.is_personal_trainer
 
             return {
                   ...e.dataValues,
                   Diets: diets,
-                  Routines: routines
+                  Routines: routines,
+                  a
             };
       }));
 
@@ -163,11 +168,14 @@ router.get('/get/nutritionists', async (req, res) => {
       return res.status(200).send(nutritionists);
 });
 
-//TRAE TODOS LOS PTRAINERS
+//TRAE TODOS LOS TRAINERS
 router.get('/get/trainers', async (req, res) => {
 
       const trainers = await User.findAll({
             attributes: ['id', 'profile_img'],
+            where: {
+                  is_personal_trainer:true
+            },
             include: [{
                   model: Diet,
                   attributes: ['id']
@@ -194,6 +202,4 @@ router.get('/get/trainers', async (req, res) => {
 
       return res.status(200).send(trainers);
 });
-
-
 module.exports = router;
