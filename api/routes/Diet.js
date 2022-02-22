@@ -3,7 +3,7 @@ const { verifyToken, verifyNutritionistToken } = require('../controllers/verifyT
 const sequelize = require('../db');
 const { Diet, User, Recipe } = sequelize.models;
 
-router.post('/',verifyNutritionistToken,async (req, res) => {
+router.post('/', verifyNutritionistToken, async (req, res) => {
   const { title, price, owner, plan } = req.body;
   if (!title || !price || !owner || !plan) {
     return res.status(400).json({ success: false, message: 'Invalid data format' });
@@ -96,68 +96,86 @@ router.get('/:id', verifyToken, async (req, res) => {
 
 //TRAER TODAS LAS DIETAS DE LA DB
 router.get('/', async (req, res) => {
-  const result = await Diet.findAll();
+
+  const template = (entry) => {    
+
+    var reviews = entry?.Reviews.map(r => r.dataValues.points);
+
+    return {
+      id: entry.id,
+      author: entry.owner,
+      authorTitle: (entry.is_nutritionist && 'Nutritionist') || (entry.is_personal_trainer && 'Personal Trainer') || null,
+      rating: reviews.length && reviews.reduce((prev, curr) => prev + curr, 0),
+      reviews: reviews.length,
+      price: entry.price,
+      thumbnail: entry.thumbnail || 'https://i.imgur.com/c6o0KhX.png',
+      author_thumbnail: 'https://i.imgur.com/UOk3zAg.png' // TODO: owner profile picture
+    };
+  };
+
+  const result = await Diet.findAll({ include: Review }).then(result => result.map(product => template(product.dataValues)));
+
   res.status(200).json(result);
 });
 
 //EDITAR UNA DIETA
-router.put('/update/:userId/:dietId',verifyNutritionistToken,async (req, res) => {
-  try{
+router.put('/update/:userId/:dietId', verifyNutritionistToken, async (req, res) => {
+  try {
     const { title, price, plan } = req.body;
-    const {userId,dietId} = req.params;
-    let updateValues={};
+    const { userId, dietId } = req.params;
+    let updateValues = {};
 
-  //Debe enviarse al menos un dato
-  if (!title && !price && !userId && !plan) {
-    return res.status(400).json({ success: false, message: 'Invalid data format' });
-  }
-  if(title) updateValues.title=title;
-  //El precio debe ser mayor o igual a 0
-  if (price && !isNaN(price * 1) && price >= 0) updateValues.price = price;
+    //Debe enviarse al menos un dato
+    if (!title && !price && !userId && !plan) {
+      return res.status(400).json({ success: false, message: 'Invalid data format' });
+    }
+    if (title) updateValues.title = title;
+    //El precio debe ser mayor o igual a 0
+    if (price && !isNaN(price * 1) && price >= 0) updateValues.price = price;
 
-  let plain = {};
+    let plain = {};
 
-  //Se arma el plan de la dieta, con sus recetas
-  if(plan){
-    for (const entry of plan) {
-      const day = entry.day;
-      const course = entry.meals;
-      for (const m in course) {
-        const meal = await Recipe.findByPk(course[m]).then(r => r.dataValues);
-        plain[day] = plain[day] || {};
-        plain[day][m] = meal;
+    //Se arma el plan de la dieta, con sus recetas
+    if (plan) {
+      for (const entry of plan) {
+        const day = entry.day;
+        const course = entry.meals;
+        for (const m in course) {
+          const meal = await Recipe.findByPk(course[m]).then(r => r.dataValues);
+          plain[day] = plain[day] || {};
+          plain[day][m] = meal;
+        }
       }
+      updateValues.plain = plain;
     }
-    updateValues.plain=plain;
-  }
-  const ownerModel = await User.findOne({
-    where: {
-      id: userId
+    const ownerModel = await User.findOne({
+      where: {
+        id: userId
+      }
+    });
+
+    //Se verifica si el usuario existe
+    if (!ownerModel) {
+      return res.status(400).json({ success: false, message: 'Invalid owner ID.' });
     }
-  });
 
-  //Se verifica si el usuario existe
-  if (!ownerModel) {
-    return res.status(400).json({ success: false, message: 'Invalid owner ID.' });
-  }
-
-  //Actualización de datos
-  for (const key in updateValues) {
-      let success=await Diet.update({
-          [key]: updateValues[key]
+    //Actualización de datos
+    for (const key in updateValues) {
+      let success = await Diet.update({
+        [key]: updateValues[key]
       }, {
-              where: {
-                  id: dietId
-              }
-      })
-      if(!success) return res.status(400).json({ success: false, message: "Error updating exercise" });
-  }
-  let diet=await Diet.findByPk(dietId);
-  return res.status(200).send(diet);
+        where: {
+          id: dietId
+        }
+      });
+      if (!success) return res.status(400).json({ success: false, message: "Error updating exercise" });
+    }
+    let diet = await Diet.findByPk(dietId);
+    return res.status(200).send(diet);
 
-} catch(error) {
-    return res.status(400).json({error:error});
-}
+  } catch (error) {
+    return res.status(400).json({ error: error });
+  }
 });
 
 module.exports = router;
