@@ -4,7 +4,6 @@ const jwt = require('jsonwebtoken'); //REQUIRE JSON WEB TOKEN PARA CREAR TOKEN D
 const sequelize = require('../db'); //LA BASE DE DATOS
 const { User, Recipe, Diet, Exercise, Routine } = sequelize.models; //EL MODELO USER
 const { verifyToken } = require('../controllers/verifyToken');
-const template = require('../controllers/template');
 
 //LOGEO
 router.post('/login', async (req, res) => {
@@ -78,6 +77,7 @@ router.get('/:userId', verifyToken, async (req, res) => {
       if (result) return res.status(200).json(result);
       return res.status(400).json({ error: 'User not found' });
 });
+
 
 //MODIFICAR DATOS DEL USUARIO
 router.put('/update/:userId', verifyToken, async (req, res) => {
@@ -193,6 +193,23 @@ router.get('/get/trainers', async (req, res) => {
       }));
 
       return res.status(200).send(trainers);
+});
+
+
+router.get('/exists/:email', async (req, res) => {
+      const { email } = req.params;
+
+      const result = await User.findOne({
+            where: {
+                  email
+            }
+      });
+
+      if (result) {
+            res.status(200).send({ exists: true });
+      } else {
+            res.status(200).send({ exists: false });
+      }
 });
 
 
