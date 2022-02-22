@@ -44,6 +44,8 @@ router.post('/login', async (req, res) => {
                         };
                   } else if (userDb.is_personal_trainer) {
                         role = 'PTrainer';
+                  } else if (userDb.is_admin) {
+                        role = 'Admin';
                   } else {
                         role = 'Client';
                   }
@@ -76,8 +78,6 @@ router.get('/:userId', verifyToken, async (req, res) => {
       if (result) return res.status(200).json(result);
       return res.status(400).json({ error: 'User not found' });
 });
-
-
 
 //MODIFICAR DATOS DEL USUARIO
 router.put('/update/:userId', verifyToken, async (req, res) => {

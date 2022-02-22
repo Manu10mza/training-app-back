@@ -40,9 +40,26 @@ const verifyPTrainerToken = (req, res, next) => {
       };
 };
 
+//Verifica que el usuario tenga el rol admin
+const verifyAdminToken = (req, res, next) => {
+      const token = req.headers.token;
+      if (token) {
+            const decoded = jwt.verify(token, process.env.JWT_KEY);
+            if (decoded.role.includes('Admin')) {
+                  next();
+
+            } else {
+                  return res.status(401).json({ error: 'You are not alowed to do that' });
+            }
+      } else {
+            return res.status(400).json({ error: 'You did not provide a token!' });
+      };
+};
+
 
 module.exports = {
       verifyToken,
       verifyNutritionistToken,
-      verifyPTrainerToken
+      verifyPTrainerToken,
+      verifyAdminToken
 };
