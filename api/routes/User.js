@@ -65,7 +65,6 @@ router.post('/login', async (req, res) => {
       Todo: Crear ruta de eliminacion de usuario
 */
 
-
 //OBTENER TODOS LOS DATOS DE UN USUARIO
 router.get('/:userId', verifyToken, async (req, res) => {
       const result = await User.findOne({ // findByPK
@@ -130,9 +129,8 @@ router.put('/update/:userId', verifyToken, async (req, res) => {
 });
 
 
-//TRAE TODOS LOS NUTRICIONISTAS
-router.get('/get/nutritionists', async (req, res) => {
-
+//TRAE TODOS LOS NUTRISIONISTAS
+router.get('/nutritionists', async (req, res) => {
       const nutritionists = await User.findAll({
             attributes: ['id', 'profile_img'],
             include: [{
@@ -162,6 +160,7 @@ router.get('/get/nutritionists', async (req, res) => {
 
       return res.status(200).send(nutritionists);
 });
+
 
 //TRAE TODOS LOS PTRAINERS
 router.get('/get/trainers', async (req, res) => {

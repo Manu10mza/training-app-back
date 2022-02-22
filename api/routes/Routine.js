@@ -106,7 +106,6 @@ router.put("/update/:ownerId/:rutineId", verifyPTrainerToken, async (req, res) =
 
 //TRAER TODAS LAS RUTINAS DE LA DB
 router.get('/', async (req, res) => {
-
     const result = await Routine.findAll({
         attributes: ['id', 'price'],
         include: [{
@@ -124,7 +123,6 @@ router.get('/', async (req, res) => {
         reviews: entry.dataValues.Reviews.length,
         rating: entry.dataValues.Reviews.map(e => e.points).reduce((p, c) => p + c, 0)
     })));
-
     res.status(200).json(result);
 });
 
