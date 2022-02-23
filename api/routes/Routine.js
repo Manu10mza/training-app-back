@@ -2,6 +2,7 @@ const router = require('express').Router();
 const { Routine, Review, User } = require('../db.js').models;
 const { verifyPTrainerToken } = require('../controllers/verifyToken');
 
+//CREAR UNA RUTINA
 router.post("/:ownerId", verifyPTrainerToken, async (req, res) => {
     try {
         const { title, exercises, price } = req.body;
@@ -35,6 +36,7 @@ router.post("/:ownerId", verifyPTrainerToken, async (req, res) => {
     }
 });
 
+//ACTUALIZAR UNA RUTINA YA EXISTENTE
 router.put("/update/:ownerId/:rutineId", verifyPTrainerToken, async (req, res) => {
     try {
         let { value } = req.body;
@@ -103,6 +105,19 @@ router.put("/update/:ownerId/:rutineId", verifyPTrainerToken, async (req, res) =
         res.status(400).json({ error: error.message });
     }
 });
+
+//BUSCAR RUTINA POR ID
+router.get('/:routineId', async (req, res)=>{
+    const id = req.params.routineId;
+    let result = await Routine.findOne({
+        where:{
+            id
+        }
+    });
+    if(result) return res.status(200).json(result);
+    return res.status(400).json({error: 'Routine not found'});
+})
+
 
 //TRAER TODAS LAS RUTINAS DE LA DB
 router.get('/', async (req, res) => {
