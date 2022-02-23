@@ -3,9 +3,11 @@ const { verifyToken, verifyNutritionistToken } = require('../controllers/verifyT
 const sequelize = require('../db');
 const { Diet, User, Recipe, Review } = sequelize.models;
 
-router.post('/:owner', verifyNutritionistToken, async (req, res) => {
+//CREAR DIETAS
+router.post('/:userId',verifyNutritionistToken,async (req, res) => {
   const { title, price, plan } = req.body;
-  const { owner } = req.params;
+  const owner = req.params.userId;
+
 
   if (!title || !price || !owner || !plan) {
     return res.status(400).json({ success: false, message: 'Invalid data format' });
@@ -60,7 +62,7 @@ router.post('/:owner', verifyNutritionistToken, async (req, res) => {
 
 });
 
-
+//OBTENER DIETA SEGUN ID
 router.get('/:id', verifyToken, async (req, res) => {
   const { id } = req.params;
   if (!id) {
@@ -96,9 +98,9 @@ router.get('/:id', verifyToken, async (req, res) => {
   }
 });
 
+
 //TRAER TODAS LAS DIETAS DE LA DB
 router.get('/', async (req, res) => {
-
   const result = await Diet.findAll({
     attributes: ['id', 'price'],
     include: [{
@@ -119,6 +121,7 @@ router.get('/', async (req, res) => {
 
   res.status(200).json(result);
 });
+
 
 //EDITAR UNA DIETA
 router.put('/update/:userId/:dietId', verifyNutritionistToken, async (req, res) => {
