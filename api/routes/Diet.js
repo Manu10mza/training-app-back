@@ -3,9 +3,9 @@ const { verifyToken, verifyNutritionistToken } = require('../controllers/verifyT
 const sequelize = require('../db');
 const { Diet, User, Recipe, Review } = sequelize.models;
 
-router.post('/:userId',verifyNutritionistToken,async (req, res) => {
+router.post('/:owner', verifyNutritionistToken, async (req, res) => {
   const { title, price, plan } = req.body;
-  const { owner } = req.params.userId;
+  const { owner } = req.params;
 
   if (!title || !price || !owner || !plan) {
     return res.status(400).json({ success: false, message: 'Invalid data format' });
@@ -108,14 +108,14 @@ router.get('/', async (req, res) => {
       model: Review,
       attributes: ['points']
     }]
-  }).then(result=>result.map(entry=>({
-      ...entry.dataValues,
-      Reviews: undefined, // ignore unwanted properties
-      Users: undefined,   
-      owner: {...entry.dataValues.Users[0].dataValues, User_diets: undefined},  // *assuming Users has a single entry
-      reviews: entry.dataValues.Reviews.length,
-      rating: entry.dataValues.Reviews.map(e=>e.points).reduce((p,c)=>p+c,0)
-  })))
+  }).then(result => result.map(entry => ({
+    ...entry.dataValues,
+    Reviews: undefined, // ignore unwanted properties
+    Users: undefined,   
+    owner: { ...entry.dataValues.Users[0].dataValues, User_diets: undefined },  // *assuming Users has a single entry
+    reviews: entry.dataValues.Reviews.length,
+    rating: entry.dataValues.Reviews.map(e => e.points).reduce((p, c) => p + c, 0)
+  })));
 
   res.status(200).json(result);
 });

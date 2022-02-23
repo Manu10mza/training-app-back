@@ -82,44 +82,41 @@ router.get('/:id', verifyToken, async (req, res) => {
 
 //EDITAR UNA PUBLICACION
 router.put('/update/:userId/:exerciseId', verifyToken, async (req, res) => {
-    try {
-        const { exerciseId, userId } = req.params;
-        const { value } = req.body;
-        let updateValue = {};
-        let isOwner;
 
-        if (!value) return res.status(400).send({ error: "Value is required" });
+    const { exerciseId, userId } = req.params;
+    const { value } = req.body;
+    let updateValue = {};
+    let isOwner;
 
-        let user = await User.findOne({
-            include: Exercise,
-            where: {
-                id: userId
-            }
-        }).then(r => r && r.dataValues);
-        isOwner = user?.Exercises.find(e => e.dataValues.id === exerciseId);
-        if (!isOwner) return res.status(400).send({ error: "The user does not own this exercise" });
+    if (!value) return res.status(400).send({ error: "Value is required" });
 
-        if (value.title) updateValue.title = value.title;
-        if (value.description) updateValue.description = value.description;
-        if (value.video) updateValue.video = value.video;
-
-
-        for (const key in value) {
-            let success = await Exercise.update({
-                [key]: updateValue[key]
-            }, {
-                where: {
-                    id: exerciseId
-                }
-            });
-            if (!success) return res.status(400).send({ error: "Error updating exercise" });
+    let user = await User.findOne({
+        include: Exercise,
+        where: {
+            id: userId
         }
-        let exercise = await Exercise.findByPk(exerciseId);
-        return res.status(200).send(exercise);
+    }).then(r => r && r.dataValues).catch(() => false);
+    isOwner = user?.Exercises.find(e => e.dataValues.id === exerciseId);
+    if (!isOwner) return res.status(400).send({ error: "The user does not own this exercise" });
 
-    } catch (error) {
-        return res.status(400).json({ error: error.message });
+    if (value.title) updateValue.title = value.title;
+    if (value.description) updateValue.description = value.description;
+    if (value.video) updateValue.video = value.video;
+
+
+    for (const key in value) {
+        let success = await Exercise.update({
+            [key]: updateValue[key]
+        }, {
+            where: {
+                id: exerciseId
+            }
+        });
+        if (!success) return res.status(400).send({ error: "Error updating exercise" });
     }
+    let exercise = await Exercise.findByPk(exerciseId);
+    return res.status(200).send(exercise);
+
 });
 
 module.exports = router;

@@ -1,11 +1,14 @@
 ##### Route :  
- - http://localhost:8200/api/diet/:userId
+ - http://localhost:8200/api/diet/:owner
 
 ##### Headers:
  - Token (en minusculas)
 
 ##### Method:
  - POST
+
+##### Params:
+ - owner: owner uid
 
 ##### Body:
 
