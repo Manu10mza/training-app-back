@@ -107,16 +107,16 @@ router.put("/update/:ownerId/:rutineId", verifyPTrainerToken, async (req, res) =
 });
 
 //BUSCAR RUTINA POR ID
-router.get('/:routineId', async (req, res)=>{
+router.get('/:routineId', async (req, res) => {
     const id = req.params.routineId;
     let result = await Routine.findOne({
-        where:{
+        where: {
             id
         }
     });
-    if(result) return res.status(200).json(result);
-    return res.status(400).json({error: 'Routine not found'});
-})
+    if (result) return res.status(200).json(result);
+    return res.status(400).json({ error: 'Routine not found' });
+});
 
 
 //TRAER TODAS LAS RUTINAS DE LA DB
@@ -136,7 +136,7 @@ router.get('/', async (req, res) => {
         Users: undefined,   
         owner: { ...entry.dataValues.Users[0].dataValues, User_routines: undefined },  // *assuming Users has a single entry
         reviews: entry.dataValues.Reviews.length,
-        rating: entry.dataValues.Reviews.map(e => e.points).reduce((p, c) => p + c, 0)
+        rating: entry.dataValues.Reviews.map(e => e.points).reduce((p, c) => p + c, 0) / entry.dataValues.Reviews.length
     })));
     res.status(200).json(result);
 });

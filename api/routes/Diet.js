@@ -4,7 +4,7 @@ const sequelize = require('../db');
 const { Diet, User, Recipe, Review } = sequelize.models;
 
 //CREAR DIETAS
-router.post('/:userId',verifyNutritionistToken,async (req, res) => {
+router.post('/:userId', verifyNutritionistToken, async (req, res) => {
   const { title, price, plan } = req.body;
   const owner = req.params.userId;
 
@@ -116,7 +116,7 @@ router.get('/', async (req, res) => {
     Users: undefined,   
     owner: { ...entry.dataValues.Users[0].dataValues, User_diets: undefined },  // *assuming Users has a single entry
     reviews: entry.dataValues.Reviews.length,
-    rating: entry.dataValues.Reviews.map(e => e.points).reduce((p, c) => p + c, 0)
+    rating: entry.dataValues.Reviews.map(e => e.points).reduce((p, c) => p + c, 0) / entry.dataValues.Reviews.length
   })));
 
   res.status(200).json(result);
