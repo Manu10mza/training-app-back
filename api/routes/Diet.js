@@ -4,7 +4,7 @@ const sequelize = require('../db');
 const { Diet, User, Recipe, Review } = sequelize.models;
 
 //CREAR DIETAS
-router.post('/:userId', async (req, res) => { // verifyNutritionistToken
+router.post('/:userId', verifyNutritionistToken, async (req, res) => {
   const { title, price, plan } = req.body;
   const owner = req.params.userId;
 
