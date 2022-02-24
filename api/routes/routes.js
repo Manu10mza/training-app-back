@@ -11,6 +11,7 @@ const transactionRoute = require('./Transaction');
 const dietRoutes = require('./Diet');
 const reviewRoutes = require('./Review');
 const stripeRoutes = require('./stripe');
+const generalRoutes = require('./General');
 
 router.use('/register', registerRoute);
 router.use('/user', logInRoute);
@@ -21,5 +22,6 @@ router.use('/routine', routineRoute);
 router.use('/transaction', transactionRoute);
 router.use('/review', reviewRoutes);
 router.use('/checkout', stripeRoutes);
+router.use('/general', generalRoutes);
 
 module.exports = router;
