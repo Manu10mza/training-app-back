@@ -5,7 +5,7 @@ const Recipe = sequelize.models.Recipe;
 const User = sequelize.models.User;
 
 //CREAR UNA RECETA
-router.post('/:userId', async (req, res) => {
+router.post('/:userId', verifyNutritionistToken,async (req, res) => {
   //Buscamos el usuario que está por crear la receta
   const user = await User.findOne({
     where:{
@@ -116,5 +116,26 @@ router.put('/:recipeId/:userId', verifyNutritionistToken, async (req, res)=>{
 
   if(success) return res.status(200).json({success: 'Updated recipe'})
   return res.status(500).json({error: 'Something went wrong'})
-})
+});
+
+//RUTA PARA ELIMINAR UNA RECETA
+router.delete('/:userId/:recipeId', verifyNutritionistToken, async (req,res)=>{
+  const user = await User.findOne({
+    where:{
+      id : req.params.userId
+    }
+  });
+  if(user){
+    let recipe = await Recipe.destroy({
+      where:{
+        id : req.params.recipeId
+      }
+    });
+    if(!recipe){
+      return res.status(400).json({error: 'Recipe not found'});
+    }
+    return res.status(200).json({success: 'Recipe eliminated successfuly'})
+  }
+  return res.status(400).json({error:'User not found'});
+});
 module.exports = router;
