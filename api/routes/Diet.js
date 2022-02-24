@@ -8,20 +8,32 @@ router.post('/:userId', verifyNutritionistToken, async (req, res) => {
   const { title, price, plan } = req.body;
   const owner = req.params.userId;
 
-
   if (!title || !price || !owner || !plan) {
-    return res.status(400).json({ success: false, message: 'Invalid data format' });
+    return res.status(400).json({ success: false, message: 'Invalid data format.' });
   }
 
   let plain = {};
 
-  for (const entry of plan) {
+  for (const entry of plan) { // iterar sobre las propiedades del objeto plan
     const day = entry.day;
-    const course = entry.meals;
-    for (const m in course) {
-      const meal = await Recipe.findByPk(course[m]).then(r => r.dataValues);
-      plain[day] = plain[day] || {};
-      plain[day][m] = meal;
+    const course = entry.meals; // array
+
+    for (const m in course) { // iterar sobre las propiedades del objeto meals (breakfast, lunch, dinner)
+
+      if (!Array.isArray(course[m])) {
+        return res.status(400).json({ error: 'Invalid data format.' });
+      }
+
+      plain[day] = {}; // valor por defecto
+      let meals = {}; // valor por defecto
+
+      for (const dish of course[m]) { // iterar sobre los ids dentro del array breakfast / lunch / dinner
+        plain[day][m] = {};
+        const meal = await Recipe.findByPk(dish).then(r => r.dataValues).catch(() => null); // asignar las comidas en caso existan
+        const title = meal.title.replace(/\s+/g, '_');
+        meals[title] = meal;
+      }
+      plain[day][m] = meals; // meals es ahora un array con las recetas validas
     }
   }
 
@@ -45,15 +57,16 @@ router.post('/:userId', verifyNutritionistToken, async (req, res) => {
   }).then(res => res[0]).catch(e => console.log(e));
 
   if (!targetDiet) {
-    return res.status(500).json({ success: false, message: 'There was an error processing your request.' });
+    return res.status(500).json({ success: false, message: '1 There was an error processing your request.' });
   }
+
   if (targetDiet._options.isNewRecord) {
     const assigned = await ownerModel.addDiet(targetDiet).catch(e => console.log(e));
 
     if (assigned) {
       res.status(200).json({ success: true, message: 'Diet created successfully.' });  
     } else {
-      return res.status(500).json({ success: false, message: 'There was an error processing your request.' });
+      return res.status(500).json({ success: false, message: '2 There was an error processing your request.' });
     }
     
   } else {
