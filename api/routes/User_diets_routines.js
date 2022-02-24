@@ -1,6 +1,7 @@
 const { Router } = require("express");
 const { Diet, Routine, User } = require("../db");
 const { getDbInfo } = require("../controllers/allUsers.js");
+const { verifyToken } = require("../controllers/verifyToken");
 
 const router = Router();
 
@@ -9,7 +10,7 @@ const router = Router();
  * @query  {id} user's id
  * @response [user diets, user routines]
  */
-router.get("/userDietsRoutines", async (req, res) => {
+router.get("/userDietsRoutines", verifyToken, async (req, res) => {
   try {
     const id = req.query.id;
     let userTotal = await getDbInfo();
@@ -36,7 +37,7 @@ router.get("/userDietsRoutines", async (req, res) => {
  *  se deberá primero validar desde el front q el ID existe
  *  en la lista del personal/nutricionista
  */
-router.get("/soldItems", async (req, res) => {
+router.get("/soldItems", verifyToken, async (req, res) => {
   //call all users as an array
   let userTotal = await getDbInfo();
   //recieve the product id
