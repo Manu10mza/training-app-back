@@ -1,4 +1,5 @@
 const router = require('express').Router();
+const stripe = require('stripe')(process.env.STRIPE_KEY)
 const Diet = require('../db.js').models.Diet;
 const Routine = require('../db.js').models.Routine;
 const Transaction = require('../db.js').models.Transaction;
@@ -6,6 +7,7 @@ const User = require('../db.js').models.User;
 const { verifyPTrainerToken } = require('../controllers/verifyToken');
 
 
+//GENERA UNA NUEVA TRANSACCION
 router.post("/:productId/:userId", verifyPTrainerToken, async (req, res) => {
     try {
         const { productId, userId } = req.params;
@@ -39,6 +41,7 @@ router.post("/:productId/:userId", verifyPTrainerToken, async (req, res) => {
 });
 
 
+//OBTIENE EL HISTORIAL DE LAS TRANSACCIONES
 router.get("/history/:userId", verifyPTrainerToken, async (req, res) => {
     try {
         const { userId } = req.params;
@@ -61,5 +64,25 @@ router.get("/history/:userId", verifyPTrainerToken, async (req, res) => {
         res.status(400).json({ error: error.message });
     }
 });
+
+
+//NUEVA COMPRA
+router.post('/payment', (req, res) => {
+    stripe.charges.create(
+        {
+            source: req.body.tokenId,
+            amount: req.body.amount,
+            currency: "usd",
+        },
+        (stripeErr, stripeRes) => {
+            if (stripeErr) {
+                res.status(500).json(stripeErr);
+            } else {
+                res.status(500).json(stripeRes);
+            }
+        }
+    )
+})
+
 
 module.exports = router;
