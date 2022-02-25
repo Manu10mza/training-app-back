@@ -3,65 +3,41 @@ const { verifyToken, verifyNutritionistToken } = require('../controllers/verifyT
 const sequelize = require('../db');
 const { Diet, User, Recipe, Review } = sequelize.models;
 
+//CREAR DIETAS
 router.post('/:userId', verifyNutritionistToken, async (req, res) => {
-    const { title, price, plan } = req.body;
-    const owner = req.params;
+    const { title, price, plain } = req.body;
+    const owner = req.params.userId;
 
-    if (!title || !price || !owner || !plan) {
-        return res.status(400).json({ success: false, message: 'Invalid data format' });
+    if (!title || !price || !owner || !plain) {
+        return res.status(400).json({ success: false, message: 'Invalid data format.' });
     }
-
-    let plain = {};
-
-    for (const entry of plan) {
-        const day = entry.day;
-        const course = entry.meals;
-        for (const m in course) {
-            const meal = await Recipe.findByPk(course[m]).then(r => r.dataValues);
-            plain[day] = plain[day] || {};
-            plain[day][m] = meal;
-        }
-    }
-    console.log(plain);
-
-    const ownerModel = await User.findOne({
+    //BUSCAMOS EL USUARIO PARA COMPROBAR DE QUE ESTÉ REGISTRADO EN LA DB
+    const userResult = await User.findOne({
         where: {
             id: owner
         }
     });
+    if (!userResult) return res.status(400).json({ error: 'User not found' });
 
-    if (!ownerModel) {
-        return res.status(400).json({ success: false, message: 'Invalid owner ID.' });
-    }
-
-    const targetDiet = await Diet.findOrCreate({
+    //Se busca que no exista una dieta con ese titulo
+    const dietResult = await Diet.findOne({
         where: {
-            title,
-            price,
-            owner,
-            plain
+            title
         }
-    }).then(res => res[0]).catch(e => console.log(e));
+    });
+    if (dietResult) return res.status(200).json({ error: 'Ya existe una dieta con ese titulo', dietResult })
 
-    if (!targetDiet) {
-        return res.status(500).json({ success: false, message: 'There was an error processing your request.' });
+    //SE CREA LA DIETA CON LOS DATOS PROPORCIONADOS
+    try {
+        const diet = await Diet.create({ ...req.body, owner })
+        return res.status(200).json('Successfuly created diet')
+    } catch (error) {
+        console.log(error)
+        return res.status(400).json(error)
     }
-    if (targetDiet._options.isNewRecord) {
-        const assigned = await ownerModel.addDiet(targetDiet).catch(e => console.log(e));
-
-        if (assigned) {
-            res.status(200).json({ success: true, message: 'Diet created successfully.' });
-        } else {
-            return res.status(500).json({ success: false, message: 'There was an error processing your request.' });
-        }
-
-    } else {
-        res.status(200).json({ success: false, message: 'Diet already exists.', result: targetDiet.dataValues });
-    }
-
 });
 
-
+//OBTENER DIETA SEGUN ID
 router.get('/:id', verifyToken, async (req, res) => {
     const { id } = req.params;
     if (!id) {
@@ -97,8 +73,10 @@ router.get('/:id', verifyToken, async (req, res) => {
     }
 });
 
+
 //TRAER TODAS LAS DIETAS DE LA DB
 router.get('/', async (req, res) => {
+<<<<<<< HEAD
 
     const result = await Diet.findAll({
         attributes: ['id', 'price'],
@@ -119,7 +97,29 @@ router.get('/', async (req, res) => {
     })))
 
     res.status(200).json(result);
+=======
+  const result = await Diet.findAll({
+    attributes: ['id', 'price'],
+    include: [{
+      model: User,
+      attributes: ['id', 'is_nutritionist', 'is_personal_trainer', 'profile_img']
+    }, {
+      model: Review,
+      attributes: ['points']
+    }]
+  }).then(result => result.map(entry => ({
+    ...entry.dataValues,
+    Reviews: undefined, // ignore unwanted properties
+    Users: undefined,
+    owner: { ...entry.dataValues.Users[0].dataValues, User_diets: undefined },  // *assuming Users has a single entry
+    reviews: entry.dataValues.Reviews.length,
+    rating: entry.dataValues.Reviews.map(e => e.points).reduce((p, c) => p + c, 0) / entry.dataValues.Reviews.length
+  })));
+
+  res.status(200).json(result);
+>>>>>>> 7a45d93f80753c9bb0e23026ce09c87e344edf6b
 });
+
 
 //EDITAR UNA DIETA
 router.put('/update/:userId/:dietId', verifyNutritionistToken, async (req, res) => {
