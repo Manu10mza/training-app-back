@@ -42,6 +42,7 @@ router.post('/:userId', verifyNutritionistToken, async (req, res) => {
     };
 })
 
+
 //TRAER TODAS LAS RECETAS DE PERTENECIENTE A UN USUARIO
 router.get('/user/:userId', verifyToken, async (req, res) => {
     //Traemos todas las recetas que contenga un usuario
@@ -58,7 +59,8 @@ router.get('/user/:userId', verifyToken, async (req, res) => {
     res.status(400).json({ error: 'User not found' });
 });
 
-//TRAER SOLO UNA DIETA ESPECIFICA
+
+//BUSCA UNA RECETA EN ESPECIFICO
 router.get('/:id', verifyToken, async (req, res) => {
     const { id } = req.params;
     const foundRecipe = await Recipe.findOne({
@@ -116,7 +118,8 @@ router.put('/:recipeId/:userId', verifyNutritionistToken, async (req, res) => {
     return res.status(500).json({ error: 'Something went wrong' })
 });
 
-//RUTA PARA ELIMINAR UNA RECETA
+
+//ELIINAR UNA RECETA
 router.delete('/:userId/:recipeId', verifyNutritionistToken, async (req, res) => {
     const user = await User.findOne({
         where: {
@@ -129,11 +132,17 @@ router.delete('/:userId/:recipeId', verifyNutritionistToken, async (req, res) =>
                 id: req.params.recipeId
             }
         });
-        if (!recipe) {
-            return res.status(400).json({ error: 'Recipe not found' });
+        if (user) {
+            let recipe = await Recipe.destroy({
+                where: {
+                    id: req.params.recipeId
+                }
+            });
+            if (!recipe) {
+                return res.status(400).json({ error: 'Recipe not found' });
+            }
+            return res.status(200).json({ success: 'Recipe eliminated successfuly' })
         }
-        return res.status(200).json({ success: 'Recipe eliminated successfuly' })
-    }
-    return res.status(400).json({ error: 'User not found' });
-});
+        return res.status(400).json({ error: 'User not found' });
+    });
 module.exports = router;

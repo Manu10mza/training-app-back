@@ -17,19 +17,21 @@
 ##### Body:
 
 ```js
-{
-  title: 'test diet title',                       // Required
+[
+    {
+        title: 'test diet title',                       // Required
   price: '19.99',                                 // Required
   plan: [                                         // Required
     {
-    'day': 'monday',
+        'day': 'monday',
     'meals': {
-      'breakfast': ['63093705-fae2-446c-8b50-23a8d25d06c8'],
+        'breakfast': ['63093705-fae2-446c-8b50-23a8d25d06c8'],
       'lunch': ['63093705-fae2-446c-8b50-23a8d25d06c8'],
       'dinner':['63093705-fae2-446c-8b50-23a8d25d06c8']
+        }
     }
-  }
     ...
-  ]
-}
+    ]
+    }
+]
 ```

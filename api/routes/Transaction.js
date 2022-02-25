@@ -1,13 +1,13 @@
 const router = require('express').Router();
+const stripe = require('stripe')(process.env.STRIPE_KEY)
 const Diet = require('../db.js').models.Diet;
 const Routine = require('../db.js').models.Routine;
 const Transaction = require('../db.js').models.Transaction;
 const User = require('../db.js').models.User;
 const { verifyPTrainerToken } = require('../controllers/verifyToken');
 
-/*
-!DEBERIA HACER PEDIR POR PARAMS EL ID DEL USUARIO Y EL ID OBJETIVO POR BODY 
-*/
+
+//GENERA UNA NUEVA TRANSACCION
 router.post("/:productId/:userId", verifyPTrainerToken, async (req, res) => {
     try {
         const { productId, userId } = req.params;
@@ -41,6 +41,7 @@ router.post("/:productId/:userId", verifyPTrainerToken, async (req, res) => {
 });
 
 
+//OBTIENE EL HISTORIAL DE LAS TRANSACCIONES
 router.get("/history/:userId", verifyPTrainerToken, async (req, res) => {
     try {
         const { userId } = req.params;
@@ -64,31 +65,24 @@ router.get("/history/:userId", verifyPTrainerToken, async (req, res) => {
     }
 });
 
-/*
-!ESTÁ RUTA TRAE EL MONTO TOTAL OBTENIDOS?
-*/
-router.get('/:userId', verifyPTrainerToken, async (req, res) => {
-    try {
-        const { userId } = req.params;
-        //Se comprueba si falta algun dato obligatorio o el UUID no es válida
-        const isUUID=/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
-        if(!isUUID.test(userId)) return res.status(400).send({error: "UUID not valid"})
-        const user=await User.findOne({
-            include: Transaction,
-            where: {
-                id: userId
+
+//NUEVA COMPRA
+router.post('/payment', (req, res) => {
+    stripe.charges.create(
+        {
+            source: req.body.tokenId,
+            amount: req.body.amount,
+            currency: "usd",
+        },
+        (stripeErr, stripeRes) => {
+            if (stripeErr) {
+                res.status(500).json(stripeErr);
+            } else {
+                res.status(500).json(stripeRes);
             }
-        });
-        //Se verifica si existe un usuario con esa UUID
-        if (!user) return res.status(400).send({error: "User not found"})
-        //Suma el precio de todos los productos
-        let sum = user.dataValues.Transaction.reduce((sum, t) => {
-            return sum += t.amount * t.product.price;
-        }, 0);
-        res.status(200).json({ money: sum });
-    } catch (error) {
-        console.log(error);
-        res.status(400).json({ error: error.message });
-    }
-});
+        }
+    )
+})
+
+
 module.exports = router;

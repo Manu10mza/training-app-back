@@ -138,76 +138,28 @@ router.put('/update/:userId', verifyToken, async (req, res) => {
 
 
 //TRAE TODOS LOS NUTRISIONISTAS
-router.get('/nutritionists', async (req, res) => {
+router.get('/nutritionists', verifyToken, async (req, res) => {
       const nutritionists = await User.findAll({
-            attributes: ['id', 'profile_img'],
+            attributes: ['id', 'profile_img','username', 'email'],
             where: {
                   is_nutritionist:true
-            },
-            include: [{
-                  model: Diet,
-                  attributes: ['id']
-            }, {
-                  model: Exercise,
-                  attributes: ['id']
-            }, {
-                  model: Recipe,
-                  attributes: ['id']
-            }, {
-                  model: Routine,
-                  attributes: ['id']
-            }]
-      }).then(result => result.map(e => {
-            const diets = e?.Diets.map(entry => ({ id: entry.dataValues.User_diets.DietId }));
-            const routines = e?.Routines.map(entry => ({ id: entry.dataValues.User_routines.RoutineId }));
-            const a=e?.is_personal_trainer
-
-            return {
-                  ...e.dataValues,
-                  Diets: diets,
-                  Routines: routines,
-                  a
-            };
-      }));
-
-
+            }
+      });
       return res.status(200).send(nutritionists);
 });
 
-//TRAE TODOS LOS TRAINERS
-router.get('/get/trainers', async (req, res) => {
 
+//TRAE TODOS LOS TRAINERS
+router.get('/get/trainers', verifyToken, async (req, res) => {
       const trainers = await User.findAll({
-            attributes: ['id', 'profile_img'],
+            attributes: ['id', 'profile_img','username', 'email'],
             where: {
                   is_personal_trainer:true
-            },
-            include: [{
-                  model: Diet,
-                  attributes: ['id']
-            }, {
-                  model: Exercise,
-                  attributes: ['id']
-            }, {
-                  model: Recipe,
-                  attributes: ['id']
-            }, {
-                  model: Routine,
-                  attributes: ['id']
-            }]
-      }).then(result => result.map(e => {
-            const diets = e?.Diets.map(entry => ({ id: entry.dataValues.User_diets.DietId }));
-            const routines = e?.Routines.map(entry => ({ id: entry.dataValues.User_routines.RoutineId }));
-
-            return {
-                  ...e.dataValues,
-                  Diets: diets,
-                  Routines: routines
-            };
-      }));
-
+            }
+      });
       return res.status(200).send(trainers);
 });
+
 
 router.get('/exists/:email', async (req, res) => {
       const { email } = req.params;
