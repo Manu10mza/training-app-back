@@ -13,6 +13,7 @@ router.post("/:productId/:userId", verifyToken, async (req, res) => {
     const { bill } = req.body;
     let finding;
 
+    //Buscamos el producto
     finding = await Routine.findOne({
         where:{
             id : productId
@@ -28,8 +29,7 @@ router.post("/:productId/:userId", verifyToken, async (req, res) => {
     }
 
     if(!finding) return res.status(400).json({error: 'Product not found'});
-    const product = finding;
-    console.log(product);
+    const product = finding.dataValues;
 
     //Buscamos al dueño del producto
     const userOwner = await User.findOne({
@@ -49,12 +49,12 @@ router.post("/:productId/:userId", verifyToken, async (req, res) => {
 
     try {
         const transactionClient = await Transaction.create({
-            amount : product.amount,
+            amount : product.price,
             product : product.id,
             bill
         });
         const transactionOwner = await Transaction.create({
-            amount : product.amount,
+            amount : product.price,
             product : product.id,
             isSold: true,
             bill
@@ -72,26 +72,46 @@ router.post("/:productId/:userId", verifyToken, async (req, res) => {
 
 //OBTIENE EL HISTORIAL DE LAS TRANSACCIONES
 router.get("/history/:userId", verifyToken, async (req, res) => {
-    try {
-        const { userId } = req.params;
-        //Se comprueba si falta algun dato obligatorio o el UUID no es válida
-        const isUUID = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
-        if (!isUUID.test(userId)) return res.status(400).send({error: "UUID not valid"})
-        //Se busca el usuario
-        let user= await User.findAll({
-            include: Transaction,
-            where: {
-                id: userId,
-            }
-        })
-        if(user.length===0) return res.status(400).send({error: "User with UUID not found"})
-        //Se buscan las transacciones hechas por el usuario
-        if (user) res.status(200).send(user[0].dataValues.Transaction);
-        else return res.status(400).send({error: "User not found"})
-    } catch (error) {
-        console.log(error);
-        res.status(400).json({ error: error.message });
-    }
+    console.log('holis');
+    const { userId } = req.params;
+    const user = await User.findOne({
+        include : Transaction,
+        where:{
+            id: userId
+        }
+    });
+
+    if(!user) return res.status(400).json({error: 'User not found'});
+
+    console.log(user.dataValues.Transactions)
+
+    res.status(200).send(user.dataValues.Transactions)
+
+
+    // try {
+    //     const { userId } = req.params;
+    //     //Se comprueba si falta algun dato obligatorio o el UUID no es válida
+    //     const isUUID = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
+    //     if (!isUUID.test(userId)) return res.status(400).send({error: "UUID not valid"})
+
+    //     //Se busca el usuario
+    //     let user= await User.findOne({
+    //         include: Transaction,
+    //         where: {
+    //             id: userId,
+    //         }
+    //     })
+    //     console.log(user.dataValues.Transactions)
+    //     if(user.length===0) return res.status(400).send({error: "User with UUID not found"})
+
+    //     //Se buscan las transacciones hechas por el usuario
+    //     if(user) res.status(200).send(user.dataValues);
+
+    //     else return res.status(400).send({error: "User not found"})
+    // } catch (error) {
+    //     console.log(error);
+    //     res.status(400).json({ error: error.message });
+    // }
 });
 
 
