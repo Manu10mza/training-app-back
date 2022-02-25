@@ -55,7 +55,6 @@ router.get('/user/:userId', verifyToken, async (req, res) => {
     },
     include : Recipe
   });
-
   if(user){
     return res.status(200).json(user.dataValues.Recipes);
   }
@@ -81,7 +80,8 @@ router.get('/:id',verifyToken, async (req, res) => {
 
 
 //MODIFICAR UNA RECETA
-router.put('/:recipeId/:userId', verifyNutritionistToken, async (req, res)=>{
+router.put('/:userId/:recipeId', verifyNutritionistToken, async (req, res)=>{
+  console.log(req.body)
   const {recipeId, userId} = req.params;
   const {field, newValue} = req.body;
   //Buscamos la receta
