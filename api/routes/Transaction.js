@@ -1,45 +1,77 @@
 const router = require('express').Router();
+const stripe = require('stripe')(process.env.STRIPE_KEY)
 const Diet = require('../db.js').models.Diet;
 const Routine = require('../db.js').models.Routine;
 const Transaction = require('../db.js').models.Transaction;
 const User = require('../db.js').models.User;
-const { verifyPTrainerToken } = require('../controllers/verifyToken');
+const { verifyToken } = require('../controllers/verifyToken');
 
 
-router.post("/:productId/:userId", verifyPTrainerToken, async (req, res) => {
+//GENERA UNA NUEVA TRANSACCION
+router.post("/:productId/:userId", verifyToken, async (req, res) => {
+    const { productId, userId } = req.params;
+    const { bill } = req.body;
+    let finding;
+
+    finding = await Routine.findOne({
+        where:{
+            id : productId
+        }
+    });
+
+    if(!finding){
+        finding = await Diet.findOne({
+            where:{
+                id : productId
+            }
+        });
+    }
+
+    if(!finding) return res.status(400).json({error: 'Product not found'});
+    const product = finding;
+    console.log(product);
+
+    //Buscamos al dueño del producto
+    const userOwner = await User.findOne({
+        where:{
+            id : product.owner
+        }
+    });
+    if(!userOwner) return res.status(400).json({error: 'Owner not found'});
+
+    const userClient = await User.findOne({
+        where:{
+            id : userId
+        }
+    });
+
+    if(!userClient) return res.status(400).json({error: 'User not found'});
+
     try {
-        const { productId, userId } = req.params;
-        const { isSell, isSold, amount } = req.body;
+        const transactionClient = await Transaction.create({
+            amount : product.amount,
+            product : product.id,
+            bill
+        });
+        const transactionOwner = await Transaction.create({
+            amount : product.amount,
+            product : product.id,
+            isSold: true,
+            bill
+        });
+    
+        await userClient.addTransaction(transactionClient.id);
+        await userOwner.addTransaction(transactionOwner.id);
         
-        //Se comprueba si falta algun dato obligatorio o el UUID no es válida
-        const isUUID = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
-        if (!amount) return res.status(400).send({error: "Missing required data"})
-        if (!isUUID.test(productId) || !isUUID.test(userId)) return res.status(400).send({error: "UUID not valid"})
-
-        //Se busca el producto y comprueba si es una dieta o rutina
-        let product;
-        const routine = await Routine.findByPk(productId);
-        const diet = await Diet.findByPk(productId);
-
-        if (!routine && !diet) return res.status(400).send({error: "Diet or Routine not found"})
-
-        if (routine) product = routine;
-        else product = diet;
-
-        //Se crea la transacción y se relaciona con el usuario
-        const transaction= await Transaction.create({amount,isSell,isSold,product});
-        const user= await User.findByPk(userId);
-        if(!user) return res.status(400).send({error: "User with UUID not found"})
-        user.addTransaction(transaction.id);
-        res.status(200).send(transaction);
+        return res.status(200).json({success: 'Transaction successfuly'});
     } catch (error) {
-        console.log(error);
-        res.status(400).json({ error: error.message });
+        return res.status(400).json(error);
     }
 });
 
 
-router.get("/history/:userId", verifyPTrainerToken, async (req, res) => {
+//OBTIENE EL HISTORIAL DE LAS TRANSACCIONES
+router.get("/history/:userId", verifyToken, async (req, res) => {
     try {
         const { userId } = req.params;
         //Se comprueba si falta algun dato obligatorio o el UUID no es válida
@@ -61,5 +93,25 @@ router.get("/history/:userId", verifyPTrainerToken, async (req, res) => {
         res.status(400).json({ error: error.message });
     }
 });
+
+
+//NUEVA COMPRA
+router.post('/payment', verifyToken ,(req, res) => {
+    stripe.charges.create(
+        {
+            source: req.body.tokenId,
+            amount: req.body.amount,
+            currency: "usd",
+        },
+        (stripeErr, stripeRes) => {
+            if (stripeErr) {
+                res.status(200).json(stripeErr);
+            } else {
+                res.status(500).json(stripeRes);
+            }
+        }
+    )
+})
+
 
 module.exports = router;

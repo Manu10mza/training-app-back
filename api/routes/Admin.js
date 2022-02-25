@@ -1,15 +1,15 @@
 const router = require('express').Router();
 const sequelize = require('../db');
 const { User, Recipe, Diet, Exercise, Routine } = sequelize.models; 
-const { verifyAdminToken, verifyToken } = require('../controllers/verifyToken');
+const { verifyAdminToken } = require('../controllers/verifyToken');
 
-//Ruta que trae todos los usuarios creados en la base de datos
+//TRAE TODOS LOS USUARIOS CREADOS EN LA BASE DE DATOS
 router.get('/users', verifyAdminToken, async (req, res) => {
     const result = await User.findAll();
     res.json(result)
 });
 
-//OBTIENE LOS DETALLES DE CUALQUIER COSA DEL QUE SE ENVIE EL ID
+//OBTIENE LOS DETALLES DE CUALQUIER COSA DE LA CUAL SE PROPORCIONE EL ID
 router.get('/:productId', verifyAdminToken, async (req,res)=>{
     //Busca en la tabla de usuarios
     const userResult = await User.findOne({
@@ -51,7 +51,7 @@ router.get('/:productId', verifyAdminToken, async (req,res)=>{
 });
 
 
-//EN ESTE ENDPOINT LE LLEGA EL ID DEL PRODUCTO A ELIMINAR
+//DESABILITA CUALQUIER OBJETO DEL CUAL SE LE PROPORCIONE EL ID
 router.delete('/:productId',verifyAdminToken, async(req,res)=>{    
     res.send('Working...')
 });
