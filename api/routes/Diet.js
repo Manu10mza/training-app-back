@@ -76,8 +76,6 @@ router.get('/:id', verifyToken, async (req, res) => {
 
 //TRAER TODAS LAS DIETAS DE LA DB
 router.get('/', async (req, res) => {
-<<<<<<< HEAD
-
     const result = await Diet.findAll({
         attributes: ['id', 'price'],
         include: [{
@@ -93,31 +91,10 @@ router.get('/', async (req, res) => {
         Users: undefined,
         owner: { ...entry.dataValues.Users[0].dataValues, User_diets: undefined },  // *assuming Users has a single entry
         reviews: entry.dataValues.Reviews.length,
-        rating: entry.dataValues.Reviews.map(e => e.points).reduce((p, c) => p + c, 0)
-    })))
+        rating: entry.dataValues.Reviews.map(e => e.points).reduce((p, c) => p + c, 0) / entry.dataValues.Reviews.length
+    })));
 
     res.status(200).json(result);
-=======
-  const result = await Diet.findAll({
-    attributes: ['id', 'price'],
-    include: [{
-      model: User,
-      attributes: ['id', 'is_nutritionist', 'is_personal_trainer', 'profile_img']
-    }, {
-      model: Review,
-      attributes: ['points']
-    }]
-  }).then(result => result.map(entry => ({
-    ...entry.dataValues,
-    Reviews: undefined, // ignore unwanted properties
-    Users: undefined,
-    owner: { ...entry.dataValues.Users[0].dataValues, User_diets: undefined },  // *assuming Users has a single entry
-    reviews: entry.dataValues.Reviews.length,
-    rating: entry.dataValues.Reviews.map(e => e.points).reduce((p, c) => p + c, 0) / entry.dataValues.Reviews.length
-  })));
-
-  res.status(200).json(result);
->>>>>>> 7a45d93f80753c9bb0e23026ce09c87e344edf6b
 });
 
 

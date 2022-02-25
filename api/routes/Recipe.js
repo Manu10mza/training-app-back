@@ -5,8 +5,7 @@ const Recipe = sequelize.models.Recipe;
 const User = sequelize.models.User;
 
 //CREAR UNA RECETA
-<<<<<<< HEAD
-router.post('/:userId', async (req, res) => {
+router.post('/:userId', verifyNutritionistToken, async (req, res) => {
     //Buscamos el usuario que está por crear la receta
     const user = await User.findOne({
         where: {
@@ -17,7 +16,6 @@ router.post('/:userId', async (req, res) => {
     if (!user) {
         return res.status(400).json({ error: 'User not found' });
     };
-
 
     //Se necesita haber proporcionado al menos el titulo
     if (!req.body.title) {
@@ -34,53 +32,15 @@ router.post('/:userId', async (req, res) => {
         try {
             const recipe = await Recipe.create(req.body);
             //Vinculamos el usuario con la receta
-            const newRecipe = await user.addRecipe(recipe);
-            return res.status(200).json(newRecipe)
+            await user.addRecipe(recipe);
+            return res.status(200).json({ success: 'Recipe created successfully' })
 
         } catch (error) {
             console.log(error)
             return res.status(400).json(error)
         }
-
-    } else {
-        return res.status(401).json({ error: 'There is already a recipe with that title' })
-=======
-router.post('/:userId', verifyNutritionistToken,async (req, res) => {
-  //Buscamos el usuario que está por crear la receta
-  const user = await User.findOne({
-    where:{
-      id : req.params.userId
-    }
-  });
-  //Nos aseguramos que este exista
-  if(!user){
-    return res.status(400).json({error:'User not found'});
-  };
-
-  //Se necesita haber proporcionado al menos el titulo
-  if (!req.body.title) {
-    return res.status(400).json({ error: 'You must provide a title.' });
-  };
-  //Nos aseguramos de que no existe algo con el mismo titulo
-  const findRecipe = await Recipe.findOne({
-    where:{
-      title : req.body.title
-    }
-  })
-
-  if(!findRecipe){
-    try {
-      const recipe = await Recipe.create(req.body);
-      //Vinculamos el usuario con la receta
-      await user.addRecipe(recipe);
-      return res.status(200).json({success: 'Recipe created successfully'})
-  
-    } catch (error) {
-      console.log(error)
-      return res.status(400).json(error)
->>>>>>> 7a45d93f80753c9bb0e23026ce09c87e344edf6b
-    }
-});
+    };
+})
 
 //TRAER TODAS LAS RECETAS DE PERTENECIENTE A UN USUARIO
 router.get('/user/:userId', verifyToken, async (req, res) => {
@@ -152,34 +112,28 @@ router.put('/:recipeId/:userId', verifyNutritionistToken, async (req, res) => {
         }
     });
 
-<<<<<<< HEAD
     if (success) return res.status(200).json({ success: 'Updated recipe' })
     return res.status(500).json({ error: 'Something went wrong' })
-})
-=======
-  if(success) return res.status(200).json({success: 'Updated recipe'})
-  return res.status(500).json({error: 'Something went wrong'})
 });
 
 //RUTA PARA ELIMINAR UNA RECETA
-router.delete('/:userId/:recipeId', verifyNutritionistToken, async (req,res)=>{
-  const user = await User.findOne({
-    where:{
-      id : req.params.userId
-    }
-  });
-  if(user){
-    let recipe = await Recipe.destroy({
-      where:{
-        id : req.params.recipeId
-      }
+router.delete('/:userId/:recipeId', verifyNutritionistToken, async (req, res) => {
+    const user = await User.findOne({
+        where: {
+            id: req.params.userId
+        }
     });
-    if(!recipe){
-      return res.status(400).json({error: 'Recipe not found'});
+    if (user) {
+        let recipe = await Recipe.destroy({
+            where: {
+                id: req.params.recipeId
+            }
+        });
+        if (!recipe) {
+            return res.status(400).json({ error: 'Recipe not found' });
+        }
+        return res.status(200).json({ success: 'Recipe eliminated successfuly' })
     }
-    return res.status(200).json({success: 'Recipe eliminated successfuly'})
-  }
-  return res.status(400).json({error:'User not found'});
+    return res.status(400).json({ error: 'User not found' });
 });
->>>>>>> 7a45d93f80753c9bb0e23026ce09c87e344edf6b
 module.exports = router;
