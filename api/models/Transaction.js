@@ -11,18 +11,18 @@ const Transaction = (sequelize) => {
                   type: DataTypes.FLOAT,
                   allowNull: false
             },
-            isSell: {
-                  type: DataTypes.BOOLEAN,
-                  allowNull: true
-            },
             isSold: {
                   type: DataTypes.BOOLEAN,
-                  allowNull: true
-
+                  allowNull: true,
+                  default : false
             },
             product: {
                   type: DataTypes.JSON,
                   allowNull: false
+            },
+            bill:{
+                  type: DataTypes.TEXT,
+                  allowNull: true
             }
       });
 };
