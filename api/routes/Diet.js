@@ -86,7 +86,7 @@ router.get("/:id", verifyToken, async (req, res) => {
 });
 
 //TRAER TODAS LAS DIETAS DE LA DB
-router.get("/", async (req, res) => {
+router.get('/', verifyToken ,async (req, res) => {
   const result = await Diet.findAll({
     attributes: ["id", "price"],
     include: [

@@ -144,4 +144,11 @@ router.delete("/excercise/:id", verifyPTrainerToken, async (req, res) => {
   }
 });
 
+
+//ELIMINA UNA RECETA
+router.delete('/', verifyPTrainerToken, async (req, res)=>{
+    res.send('Work in progress...')
+});
+
 module.exports = router;
+

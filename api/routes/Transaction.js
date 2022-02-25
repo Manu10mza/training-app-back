@@ -5,9 +5,7 @@ const Transaction = require('../db.js').models.Transaction;
 const User = require('../db.js').models.User;
 const { verifyPTrainerToken } = require('../controllers/verifyToken');
 
-/*
-!DEBERIA HACER PEDIR POR PARAMS EL ID DEL USUARIO Y EL ID OBJETIVO POR BODY 
-*/
+
 router.post("/:productId/:userId", verifyPTrainerToken, async (req, res) => {
     try {
         const { productId, userId } = req.params;
@@ -64,31 +62,4 @@ router.get("/history/:userId", verifyPTrainerToken, async (req, res) => {
     }
 });
 
-/*
-!ESTÁ RUTA TRAE EL MONTO TOTAL OBTENIDOS?
-*/
-router.get('/:userId', verifyPTrainerToken, async (req, res) => {
-    try {
-        const { userId } = req.params;
-        //Se comprueba si falta algun dato obligatorio o el UUID no es válida
-        const isUUID=/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
-        if(!isUUID.test(userId)) return res.status(400).send({error: "UUID not valid"})
-        const user=await User.findOne({
-            include: Transaction,
-            where: {
-                id: userId
-            }
-        });
-        //Se verifica si existe un usuario con esa UUID
-        if (!user) return res.status(400).send({error: "User not found"})
-        //Suma el precio de todos los productos
-        let sum = user.dataValues.Transaction.reduce((sum, t) => {
-            return sum += t.amount * t.product.price;
-        }, 0);
-        res.status(200).json({ money: sum });
-    } catch (error) {
-        console.log(error);
-        res.status(400).json({ error: error.message });
-    }
-});
 module.exports = router;
