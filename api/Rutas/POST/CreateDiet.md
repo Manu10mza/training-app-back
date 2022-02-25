@@ -1,11 +1,14 @@
-##### Route :  
- - http://localhost:8200/api/diet/:userId
+##### Route :
+
+- http://localhost:8200/api/diet/:userId
 
 ##### Headers:
- - Token (en minusculas)
+
+- Token (en minusculas)
 
 ##### Method:
- - POST
+
+- POST
 
 ##### Body:
 
@@ -16,21 +19,48 @@
   plan: [                                         // Required
     {
       day: 'monday',
-      meals: {
-        breakfast: '412a1dab-7180-4f4d-9fb9-8a311f6f1ea9', // Recipe ID
-        lunch: '412a1dab-7180-4f4d-9fb9-8a311f6f1ea9',
-        dinner: '412a1dab-7180-4f4d-9fb9-8a311f6f1ea9'
+      meals:
+      {
+        breakfast:[
+            '412a1dab-7180-4f4d-9fb9-8a311f6f1ea9', // Recipe ID
+            '412a1dab-7180-4f4d-9fb9-8a311f6f1ea9', // Recipe ID
+            '412a1dab-7180-4f4d-9fb9-8a311f6f1ea9', // Recipe ID
+        ],
+        lunch:[
+             '412a1dab-7180-4f4d-9fb9-8a311f6f1ea9',
+             '412a1dab-7180-4f4d-9fb9-8a311f6f1ea9',
+             '412a1dab-7180-4f4d-9fb9-8a311f6f1ea9',
+        ]
+        dinner:[
+            '412a1dab-7180-4f4d-9fb9-8a311f6f1ea9',
+            '412a1dab-7180-4f4d-9fb9-8a311f6f1ea9',
+            '412a1dab-7180-4f4d-9fb9-8a311f6f1ea9',
+            '412a1dab-7180-4f4d-9fb9-8a311f6f1ea9',
+        ]
       }
     },
     {
-      day: 'tuesday',
-      meals: {
-        breakfast: '412a1dab-7180-4f4d-9fb9-8a311f6f1ea9',
-        lunch: '412a1dab-7180-4f4d-9fb9-8a311f6f1ea9',
-        dinner: '412a1dab-7180-4f4d-9fb9-8a311f6f1ea9'
+      day: 'sunday',
+      meals:
+      {
+        breakfast:[
+            '412a1dab-7180-4f4d-9fb9-8a311f6f1ea9', // Recipe ID
+            '412a1dab-7180-4f4d-9fb9-8a311f6f1ea9', // Recipe ID
+            '412a1dab-7180-4f4d-9fb9-8a311f6f1ea9', // Recipe ID
+        ],
+        lunch:[
+             '412a1dab-7180-4f4d-9fb9-8a311f6f1ea9',
+             '412a1dab-7180-4f4d-9fb9-8a311f6f1ea9',
+             '412a1dab-7180-4f4d-9fb9-8a311f6f1ea9',
+        ]
+        dinner:[
+            '412a1dab-7180-4f4d-9fb9-8a311f6f1ea9',
+            '412a1dab-7180-4f4d-9fb9-8a311f6f1ea9',
+            '412a1dab-7180-4f4d-9fb9-8a311f6f1ea9',
+            '412a1dab-7180-4f4d-9fb9-8a311f6f1ea9',
+        ]
       }
     },
-    ...
-  ] 
+  ]
 }
 ```
