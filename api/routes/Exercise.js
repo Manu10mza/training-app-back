@@ -119,4 +119,10 @@ router.put('/update/:userId/:exerciseId', verifyToken, async (req, res) => {
 
 });
 
+
+//ELIMINA UNA RECETA
+router.delete('/', verifyPTrainerToken, async (req, res)=>{
+    res.send('Work in progress...')
+});
+
 module.exports = router;
