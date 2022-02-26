@@ -70,9 +70,6 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({ error: "Invalid email" });
 });
 
-/*
-      Todo: Crear ruta de eliminacion de usuario
-*/
 
 //OBTENER TODOS LOS DATOS DE UN USUARIO
 router.get('/:userId', verifyToken, async (req, res) => {
@@ -162,20 +159,7 @@ router.get('/get/trainers', verifyToken, async (req, res) => {
 });
 
 
-router.get('/exists/:email', async (req, res) => {
-      const { email } = req.params;
-
-      const result = await User.findOne({
-            where: {
-                  email
-            }
-      });
-
-      if (result) {
-            res.status(200).send({ exists: true });
-      } else {
-            res.status(200).send({ exists: false });
-      }
-});
-
+/*
+      Todo: Crear ruta de eliminacion de usuario
+*/
 module.exports = router;

@@ -54,6 +54,7 @@ router.get("/user/:userId", verifyToken, async (req, res) => {
   const user = await User.findOne({
     where: {
       id: req.params.userId,
+      disabled : false
     },
     include: Exercise,
   });
@@ -72,6 +73,7 @@ router.get("/:id", verifyToken, async (req, res) => {
     let result = await Exercise.findAll({
       where: {
         id: req.params.id,
+        disabled : false
       },
     });
     return res.status(200).send(result);
@@ -115,6 +117,7 @@ router.put("/update/:userId/:exerciseId", verifyToken, async (req, res) => {
       {
         where: {
           id: exerciseId,
+          disabled : false
         },
       }
     );

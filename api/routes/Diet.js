@@ -1,8 +1,5 @@
 const router = require("express").Router();
-const {
-  verifyToken,
-  verifyNutritionistToken,
-} = require("../controllers/verifyToken");
+const {verifyToken,verifyNutritionistToken} = require("../controllers/verifyToken");
 const sequelize = require("../db");
 const { Diet, User, Recipe, Review } = sequelize.models;
 
@@ -45,6 +42,48 @@ router.post("/:userId", verifyNutritionistToken, async (req, res) => {
   }
 });
 
+
+//TRAER TODAS LAS DIETAS DE LA DB
+router.get('/', verifyToken ,async (req, res) => {
+  const result = await Diet.findAll({
+    attributes: ["id", "price"],
+    include: [
+      {
+        model: User,
+        attributes: [
+          "id",
+          "is_nutritionist",
+          "is_personal_trainer",
+          "profile_img",
+        ]
+      },
+      {
+        model: Review,
+        attributes: ["points"],
+      },
+    ]},{
+      where:{
+        disabled : false
+      }
+    }).then((result) =>
+    result.map((entry) => ({
+      ...entry.dataValues,
+      Reviews: undefined, // ignore unwanted properties
+      Users: undefined,
+      owner: { ...entry.dataValues.Users[0].dataValues, User_diets: undefined }, // *assuming Users has a single entry
+      reviews: entry.dataValues.Reviews.length,
+      rating:
+        entry.dataValues.Reviews.map((e) => e.points).reduce(
+          (p, c) => p + c,
+          0
+        ) / entry.dataValues.Reviews.length,
+    }))
+  );
+
+  res.status(200).json(result);
+});
+
+
 //OBTENER DIETA SEGUN ID
 router.get("/:id", verifyToken, async (req, res) => {
   const { id } = req.params;
@@ -85,48 +124,9 @@ router.get("/:id", verifyToken, async (req, res) => {
   }
 });
 
-//TRAER TODAS LAS DIETAS DE LA DB
-router.get('/', verifyToken ,async (req, res) => {
-  const result = await Diet.findAll({
-    attributes: ["id", "price"],
-    include: [
-      {
-        model: User,
-        attributes: [
-          "id",
-          "is_nutritionist",
-          "is_personal_trainer",
-          "profile_img",
-        ],
-      },
-      {
-        model: Review,
-        attributes: ["points"],
-      },
-    ],
-  }).then((result) =>
-    result.map((entry) => ({
-      ...entry.dataValues,
-      Reviews: undefined, // ignore unwanted properties
-      Users: undefined,
-      owner: { ...entry.dataValues.Users[0].dataValues, User_diets: undefined }, // *assuming Users has a single entry
-      reviews: entry.dataValues.Reviews.length,
-      rating:
-        entry.dataValues.Reviews.map((e) => e.points).reduce(
-          (p, c) => p + c,
-          0
-        ) / entry.dataValues.Reviews.length,
-    }))
-  );
-
-  res.status(200).json(result);
-});
 
 //EDITAR UNA DIETA
-router.put(
-  "/update/:userId/:dietId",
-  verifyNutritionistToken,
-  async (req, res) => {
+router.put("/update/:userId/:dietId",verifyNutritionistToken,async (req, res) => {
     try {
       const { title, price, plan } = req.body;
       const { userId, dietId } = req.params;
@@ -197,22 +197,24 @@ router.put(
   }
 );
 
-/**
- * DELETE - Elimina una dieta.
- * @params  {id} diet's ID
- * @response "Diet eliminated"
- */
-router.delete("/diet/:id", verifyNutritionistToken, async (req, res) => {
+//ELIMINAT DIETA
+router.delete("/diet/:dietId", verifyNutritionistToken, async (req, res) => {
+  const { dietId } = req.params;
   try {
-    const { id } = req.params;
-    const dietID = await Diet.delete({
+    const result = await Diet.findOne({
       where: {
-        id,
-      },
-    });
-    res.status(200).send("Diet eliminated");
+        id: dietId
+      }});
+
+      if(result){
+        result.update({
+          disabled: true
+        });
+        return res.status(200).json({success: 'Diet eliminated successfuly'});
+      }
+      return res.status(400).json({error: 'Diet not found'});
   } catch (error) {
-    res.status(400).send("DELETE diet route: ", error);
+    res.status(400).json(error);
   }
 });
 

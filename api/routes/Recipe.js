@@ -51,7 +51,8 @@ router.get('/user/:userId', verifyToken, async (req, res) => {
   //Traemos todas las recetas que contenga un usuario
   const user = await User.findOne({
     where:{
-      id : req.params.userId
+      id : req.params.userId,
+      disabled: false
     },
     include : Recipe
   });
@@ -67,7 +68,8 @@ router.get('/:id',verifyToken, async (req, res) => {
   const { id } = req.params;
   const foundRecipe = await Recipe.findOne({
     where: {
-      id
+      id,
+      disabled: false
     }
   });
 
@@ -129,15 +131,18 @@ router.delete('/:userId/:recipeId', verifyNutritionistToken, async (req,res)=>{
     }
   });
   if(user){
-    let recipe = await Recipe.destroy({
+    let recipe = await Recipe.findOne({
       where:{
         id : req.params.recipeId
       }
     });
-    if(!recipe){
-      return res.status(400).json({error: 'Recipe not found'});
+    if(recipe){
+      recipe.update({
+        disabled : true
+      });
+      return res.status(200).json({success: 'Recipe eliminated successfuly'})
     }
-    return res.status(200).json({success: 'Recipe eliminated successfuly'})
+    return res.status(400).json({error: 'Recipe not found'});
   }
   return res.status(400).json({error:'User not found'});
 });
