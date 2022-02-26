@@ -8,6 +8,7 @@ const { verifyToken } = require('../controllers/verifyToken');
 //LOGEO
 router.post('/login', async (req, res) => {
       //Para loguearse deben enviar Username o Mail
+      console.log(req.body)
       let result;
       if (req.body.username) {
             result = await User.findOne({
@@ -69,9 +70,6 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({ error: "Invalid email" });
 });
 
-/*
-      Todo: Crear ruta de eliminacion de usuario
-*/
 
 //OBTENER TODOS LOS DATOS DE UN USUARIO
 router.get('/:userId', verifyToken, async (req, res) => {
@@ -92,37 +90,40 @@ router.put('/update/:userId', verifyToken, async (req, res) => {
             ! En este caso se pretende que envien un solo campo por peticion, para agilizar las cosas deberia tener la capacidad de procesar más de una propiedad en una sola petición
       */
       const { userId } = req.params;
-      const { field, value } = req.body;
+      const { username, password, email, profile_img } = req.body;
       const targetUser = await User.findByPk(userId).then(result => result.dataValues).catch(() => false);
-      let newValue = value;
       
-      if (!targetUser) {
-            return res.status(400).send({ error: 'User ID was not found in the database.' });
-      }
-      if (!targetUser[field]) {
-            return res.status(400).send({ error: 'Invalid field name.' });
-      }
+      if (!targetUser) return res.status(400).send({ error: 'User ID was not found in the database.' });
       //Evaluamos que lo que nos envían corresponda con lo que se debe guardar
-      if (field === 'password') {
-            newValue = encrypt(value);
-      
-      } else if (field === 'email') {
-            if (!/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(value)) {
-                  return res.status(400).send({ error: 'Invalid email format.' });
-            }
-      
-      } else if (field === 'profile_img') {
-            if (!/https?:\/\/.+\.(a?png|gif|p?jpe?g|jfif|pjp|webp|pdf|svg|avif|jxl|bmp|ico|cur|tiff?)$/i.test(value)) {
+      let newData={}
+
+      if(password){
+            if(!/(?=.*\d).{8,}$/.test(password)) return res.status(400).send({ error: 'Password must contain at least 8 characters and 1 number'});
+            else newData.password=password
+      }
+
+      if(email){
+            if(!/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(email)) {
+                  return res.status(400).send({ error: 'Invalid email format.' })}
+            else newData.email=email
+      }  
+
+      if(profile_img) {
+            if(!/https?:\/\/.+\.(a?png|gif|p?jpe?g|jfif|pjp|webp|pdf|svg|avif|jxl|bmp|ico|cur|tiff?)$/i.test(profile_img))
                   return res.status(400).send({ error: 'Invalid image link.' });
-            }
+            else newData.profile_img=profile_img
       }
       
-      if (targetUser[field] === newValue) {
-            return res.status(400).send({ error: 'New values must differ from old values.' });
+      if(username) {
+            if(username.length<5) return res.status(400).send({ error: 'Username must be at least 5 characters long' });
+            else newData.username=username
       }
-      
+
       const success = await User.update({
-            [field]: newValue
+            password: password?encrypt(password):targetUser.password,
+            username: username?username:targetUser.username,
+            email: email?email:targetUser.email,
+            profile_img: profile_img?profile_img:targetUser.profile_img,
       }, {
             where: {
                   id: userId
@@ -130,7 +131,7 @@ router.put('/update/:userId', verifyToken, async (req, res) => {
       }).then(result => result[0]);
       
       if (success) {
-            res.status(200).send({ success: 'Successfully updated user information.' });
+            res.status(200).send({ success: 'Successfully updated user information: ', username, password, email, profile_img});
       } else {
             res.status(500).send({ error: 'There was an error processing your request.' });
       }
@@ -161,20 +162,7 @@ router.get('/get/trainers', verifyToken, async (req, res) => {
 });
 
 
-router.get('/exists/:email', async (req, res) => {
-      const { email } = req.params;
-
-      const result = await User.findOne({
-            where: {
-                  email
-            }
-      });
-
-      if (result) {
-            res.status(200).send({ exists: true });
-      } else {
-            res.status(200).send({ exists: false });
-      }
-});
-
+/*
+      Todo: Crear ruta de eliminacion de usuario
+*/
 module.exports = router;

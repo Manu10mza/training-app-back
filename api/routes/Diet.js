@@ -1,8 +1,5 @@
 const router = require("express").Router();
-const {
-    verifyToken,
-    verifyNutritionistToken,
-} = require("../controllers/verifyToken");
+const { verifyToken, verifyNutritionistToken } = require("../controllers/verifyToken");
 const sequelize = require("../db");
 const { Diet, User, Recipe, Review } = sequelize.models;
 
@@ -45,6 +42,49 @@ router.post("/:userId", verifyNutritionistToken, async (req, res) => {
     }
 });
 
+
+//TRAER TODAS LAS DIETAS DE LA DB
+router.get('/', verifyToken, async (req, res) => {
+    const result = await Diet.findAll({
+        attributes: ["id", "price"],
+        include: [
+            {
+                model: User,
+                attributes: [
+                    "id",
+                    "is_nutritionist",
+                    "is_personal_trainer",
+                    "profile_img",
+                ]
+            },
+            {
+                model: Review,
+                attributes: ["points"],
+            },
+        ]
+    }, {
+        where: {
+            disabled: false
+        }
+    }).then((result) =>
+        result.map((entry) => ({
+            ...entry.dataValues,
+            Reviews: undefined, // ignore unwanted properties
+            Users: undefined,
+            owner: { ...entry.dataValues.Users[0].dataValues, User_diets: undefined }, // *assuming Users has a single entry
+            reviews: entry.dataValues.Reviews.length,
+            rating:
+                entry.dataValues.Reviews.map((e) => e.points).reduce(
+                    (p, c) => p + c,
+                    0
+                ) / entry.dataValues.Reviews.length,
+        }))
+    );
+
+    res.status(200).json(result);
+});
+
+
 //OBTENER DIETA SEGUN ID
 router.get("/:id", verifyToken, async (req, res) => {
     const { id } = req.params;
@@ -85,134 +125,61 @@ router.get("/:id", verifyToken, async (req, res) => {
     }
 });
 
-//TRAER TODAS LAS DIETAS DE LA DB
-router.get('/', verifyToken, async (req, res) => {
-    const result = await Diet.findAll({
-        attributes: ["id", "price"],
-        include: [
-            {
-                model: User,
-                attributes: [
-                    "id",
-                    "is_nutritionist",
-                    "is_personal_trainer",
-                    "profile_img",
-                ],
-            },
-            {
-                model: Review,
-                attributes: ["points"],
-            },
-        ],
-    }).then((result) =>
-        result.map((entry) => ({
-            ...entry.dataValues,
-            Reviews: undefined, // ignore unwanted properties
-            Users: undefined,
-            owner: { ...entry.dataValues.Users[0].dataValues, User_diets: undefined }, // *assuming Users has a single entry
-            reviews: entry.dataValues.Reviews.length,
-            rating:
-                entry.dataValues.Reviews.map((e) => e.points).reduce(
-                    (p, c) => p + c,
-                    0
-                ) / entry.dataValues.Reviews.length,
-        }))
-    );
-
-    res.status(200).json(result);
-});
 
 //EDITAR UNA DIETA
-router.put(
-    "/update/:userId/:dietId",
-    verifyNutritionistToken,
-    async (req, res) => {
-        try {
-            const { title, price, plan } = req.body;
-            const { userId, dietId } = req.params;
-            let updateValues = {};
+router.put("/update/:userId/:dietId", verifyNutritionistToken, async (req, res) => {
+    try {
+        const { title, price, plan } = req.body;
+        const { userId, dietId } = req.params;
+        let updateValues = {};
 
-            //Debe enviarse al menos un dato
-            if (!title && !price && !userId && !plan) {
-                return res
-                    .status(400)
-                    .json({ success: false, message: "Invalid data format" });
-            }
-            if (title) updateValues.title = title;
-            //El precio debe ser mayor o igual a 0
-            if (price && !isNaN(price * 1) && price >= 0) updateValues.price = price;
-
-            let plain = {};
-
-            //Se arma el plan de la dieta, con sus recetas
-            if (plan) {
-                for (const entry of plan) {
-                    const day = entry.day;
-                    const course = entry.meals;
-                    for (const m in course) {
-                        const meal = await Recipe.findByPk(course[m]).then(
-                            (r) => r.dataValues
-                        );
-                        plain[day] = plain[day] || {};
-                        plain[day][m] = meal;
-                    }
-                }
-                updateValues.plain = plain;
-            }
-            const ownerModel = await User.findOne({
-                where: {
-                    id: userId,
-                },
-            });
-
-            //Se verifica si el usuario existe
-            if (!ownerModel) {
-                return res
-                    .status(400)
-                    .json({ success: false, message: "Invalid owner ID." });
-            }
-
-            //Actualización de datos
-            for (const key in updateValues) {
-                let success = await Diet.update(
-                    {
-                        [key]: updateValues[key],
-                    },
-                    {
-                        where: {
-                            id: dietId,
-                        },
-                    }
-                );
-                if (!success)
-                    return res
-                        .status(400)
-                        .json({ success: false, message: "Error updating exercise" });
-            }
-            let diet = await Diet.findByPk(dietId);
-            return res.status(200).send(diet);
-        } catch (error) {
-            return res.status(400).json({ error: error });
+        //Debe enviarse al menos un dato
+        if (!title && !price && !userId && !plan) {
+            return res
+                .status(400)
+                .json({ success: false, message: "Invalid data format" });
         }
-    }
+        if (title) updateValues.title = title;
+        //El precio debe ser mayor o igual a 0
+        if (price && !isNaN(price * 1) && price >= 0) updateValues.price = price;
+
+        let plain = {};
+
+        //Se arma el plan de la dieta, con sus recetas
+        if (plan) {
+            for (const entry of plan) {
+                const day = entry.day;
+                const course = entry.meals;
+                for (const m in course) {
+                    const meal = await Recipe.findByPk(course[m]).then(
+                        (r) => r.dataValues
+                    );
+                    plain[day] = plain[day] || {};
+                    plain[day][m] = meal;
+                }
+            }
+        }
 );
 
-/**
- * DELETE - Elimina una dieta.
- * @params  {id} diet's ID
- * @response "Diet eliminated"
- */
-router.delete("/diet/:id", verifyNutritionistToken, async (req, res) => {
+//ELIMINAT DIETA
+router.delete("/diet/:dietId", verifyNutritionistToken, async (req, res) => {
+    const { dietId } = req.params;
     try {
-        const { id } = req.params;
-        const dietID = await Diet.delete({
+        const result = await Diet.findOne({
             where: {
-                id,
-            },
+                id: dietId
+            }
         });
-        res.status(200).send("Diet eliminated");
+
+        if (result) {
+            result.update({
+                disabled: true
+            });
+            return res.status(200).json({ success: 'Diet eliminated successfuly' });
+        }
+        return res.status(400).json({ error: 'Diet not found' });
     } catch (error) {
-        res.status(400).send("DELETE diet route: ", error);
+        res.status(400).json(error);
     }
 });
 

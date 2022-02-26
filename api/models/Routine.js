@@ -24,6 +24,11 @@ const Routine = (sequelize) => {
       type: DataTypes.JSON,
       allowNull: false,
     },
+    disabled: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+      allowNull: true,
+    },
   });
 };
 

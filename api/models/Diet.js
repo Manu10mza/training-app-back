@@ -1,29 +1,34 @@
 const { DataTypes } = require("sequelize");
 
 const Diet = (sequelize) => {
-    sequelize.define('Diet', {
+    sequelize.define("Diet", {
         id: {
             type: DataTypes.UUID,
             defaultValue: DataTypes.UUIDV4,
-            primaryKey: true
+            primaryKey: true,
         },
         title: {
             type: DataTypes.STRING,
-            allowNull: false
+            allowNull: false,
         },
         price: {
             type: DataTypes.FLOAT,
-            allowNull: false
+            allowNull: false,
         },
         owner: {
             type: DataTypes.UUID,
-            allowNull: false
+            allowNull: false,
         },
         plain: {
             type: DataTypes.JSON,
-            allowNull: false
-        }
-    })
-}
+            allowNull: false,
+        },
+        disabled: {
+            type: DataTypes.BOOLEAN,
+            defaultValue: false,
+            allowNull: true,
+        },
+    });
+};
 
 module.exports = Diet;

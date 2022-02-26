@@ -1,46 +1,54 @@
 const { DataTypes } = require("sequelize");
 
-
 const Recipe = (sequelize) => {
-    sequelize.define('Recipe', {
+    sequelize.define("Recipe", {
         id: {
             type: DataTypes.UUID,
             defaultValue: DataTypes.UUIDV4,
-            primaryKey: true
+            primaryKey: true,
+        },
+        image: {
+            type: DataTypes.STRING,
+            allowNull: true
         },
         title: {
             type: DataTypes.STRING,
-            allowNull: false
+            allowNull: false,
         },
-        kcal: { /*Calorias x Kilo */
-            type: DataTypes.FLOAT,
-            allowNull: true
+        kcal: {
+      /*Calorias x Kilo */ type: DataTypes.FLOAT,
+            allowNull: true,
         },
         carbohydrates: {
             type: DataTypes.FLOAT,
-            allowNull: true
+            allowNull: true,
         },
         grease: {
             type: DataTypes.FLOAT,
-            allowNull: true
+            allowNull: true,
         },
         proteins: {
             type: DataTypes.FLOAT,
-            allowNull: true
+            allowNull: true,
         },
-        grs: {  /*Gramos recomendados por plato/porcion */
-            type: DataTypes.FLOAT,
-            allowNull: true
+        grs: {
+      /*Gramos recomendados por plato/porcion */ type: DataTypes.FLOAT,
+            allowNull: true,
         },
         description: {
             type: DataTypes.TEXT,
-            allowNull: false
+            allowNull: false,
         },
         instructions: {
             type: DataTypes.TEXT,
-            allowNull: true
-        }
+            allowNull: true,
+        },
+        disabled: {
+            type: DataTypes.BOOLEAN,
+            defaultValue: false,
+            allowNull: true,
+        },
     });
-}
+};
 
 module.exports = Recipe;
