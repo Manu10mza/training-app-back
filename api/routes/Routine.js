@@ -3,7 +3,7 @@ const { Routine, Review, User } = require('../db.js').models;
 const { verifyPTrainerToken, verifyToken } = require('../controllers/verifyToken');
 
 //CREAR UNA RUTINA
-router.post("/:ownerId", verifyPTrainerToken, async (req, res) => {
+router.post("/:ownerId", async (req, res) => {
   try {
     const { title, exercises, price } = req.body;
     const { ownerId } = req.params;
@@ -59,7 +59,7 @@ router.post("/:ownerId", verifyPTrainerToken, async (req, res) => {
 });
 
 //TRAE TODAS LAS RUTINAS DE UN USUARIO
-router.get('/:userId', verifyToken, async (req, res)=>{
+router.get('/getUserRoutines/:userId', verifyToken, async (req, res)=>{
     const {userId} = req.params;
     const userResult = await User.findOne({
         include : Routine,
@@ -76,7 +76,7 @@ router.get('/:userId', verifyToken, async (req, res)=>{
 })
 
 //BUSCAR RUTINA POR ID
-router.get('/:routineId', async (req, res) => {
+router.get('/get/:routineId', async (req, res) => {
     const id = req.params.routineId;
     let result = await Routine.findOne({
         where: {
