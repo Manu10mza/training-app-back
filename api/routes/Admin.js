@@ -9,6 +9,7 @@ router.get('/users', verifyAdminToken, async (req, res) => {
     res.json(result)
 });
 
+
 //OBTIENE LOS DETALLES DE CUALQUIER COSA DE LA CUAL SE PROPORCIONE EL ID
 router.get('/:productId', verifyAdminToken, async (req,res)=>{
     //Busca en la tabla de usuarios
@@ -52,8 +53,76 @@ router.get('/:productId', verifyAdminToken, async (req,res)=>{
 
 
 //DESABILITA CUALQUIER OBJETO DEL CUAL SE LE PROPORCIONE EL ID
-router.delete('/:productId',verifyAdminToken, async(req,res)=>{    
-    res.send('Working...')
+router.delete('/:productId', verifyAdminToken, async(req,res)=>{    
+    const { productId } = req.params
+    //Comenzamos la busqueda en todas las tablas
+    let result;
+    //En el caso de que sea un usuario
+    result = await User.findOne({
+        where:{
+            id : productId
+        }
+    });
+    if(result){
+        result.update({
+            disabled : true
+        });
+        return res.status(200).json({success: 'Eliminated successfuly'});
+    };
+
+    //En el caso de que sea una receta
+    result = await Recipe.findOne({
+        where:{
+            id : productId
+        }
+    });
+    if(result){
+        result.update({
+            disabled : true
+        })
+        return res.status(200).json({success: 'Eliminated successfuly'});
+    };
+
+    //En el caso de que sea una rutina
+    result = await Routine.findOne({
+        where:{
+            id : productId
+        }
+    });
+    if(result){
+        result.update({
+            disabled : true
+        })
+        return res.status(200).json({success: 'Eliminated successfuly'});
+    };
+
+    //En el caso de que sea un ejercicio
+    result = await Exercise.findOne({
+        where:{
+            id : productId
+        }
+    });
+    if(result){
+        result.update({
+            disabled : true
+        })
+        return res.status(200).json({success: 'Eliminated successfuly'});
+    }
+
+    //En el caso de que sea una dieta
+    result = await Diet.findOne({
+        where:{
+            id : productId
+        }
+    });
+    if(result){
+        result.update({
+            disabled : true
+        })
+        return res.status(200).json({success: 'Eliminated successfuly'});
+    };
+
+    res.status(400).json({error: 'Product not found'});
 });
 
 module.exports = router;
