@@ -72,7 +72,6 @@ router.post("/:productId/:userId", verifyToken, async (req, res) => {
 
 //OBTIENE EL HISTORIAL DE LAS TRANSACCIONES
 router.get("/history/:userId", verifyToken, async (req, res) => {
-    console.log('holis');
     const { userId } = req.params;
     const user = await User.findOne({
         include : Transaction,
@@ -80,38 +79,8 @@ router.get("/history/:userId", verifyToken, async (req, res) => {
             id: userId
         }
     });
-
     if(!user) return res.status(400).json({error: 'User not found'});
-
-    console.log(user.dataValues.Transactions)
-
     res.status(200).send(user.dataValues.Transactions)
-
-
-    // try {
-    //     const { userId } = req.params;
-    //     //Se comprueba si falta algun dato obligatorio o el UUID no es válida
-    //     const isUUID = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
-    //     if (!isUUID.test(userId)) return res.status(400).send({error: "UUID not valid"})
-
-    //     //Se busca el usuario
-    //     let user= await User.findOne({
-    //         include: Transaction,
-    //         where: {
-    //             id: userId,
-    //         }
-    //     })
-    //     console.log(user.dataValues.Transactions)
-    //     if(user.length===0) return res.status(400).send({error: "User with UUID not found"})
-
-    //     //Se buscan las transacciones hechas por el usuario
-    //     if(user) res.status(200).send(user.dataValues);
-
-    //     else return res.status(400).send({error: "User not found"})
-    // } catch (error) {
-    //     console.log(error);
-    //     res.status(400).json({ error: error.message });
-    // }
 });
 
 
@@ -131,7 +100,5 @@ router.post('/payment', verifyToken ,(req, res) => {
             }
         }
     )
-})
-
-
+});
 module.exports = router;
