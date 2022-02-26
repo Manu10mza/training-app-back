@@ -144,5 +144,6 @@ router.delete('/:userId/:recipeId', verifyNutritionistToken, async (req, res) =>
             return res.status(200).json({ success: 'Recipe eliminated successfuly' })
         }
         return res.status(400).json({ error: 'User not found' });
-    });
+    }
+})
 module.exports = router;
