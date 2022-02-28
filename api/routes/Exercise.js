@@ -54,7 +54,7 @@ router.get("/user/:userId", verifyToken, async (req, res) => {
   const user = await User.findOne({
     where: {
       id: req.params.userId,
-      disabled : false
+      disabled: false,
     },
     include: Exercise,
   });
@@ -73,7 +73,7 @@ router.get("/:id", verifyToken, async (req, res) => {
     let result = await Exercise.findAll({
       where: {
         id: req.params.id,
-        disabled : false
+        disabled: false,
       },
     });
     return res.status(200).send(result);
@@ -117,7 +117,7 @@ router.put("/update/:userId/:exerciseId", verifyToken, async (req, res) => {
       {
         where: {
           id: exerciseId,
-          disabled : false
+          disabled: false,
         },
       }
     );
@@ -129,29 +129,33 @@ router.put("/update/:userId/:exerciseId", verifyToken, async (req, res) => {
 });
 
 /**
- * DELETE - Elimina un ejercicio.
- * @params  {id} excercise's ID
- * @response "Excercise eliminated"
+ * DELETE - Modifica el valor de la variable disabled: from false to true
+ * @params  {id} routine's ID
+ * @response "Exercise eliminated"
  */
-router.delete("/excercise/:id", verifyPTrainerToken, async (req, res) => {
+router.delete("/exercise/:id", verifyPTrainerToken, async (req, res) => {
   try {
     const { id } = req.params;
-    const excerciseID = await Exercise.delete({
+    const exerciseID = await Exercise.findOne({
       where: {
         id,
       },
     });
-    res.status(200).send("Excercise eliminated");
+    if (exerciseID) {
+      exerciseID.update({
+        disabled: true,
+      });
+      res.status(200).send("Exercise eliminated");
+    }
+    res.status(404).send("Exercise not found: ", error);
   } catch (error) {
-    res.status(400).send("DELETE excercise route: ", error);
+    res.status(400).send("DELETE exercise route: ", error);
   }
 });
 
-
 //ELIMINA UNA RECETA
-router.delete('/', verifyPTrainerToken, async (req, res)=>{
-    res.send('Work in progress...')
+router.delete("/", verifyPTrainerToken, async (req, res) => {
+  res.send("Work in progress...");
 });
 
 module.exports = router;
-
