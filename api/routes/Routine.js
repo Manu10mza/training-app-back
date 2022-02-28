@@ -243,24 +243,25 @@ router.get("/", async (req, res) => {
  * @params  {id} routine's ID
  * @response "Routine eliminated"
  */
-router.delete("/routine/:id", verifyPTrainerToken, async (req, res) => {
-  try {
-    const { id } = req.params;
-    const routineID = await Routine.findOne({
-      where: {
-        id,
-      },
-    });
-    if (routineID) {
+router.delete("/:id", verifyPTrainerToken, async (req, res) => {
+  const { id } = req.params;
+  const routineID = await Routine.findOne({
+    where: {
+      id,
+    },
+  });
+  if (routineID) {
+    try {
       routineID.update({
         disabled: true,
       });
-      res.status(200).send("Routine eliminated");
+      return res.status(200).json({error: "Routine eliminated"});
+
+    } catch (error) {
+      return res.status(400).json(error);
     }
-    res.status(404).send("Routine not found: ", error);
-  } catch (error) {
-    res.status(400).send("DELETE routine route: ", error);
   }
+  return res.status(404).json({error: "Routine not found"});
 });
 
 module.exports = router;

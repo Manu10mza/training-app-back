@@ -1,9 +1,6 @@
 const router = require("express").Router();
 const sequelize = require("../db");
-const {
-  verifyToken,
-  verifyPTrainerToken,
-} = require("../controllers/verifyToken");
+const {verifyToken, verifyPTrainerToken } = require("../controllers/verifyToken");
 const Exercise = sequelize.models.Exercise;
 const User = sequelize.models.User;
 
@@ -128,34 +125,25 @@ router.put("/update/:userId/:exerciseId", verifyToken, async (req, res) => {
   return res.status(200).send(exercise);
 });
 
-/**
- * DELETE - Modifica el valor de la variable disabled: from false to true
- * @params  {id} routine's ID
- * @response "Exercise eliminated"
- */
-router.delete("/exercise/:id", verifyPTrainerToken, async (req, res) => {
-  try {
-    const { id } = req.params;
-    const exerciseID = await Exercise.findOne({
-      where: {
-        id,
-      },
-    });
+//ELIMINAR EJERCICIO
+router.delete("/:id", verifyPTrainerToken, async (req, res) => {
+  const { id } = req.params;
+  const exerciseID = await Exercise.findOne({
+    where: {
+      id,
+    },
+  });
     if (exerciseID) {
-      exerciseID.update({
-        disabled: true,
-      });
-      res.status(200).send("Exercise eliminated");
+      try {
+        exerciseID.update({
+          disabled: true,
+        });
+
+        res.status(200).json({error: "Exercise eliminated"});
+      } catch (error) {
+        res.status(400).json(error);
+      }
     }
-    res.status(404).send("Exercise not found: ", error);
-  } catch (error) {
-    res.status(400).send("DELETE exercise route: ", error);
-  }
+    res.status(404).json({error: "Exercise not found"});
 });
-
-//ELIMINA UNA RECETA
-router.delete("/", verifyPTrainerToken, async (req, res) => {
-  res.send("Work in progress...");
-});
-
 module.exports = router;
