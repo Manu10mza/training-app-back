@@ -131,25 +131,25 @@ router.put("/update/:userId/:exerciseId", verifyToken, async (req, res) => {
 /**
  * DELETE - Modifica el valor de la variable disabled: from false to true
  * @params  {id} routine's ID
- * @response "Routine eliminated"
+ * @response "Exercise eliminated"
  */
-router.delete("/routine/:id", verifyPTrainerToken, async (req, res) => {
+router.delete("/exercise/:id", verifyPTrainerToken, async (req, res) => {
   try {
     const { id } = req.params;
-    const excerciseID = await Exercise.findOne({
+    const exerciseID = await Exercise.findOne({
       where: {
         id,
       },
     });
-    if (excerciseID) {
-      excerciseID.update({
+    if (exerciseID) {
+      exerciseID.update({
         disabled: true,
       });
-      res.status(200).send("Excercise eliminated");
+      res.status(200).send("Exercise eliminated");
     }
-    res.status(404).send("Excercise not found: ", error);
+    res.status(404).send("Exercise not found: ", error);
   } catch (error) {
-    res.status(400).send("DELETE excercise route: ", error);
+    res.status(400).send("DELETE exercise route: ", error);
   }
 });
 
