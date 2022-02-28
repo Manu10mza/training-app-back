@@ -198,24 +198,25 @@ router.put("/update/:userId/:dietId",verifyNutritionistToken,async (req, res) =>
 );
 
 //ELIMINAT DIETA
-router.delete("/diet/:dietId", verifyNutritionistToken, async (req, res) => {
+router.delete("/:dietId", verifyNutritionistToken, async (req, res) => {
   const { dietId } = req.params;
-  try {
-    const result = await Diet.findOne({
-      where: {
-        id: dietId
-      }});
+  const result = await Diet.findOne({
+    where: {
+      id: dietId
+    }});
 
-      if(result){
-        result.update({
-          disabled: true
-        });
-        return res.status(200).json({success: 'Diet eliminated successfuly'});
-      }
-      return res.status(400).json({error: 'Diet not found'});
-  } catch (error) {
-    res.status(400).json(error);
+  if(result){
+    try {
+      result.update({
+        disabled: true
+      });
+
+      return res.status(200).json({success: 'Diet eliminated successfuly'});
+    } catch (error) {
+      res.status(400).json(error);
+    }
   }
+  return res.status(400).json({error: 'Diet not found'});
 });
 
 module.exports = router;

@@ -86,9 +86,6 @@ router.get('/:userId', verifyToken, async (req, res) => {
 
 //MODIFICAR DATOS DEL USUARIO
 router.put('/update/:userId', verifyToken, async (req, res) => {
-      /* 
-            ! En este caso se pretende que envien un solo campo por peticion, para agilizar las cosas deberia tener la capacidad de procesar más de una propiedad en una sola petición
-      */
       const { userId } = req.params;
       const { username, password, email, profile_img } = req.body;
       const targetUser = await User.findByPk(userId).then(result => result.dataValues).catch(() => false);

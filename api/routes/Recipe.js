@@ -156,26 +156,24 @@ router.put('/:userId/:recipeId', verifyNutritionistToken, async (req, res)=>{
 
 
 //ELIINAR UNA RECETA
-router.delete('/:userId/:recipeId', verifyNutritionistToken, async (req,res)=>{
-  const user = await User.findOne({
+router.delete('/:recipeId', verifyNutritionistToken, async (req,res)=>{
+  let recipe = await Recipe.findOne({
     where:{
-      id : req.params.userId
+      id : req.params.recipeId
     }
   });
-  if(user){
-    let recipe = await Recipe.findOne({
-      where:{
-        id : req.params.recipeId
-      }
-    });
-    if(recipe){
+
+  if(recipe){
+    try {
       recipe.update({
         disabled : true
       });
       return res.status(200).json({success: 'Recipe eliminated successfuly'})
+      
+    } catch (error) {
+      return res.status(400).json(error);
     }
-    return res.status(400).json({error: 'Recipe not found'});
   }
-  return res.status(400).json({error:'User not found'});
+  return res.status(400).json({error: 'Recipe not found'});
 });
 module.exports = router;
