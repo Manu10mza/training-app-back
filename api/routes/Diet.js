@@ -127,39 +127,39 @@ router.get("/:id", verifyToken, async (req, res) => {
 
 
 //EDITAR UNA DIETA
-router.put("/update/:userId/:dietId", verifyNutritionistToken, async (req, res) => {
-    try {
-        const { title, price, plan } = req.body;
-        const { userId, dietId } = req.params;
-        let updateValues = {};
+// router.put("/update/:userId/:dietId", verifyNutritionistToken, async (req, res) => {
+//     try {
+//         const { title, price, plan } = req.body;
+//         const { userId, dietId } = req.params;
+//         let updateValues = {};
 
-        //Debe enviarse al menos un dato
-        if (!title && !price && !userId && !plan) {
-            return res
-                .status(400)
-                .json({ success: false, message: "Invalid data format" });
-        }
-        if (title) updateValues.title = title;
-        //El precio debe ser mayor o igual a 0
-        if (price && !isNaN(price * 1) && price >= 0) updateValues.price = price;
+//         //Debe enviarse al menos un dato
+//         if (!title && !price && !userId && !plan) {
+//             return res
+//                 .status(400)
+//                 .json({ success: false, message: "Invalid data format" });
+//         }
+//         if (title) updateValues.title = title;
+//         //El precio debe ser mayor o igual a 0
+//         if (price && !isNaN(price * 1) && price >= 0) updateValues.price = price;
 
-        let plain = {};
+//         let plain = {};
 
-        //Se arma el plan de la dieta, con sus recetas
-        if (plan) {
-            for (const entry of plan) {
-                const day = entry.day;
-                const course = entry.meals;
-                for (const m in course) {
-                    const meal = await Recipe.findByPk(course[m]).then(
-                        (r) => r.dataValues
-                    );
-                    plain[day] = plain[day] || {};
-                    plain[day][m] = meal;
-                }
-            }
-        }
-);
+//         //Se arma el plan de la dieta, con sus recetas
+//         if (plan) {
+//             for (const entry of plan) {
+//                 const day = entry.day;
+//                 const course = entry.meals;
+//                 for (const m in course) {
+//                     const meal = await Recipe.findByPk(course[m]).then(
+//                         (r) => r.dataValues
+//                     );
+//                     plain[day] = plain[day] || {};
+//                     plain[day][m] = meal;
+//                 }
+//             }
+//         }
+//     )
 
 //ELIMINAT DIETA
 router.delete("/diet/:dietId", verifyNutritionistToken, async (req, res) => {
