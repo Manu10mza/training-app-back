@@ -1,9 +1,6 @@
 const router = require("express").Router();
 const sequelize = require("../db");
-const {
-  verifyToken,
-  verifyPTrainerToken,
-} = require("../controllers/verifyToken");
+const {verifyToken, verifyPTrainerToken } = require("../controllers/verifyToken");
 const Exercise = sequelize.models.Exercise;
 const User = sequelize.models.User;
 
@@ -54,7 +51,7 @@ router.get("/user/:userId", verifyToken, async (req, res) => {
   const user = await User.findOne({
     where: {
       id: req.params.userId,
-      disabled : false
+      disabled: false,
     },
     include: Exercise,
   });
@@ -73,7 +70,7 @@ router.get("/:id", verifyToken, async (req, res) => {
     let result = await Exercise.findAll({
       where: {
         id: req.params.id,
-        disabled : false
+        disabled: false,
       },
     });
     return res.status(200).send(result);
@@ -117,7 +114,7 @@ router.put("/update/:userId/:exerciseId", verifyToken, async (req, res) => {
       {
         where: {
           id: exerciseId,
-          disabled : false
+          disabled: false,
         },
       }
     );
@@ -128,30 +125,25 @@ router.put("/update/:userId/:exerciseId", verifyToken, async (req, res) => {
   return res.status(200).send(exercise);
 });
 
-/**
- * DELETE - Elimina un ejercicio.
- * @params  {id} excercise's ID
- * @response "Excercise eliminated"
- */
-router.delete("/excercise/:id", verifyPTrainerToken, async (req, res) => {
-  try {
-    const { id } = req.params;
-    const excerciseID = await Exercise.delete({
-      where: {
-        id,
-      },
-    });
-    res.status(200).send("Excercise eliminated");
-  } catch (error) {
-    res.status(400).send("DELETE excercise route: ", error);
-  }
+//ELIMINAR EJERCICIO
+router.delete("/:id", verifyPTrainerToken, async (req, res) => {
+  const { id } = req.params;
+  const exerciseID = await Exercise.findOne({
+    where: {
+      id,
+    },
+  });
+    if (exerciseID) {
+      try {
+        exerciseID.update({
+          disabled: true,
+        });
+
+        res.status(200).json({error: "Exercise eliminated"});
+      } catch (error) {
+        res.status(400).json(error);
+      }
+    }
+    res.status(404).json({error: "Exercise not found"});
 });
-
-
-//ELIMINA UNA RECETA
-router.delete('/', verifyPTrainerToken, async (req, res)=>{
-    res.send('Work in progress...')
-});
-
 module.exports = router;
-
