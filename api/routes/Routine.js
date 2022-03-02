@@ -5,6 +5,7 @@ const {
   verifyToken,
 } = require("../controllers/verifyToken");
 
+
 //CREAR UNA RUTINA
 router.post("/:ownerId", async (req, res) => {
   try {
@@ -67,22 +68,26 @@ router.post("/:ownerId", async (req, res) => {
   }
 });
 
+
 //TRAE TODAS LAS RUTINAS DE UN USUARIO
-router.get("/getUserRoutines/:userId", async (req, res) => {
+router.get("/user/:userId", verifyToken, async (req, res) => {
   const { userId } = req.params;
-  const userResult = await User.findOne({
-    include: Routine,
+  const user = await User.findOne({
     where: {
       id: userId,
       disabled: false,
     },
+    include:{
+      model : Routine,
+      where:{
+        disabled: false
+      }
+    }
   });
-
-  if (userResult) {
-    return res.json(userResult.Routines);
-  }
-  res.status(400).json({ error: "User not found" });
+  if(user) return res.json(user.dataValues.Routines);
+  res.send(400).json({ error: "User not found" });
 });
+
 
 //BUSCAR RUTINA POR ID
 router.get("/get/:routineId", async (req, res) => {
@@ -96,6 +101,7 @@ router.get("/get/:routineId", async (req, res) => {
   if (result) return res.status(200).json(result);
   return res.status(400).json({ error: "Routine not found" });
 });
+
 
 //ACTUALIZAR UNA RUTINA YA EXISTENTE
 router.put(
@@ -198,6 +204,7 @@ router.put(
   }
 );
 
+
 //TRAER TODAS LAS RUTINAS DE LA DB
 router.get("/", async (req, res) => {
   const result = await Routine.findAll(
@@ -244,11 +251,8 @@ router.get("/", async (req, res) => {
   res.status(200).json(result);
 });
 
-/**
- * DELETE - Modifica el valor de la variable disabled: from false to true
- * @params  {id} routine's ID
- * @response "Routine eliminated"
- */
+
+//ELIMINAR UNA RUTINA
 router.delete("/:id", verifyPTrainerToken, async (req, res) => {
   const { id } = req.params;
   const routineID = await Routine.findOne({

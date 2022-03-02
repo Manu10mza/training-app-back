@@ -53,15 +53,15 @@ router.get("/user/:userId", verifyToken, async (req, res) => {
       id: req.params.userId,
       disabled: false,
     },
-    include: Exercise,
+    include: {
+      model: Exercise,
+      where:{
+        disabled : false
+      }
+    }
   });
-
-  if (user) {
-    const exercises = user.dataValues.Exercises.map((item) => item.dataValues);
-    res.status(200).json(exercises);
-  } else {
-    return res.status(400).json({ error: "User not found" });
-  }
+  if (user) return res.status(200).json(user.dataValues.Exercises);
+  res.status(400).json({ error: "User not found" });
 });
 
 //OBTENER UN EJERCICIO ESPECIFICO
