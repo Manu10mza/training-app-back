@@ -84,6 +84,26 @@ router.get('/', verifyToken ,async (req, res) => {
 });
 
 
+//OBTENER TODAS LAS DIETAS DE UN USUARIO
+router.get('/user/:userId', verifyToken, async(req,res)=>{
+  const {userId} = req.params;
+  const userDiet = await User.findOne({
+    where:{
+      id : userId,
+      disabled: false
+    },
+    include:{
+      model: Diet,
+      where:{
+        disabled: false
+      }
+    }
+  });
+  if(userDiet) return res.status(200).json(userDiet.dataValues.Diets);
+  res.status(400).json({error: 'User not found'});
+});
+
+
 //OBTENER DIETA SEGUN ID
 router.get("/:id", verifyToken, async (req, res) => {
   const { id } = req.params;
@@ -125,7 +145,7 @@ router.get("/:id", verifyToken, async (req, res) => {
 });
 
 
-//EDITAR UNA DIETA
+//EDITAR DIETA
 router.put("/update/:userId/:dietId",verifyNutritionistToken,async (req, res) => {
     try {
       const { title, price, plan } = req.body;
@@ -197,7 +217,7 @@ router.put("/update/:userId/:dietId",verifyNutritionistToken,async (req, res) =>
   }
 );
 
-//ELIMINAT DIETA
+//ELIMINAR DIETA
 router.delete("/:dietId", verifyNutritionistToken, async (req, res) => {
   const { dietId } = req.params;
   const result = await Diet.findOne({
