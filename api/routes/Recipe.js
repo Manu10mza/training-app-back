@@ -35,7 +35,7 @@ router.post('/:userId', verifyNutritionistToken, async (req, res) => {
             const recipe = await Recipe.create(req.body);
             //Vinculamos el usuario con la receta
             await user.addRecipe(recipe);
-            return res.status(200).json({ success: 'Recipe created successfully' })
+            return res.status(200).json({ success: 'Recipe created successfully', recipe: recipe })
 
         } catch (error) {
             console.log(error)

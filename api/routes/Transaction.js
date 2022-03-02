@@ -12,70 +12,41 @@ router.post("/:productId/:userId", async (req, res) => {
     const { productId, userId } = req.params;
     const { bill } = req.body;
     let finding;
-    let productType="Routine";
-
+    let productType = "Routine";
     //Buscamos el producto
     finding = await Routine.findOne({
         where: {
             id: productId
         }
     });
-
-<<<<<<< HEAD
     if (!finding) {
-=======
-    if(!finding){
-        productType="Diet"
->>>>>>> e052d48fc460bd54d93b27e3bafcc23da3d11d11
+        productType = "Diet"
         finding = await Diet.findOne({
             where: {
                 id: productId
             }
         });
     }
-
-<<<<<<< HEAD
     if (!finding) return res.status(400).json({ error: 'Product not found' });
     const product = finding.dataValues;
-
-=======
-    if(!finding) return res.status(400).json({error: 'Product not found'});
-    const product = finding.dataValues;    
->>>>>>> e052d48fc460bd54d93b27e3bafcc23da3d11d11
-    //Buscamos al dueño del producto
+    // Buscamos al dueño del producto
     const userOwner = await User.findOne({
         where: {
             id: product.owner
         }
     });
-<<<<<<< HEAD
     if (!userOwner) return res.status(400).json({ error: 'Owner not found' });
-
-=======
-    if(!userOwner) return res.status(400).json({error: 'Owner not found'});
->>>>>>> e052d48fc460bd54d93b27e3bafcc23da3d11d11
     const userClient = await User.findOne({
         where: {
             id: userId
         }
     });
-<<<<<<< HEAD
-
     if (!userClient) return res.status(400).json({ error: 'User not found' });
-
     try {
         const transactionClient = await Transaction.create({
             amount: product.price,
             product: product.id,
-=======
-    if(!userClient) return res.status(400).json({error: 'User not found'});
-    
-    try {
-        const transactionClient = await Transaction.create({
-            amount : product.price,
-            product : product.id,
-            isSold:false,
->>>>>>> e052d48fc460bd54d93b27e3bafcc23da3d11d11
+            isSold: false,
             bill
         });
         const transactionOwner = await Transaction.create({
@@ -84,12 +55,8 @@ router.post("/:productId/:userId", async (req, res) => {
             isSold: true,
             bill
         });
-<<<<<<< HEAD
-
-=======
->>>>>>> e052d48fc460bd54d93b27e3bafcc23da3d11d11
         await userClient.addTransaction(transactionClient.id);
-        productType==="Routine"?await userClient.addRoutine(product.id):await userClient.addDiet(product.id);
+        productType === "Routine" ? await userClient.addRoutine(product.id) : await userClient.addDiet(product.id);
         await userOwner.addTransaction(transactionOwner.id);
 
         return res.status(200).json({ success: 'Transaction successfuly' });
@@ -99,18 +66,18 @@ router.post("/:productId/:userId", async (req, res) => {
 });
 
 //OBTIENE LOS USUARIOS QUE COMPRARON CIERTO PRODUCTO
-router.get('/users/:productId',async(req,res)=>{
-    const {productId}=req.params;
-    let users=await User.findAll({
+router.get('/users/:productId', async (req, res) => {
+    const { productId } = req.params;
+    let users = await User.findAll({
         include: {
-            model:Transaction,
-            where:{
+            model: Transaction,
+            where: {
                 product: productId,
                 isSold: false
             }
         }
     });
-    users=users.filter(user=>user.Transactions.length).map(user=>{return {name:user.username,avatar:user.profile_img}});
+    users = users.filter(user => user.Transactions.length).map(user => { return { name: user.username, avatar: user.profile_img } });
     res.status(200).send(users);
 });
 
