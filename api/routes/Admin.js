@@ -50,6 +50,8 @@ router.get('/monthlyUsers', verifyAdminToken, async (req, res) => {
     sorted.map(e=>{final[e]=result[e]})
 
     res.json(final)
+=======
+
 })
 
 //OBTIENE LOS DETALLES DE CUALQUIER COSA DE LA CUAL SE PROPORCIONE EL ID
@@ -170,10 +172,8 @@ router.delete('/:productId', verifyAdminToken, async(req,res)=>{
 
 //ACTUALIZAR UN PRODUCTO
 router.put('/:productId', verifyAdminToken, async (req,res)=>{
-    
+    res.send('Hola')
 });
 
-
-
-
+  
 module.exports = router;
