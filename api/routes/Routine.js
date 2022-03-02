@@ -10,6 +10,11 @@ router.post("/:ownerId", async (req, res) => {
   try {
     const { title, exercises, price } = req.body;
     const { ownerId } = req.params;
+    const user = await User.findOne({
+      where: {
+        id: ownerId,
+      },
+    });
 
     //Se verifica si falta algun dato necesario
     if (!title || !exercises || !ownerId || !price) {
@@ -47,13 +52,14 @@ router.post("/:ownerId", async (req, res) => {
         days[weekDays[i]] = e;
       }
     });
-
+    
     const newRutine = await Routine.create({
       title,
       owner: ownerId,
       days,
       price,
     });
+    await user.addRoutine(newRutine);
     res.status(200).send(newRutine);
   } catch (error) {
     console.log(error);
@@ -62,7 +68,7 @@ router.post("/:ownerId", async (req, res) => {
 });
 
 //TRAE TODAS LAS RUTINAS DE UN USUARIO
-router.get("/getUserRoutines/:userId", verifyToken, async (req, res) => {
+router.get("/getUserRoutines/:userId", async (req, res) => {
   const { userId } = req.params;
   const userResult = await User.findOne({
     include: Routine,
@@ -75,7 +81,7 @@ router.get("/getUserRoutines/:userId", verifyToken, async (req, res) => {
   if (userResult) {
     return res.json(userResult.Routines);
   }
-  res.send(400).json({ error: "User not found" });
+  res.status(400).json({ error: "User not found" });
 });
 
 //BUSCAR RUTINA POR ID
