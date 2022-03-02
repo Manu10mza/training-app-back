@@ -16,6 +16,7 @@ router.get('/users', verifyAdminToken, async (req, res) => {
     res.json(result)
 });
 
+//TRAE ESTADÍSTICAS DE REGISTROS MENSUALES
 router.get('/monthlyUsers', verifyAdminToken, async (req, res) => {
     const users = await User.findAll();
 
@@ -93,7 +94,7 @@ router.get('/:productId', verifyAdminToken, async (req,res)=>{
 });
 
 
-//DESABILITA CUALQUIER OBJETO DEL CUAL SE LE PROPORCIONE EL ID
+//ALTERNA EL ESTADO DE DESABILITACIÓN DE CUALQUIER OBJETO
 router.delete('/:productId', verifyAdminToken, async(req,res)=>{    
     const { productId } = req.params
     //Comenzamos la busqueda en todas las tablas
@@ -106,7 +107,7 @@ router.delete('/:productId', verifyAdminToken, async(req,res)=>{
     });
     if(result){
         result.update({
-            disabled : true
+            disabled : !result.disabled
         });
         return res.status(200).json({success: 'Eliminated successfuly'});
     };
@@ -119,7 +120,7 @@ router.delete('/:productId', verifyAdminToken, async(req,res)=>{
     });
     if(result){
         result.update({
-            disabled : true
+            disabled : !result.disabled
         })
         return res.status(200).json({success: 'Eliminated successfuly'});
     };
@@ -132,7 +133,7 @@ router.delete('/:productId', verifyAdminToken, async(req,res)=>{
     });
     if(result){
         result.update({
-            disabled : true
+            disabled : !result.disabled
         })
         return res.status(200).json({success: 'Eliminated successfuly'});
     };
@@ -145,7 +146,7 @@ router.delete('/:productId', verifyAdminToken, async(req,res)=>{
     });
     if(result){
         result.update({
-            disabled : true
+            disabled : !result.disabled
         })
         return res.status(200).json({success: 'Eliminated successfuly'});
     }
@@ -158,7 +159,7 @@ router.delete('/:productId', verifyAdminToken, async(req,res)=>{
     });
     if(result){
         result.update({
-            disabled : true
+            disabled : !result.disabled
         })
         return res.status(200).json({success: 'Eliminated successfuly'});
     };
