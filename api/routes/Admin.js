@@ -125,4 +125,19 @@ router.delete('/:productId', verifyAdminToken, async(req,res)=>{
     res.status(400).json({error: 'Product not found'});
 });
 
+
+//ACTUALIZAR UN PRODUCTO
+router.put('/:productId', verifyAdminToken, async (req,res)=>{
+    
+});
+
+
+//TRAER TODOS LOS PRODUCTOS
+router.get('/products', verifyAdminToken, async (req,res)=>{
+    const diets = await Diet.findAll();
+    const routines = await Routine.findAll();
+    res.status(200).json([...diets,...routines]);
+});
+
+
 module.exports = router;
