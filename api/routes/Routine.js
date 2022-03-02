@@ -124,9 +124,8 @@ router.get("/get/:routineId", async (req, res) => {
       return a
     }))
   }
-  //return {[position[i]]:a}
+
   return res.status(200).json(result);
-  return res.status(400).json({ error: "Routine not found" });
 });
 
 

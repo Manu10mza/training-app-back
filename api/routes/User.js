@@ -87,34 +87,23 @@ router.get('/:userId', verifyToken, async (req, res) => {
 //MODIFICAR DATOS DEL USUARIO
 router.put('/update/:userId', verifyToken, async (req, res) => {
       const { userId } = req.params;
-      const { username, password, email, profile_img } = req.body;
+      const { username, password, email, profile_img, disabled } = req.body;
       const targetUser = await User.findByPk(userId).then(result => result.dataValues).catch(() => false);
       
       if (!targetUser) return res.status(400).send({ error: 'User ID was not found in the database.' });
       //Evaluamos que lo que nos envían corresponda con lo que se debe guardar
-      let newData={}
 
-      if(password){
-            if(!/(?=.*\d).{8,}$/.test(password)) return res.status(400).send({ error: 'Password must contain at least 8 characters and 1 number'});
-            else newData.password=password
-      }
-
-      if(email){
-            if(!/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(email)) {
-                  return res.status(400).send({ error: 'Invalid email format.' })}
-            else newData.email=email
-      }  
-
-      if(profile_img) {
-            if(!/https?:\/\/.+\.(a?png|gif|p?jpe?g|jfif|pjp|webp|pdf|svg|avif|jxl|bmp|ico|cur|tiff?)$/i.test(profile_img))
-                  return res.status(400).send({ error: 'Invalid image link.' });
-            else newData.profile_img=profile_img
-      }
+      if(password&&!/(?=.*\d).{8,}$/.test(password)) return res.status(400).send({ error: 'Password must contain at least 8 characters and 1 number'});
       
-      if(username) {
-            if(username.length<5) return res.status(400).send({ error: 'Username must be at least 5 characters long' });
-            else newData.username=username
-      }
+
+      if(email&&!/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(email))
+            return res.status(400).send({ error: 'Invalid email format.' })
+      
+
+      if(profile_img&&!/https?:\/\/.+\.(a?png|gif|p?jpe?g|jfif|pjp|webp|pdf|svg|avif|jxl|bmp|ico|cur|tiff?)$/i.test(profile_img))
+            return res.status(400).send({ error: 'Invalid image link.' });
+      
+      if(username&&username.length<5) return res.status(400).send({ error: 'Username must be at least 5 characters long' });
 
       const success = await User.update({
             password: password?encrypt(password):targetUser.password,
