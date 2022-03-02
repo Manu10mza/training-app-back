@@ -21,7 +21,7 @@ router.post("/:userId", verifyToken, async (req, res) => {
         where: {
           title: title,
         },
-      });
+      }).catch(err => console.log(err));
 
       //Verificamos que no haya otro ejercicio con el mismo nombre
       if (!findExercise) {

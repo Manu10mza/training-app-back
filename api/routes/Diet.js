@@ -35,7 +35,8 @@ router.post("/:userId", verifyNutritionistToken, async (req, res) => {
   //SE CREA LA DIETA CON LOS DATOS PROPORCIONADOS
   try {
     const diet = await Diet.create({ ...req.body, owner });
-    userResult.addDiet(diet);
+    console.log(diet);
+    await userResult.addDiet(diet);
     return res.status(200).json("Successfuly created diet");
   } catch (error) {
     console.log(error);

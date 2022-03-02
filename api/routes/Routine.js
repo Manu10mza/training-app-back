@@ -84,8 +84,7 @@ router.get("/user/:userId", verifyToken, async (req, res) => {
       }
     }
   });
-  if(user) return res.json(user.dataValues.Routines);
-  res.status(400).send({ error: "User not found" });
+  return res.json(user ? user.dataValues.Routines : []);
 });
 
 
