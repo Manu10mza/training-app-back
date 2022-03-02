@@ -10,7 +10,7 @@ const { verifyToken } = require('../controllers/verifyToken');
 //GENERA UNA NUEVA TRANSACCION
 router.post("/:productId/:userId", verifyToken, async (req, res) => {
     const { productId, userId } = req.params;
-    const { id, amount, method, receipt } = req.body;
+    const { amount, method, receipt } = req.body;
     let finding;
     //Buscamos el producto
     finding = await Routine.findOne({
@@ -47,20 +47,20 @@ router.post("/:productId/:userId", verifyToken, async (req, res) => {
     if(!userClient) return res.status(400).json({error: 'User not found.'});
 
     try {
-        const transactionClient = await Transaction.create({
+        const transaction = await Transaction.create({
             productId : productId,
             amount: amount,
             method: method,
             receipt: receipt,
         });
     
-        await userClient.addTransaction(transactionClient.id);
-        await userOwner.addTransaction(transactionOwner.id);
+        await userClient.addTransaction(transaction.id);
+        await userOwner.addTransaction(transaction.id);
         
-        return res.status(200).json({success: 'Transaction added to the database.'});
+        return res.status(200).json({success: transaction});
     } catch (error) {
         console.log(error);
-        return res.status(400).json(error);
+        return res.status(500).json(error);
     }
 });
 
