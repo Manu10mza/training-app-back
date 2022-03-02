@@ -255,13 +255,12 @@ router.delete("/:id", verifyPTrainerToken, async (req, res) => {
       routineID.update({
         disabled: true,
       });
-      return res.status(200).json({error: "Routine eliminated"});
-
+      return res.status(200).json({ error: "Routine eliminated" });
     } catch (error) {
       return res.status(400).json(error);
     }
   }
-  return res.status(404).json({error: "Routine not found"});
+  return res.status(404).json({ error: "Routine not found" });
 });
 
 module.exports = router;
