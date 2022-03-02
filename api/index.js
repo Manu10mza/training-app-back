@@ -11,7 +11,7 @@ app.use(express.json());
 app.use("/api", router);
 
 db.sync({ force: false }).then(() => {
-  app.listen(process.env.PORT || 8200, () => {
-    console.log("Server on port 8200");
-  });
+    app.listen(process.env.PORT || 8200, () => {
+        console.log("Server on port 8200");
+    });
 });

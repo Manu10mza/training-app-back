@@ -1,73 +1,78 @@
 const router = require('express').Router();
 const sequelize = require('../db');
-const { User, Recipe, Diet, Exercise, Routine, Transaction } = sequelize.models; 
+const { User, Recipe, Diet, Exercise, Routine, Transaction } = sequelize.models;
 const { verifyAdminToken } = require('../controllers/verifyToken');
+
+router.get('/orders', verifyAdminToken, async (req, res) => {
+    try {
+        const allOrders = await Transaction.findAll()
+        res.status(200).json(allOrders)
+    } catch (error) {
+        res.status(500).json(error)
+    }
+})
+
 
 //TRAER TODOS LOS PRODUCTOS
 router.get('/stats/:type', verifyAdminToken, async (req, res) => {
-    const {type} = req.params
+    const { type } = req.params
     let mapType
 
-    if(type==='transactions')
-    mapType = await Transaction.findAll();
+    if (type === 'transactions')
+        mapType = await Transaction.findAll();
 
-    if(type==='users')
-    mapType = await User.findAll()
+    if (type === 'users')
+        mapType = await User.findAll()
 
-    
-    if(type==='nutritionists')
-    mapType = await User.findAll({
+
+    if (type === 'nutritionists')
+        mapType = await User.findAll({
             where: {
-                is_nutritionist:true
+                is_nutritionist: true
             }
         });
 
-    if(type==='trainers')
-    mapType = await User.findAll({
+    if (type === 'trainers')
+        mapType = await User.findAll({
             where: {
-                is_personal_trainer:true
+                is_personal_trainer: true
             }
         });
-    
+
 
     //users, transactions, nutritionists, trainers, dietas, rutinas
 
     let months = [
-            "Jan",
-            "Feb",
-            "Mar",
-            "Apr",
-            "May",
-            "Jun",
-            "Jul",
-            "Agu",
-            "Sep",
-            "Oct",
-            "Nov",
-            "Dec"
-        ]
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr",
+        "May",
+        "Jun",
+        "Jul",
+        "Agu",
+        "Sep",
+        "Oct",
+        "Nov",
+        "Dec"
+    ]
 
-    let result= {}
+    let result = {}
 
-    mapType.map(e=>{
+    mapType.map(e => {
         let month = e.createdAt.toString().split(' ')[1]
-        result.hasOwnProperty(month)?result[month]+=1:result[month]=1
+        result.hasOwnProperty(month) ? result[month] += 1 : result[month] = 1
     })
-
-    let sorted = [...Object.keys(result)].sort((a,b)=>months.indexOf(a)-months.indexOf(b))
-
-    let final={}
-
-    sorted.map(e=>{final[e]=result[e]})
-
+    let sorted = [...Object.keys(result)].sort((a, b) => months.indexOf(a) - months.indexOf(b))
+    let final = {}
+    sorted.map(e => { final[e] = result[e] })
     res.json(final)
-
 })
 
-router.get('/products', verifyAdminToken, async (req,res)=>{
+router.get('/products', verifyAdminToken, async (req, res) => {
     const diets = await Diet.findAll();
     const routines = await Routine.findAll();
-    res.status(200).json([...diets,...routines]);
+    res.status(200).json([...diets, ...routines]);
 });
 
 //TRAE TODOS LOS USUARIOS CREADOS EN LA BASE DE DATOS
@@ -80,125 +85,125 @@ router.get('/users', verifyAdminToken, async (req, res) => {
 
 
 //OBTIENE LOS DETALLES DE CUALQUIER COSA DE LA CUAL SE PROPORCIONE EL ID
-router.get('/:productId', verifyAdminToken, async (req,res)=>{
+router.get('/:productId', verifyAdminToken, async (req, res) => {
     //Busca en la tabla de usuarios
     const userResult = await User.findOne({
-        where:{
-                id: req.params.productId
+        where: {
+            id: req.params.productId
         }
     });
-    if(userResult) return res.status(200).json({success: userResult});
+    if (userResult) return res.status(200).json({ success: userResult });
     //Busca en la tabla de recetas
     const recipeResult = await Recipe.findOne({
-        where:{
-                id: req.params.productId
+        where: {
+            id: req.params.productId
         }
     });
-    if(recipeResult) return res.status(200).json({success: recipeResult});
+    if (recipeResult) return res.status(200).json({ success: recipeResult });
     //Busca en la tabla de ejericicos
     const exerciseResult = await Exercise.findOne({
-        where:{
-                id : req.params.productId
+        where: {
+            id: req.params.productId
         }
     });
-    if(exerciseResult) return res.status(200).json({success: exerciseResult})
+    if (exerciseResult) return res.status(200).json({ success: exerciseResult })
     //Busca en la tabla de rutinas
     const routineResult = await Routine.findOne({
-        where:{
-                id: req.params.productId
+        where: {
+            id: req.params.productId
         }
     });
-    if(routineResult) return res.status(200).json({error: routineResult});
+    if (routineResult) return res.status(200).json({ error: routineResult });
     //Busca en la tabla de dietas
     const dietResult = await Diet.findOne({
-        where:{
-                id : req.params.productId
-            }
-        });
-        if(dietResult) return res.status(200).json({success: dietResult});
-        //Si llega a est punto sin retornar nada no se encuentra el producto
-        return res.status(400).json({error:'Product not found'});
+        where: {
+            id: req.params.productId
+        }
+    });
+    if (dietResult) return res.status(200).json({ success: dietResult });
+    //Si llega a est punto sin retornar nada no se encuentra el producto
+    return res.status(400).json({ error: 'Product not found' });
 });
 
 
 //ALTERNA EL ESTADO DE DESABILITACIÓN DE CUALQUIER OBJETO
-router.delete('/:productId', verifyAdminToken, async(req,res)=>{    
+router.delete('/:productId', verifyAdminToken, async (req, res) => {
     const { productId } = req.params
     //Comenzamos la busqueda en todas las tablas
     let result;
     //En el caso de que sea un usuario
     result = await User.findOne({
-        where:{
-            id : productId
+        where: {
+            id: productId
         }
     });
-    if(result){
+    if (result) {
         result.update({
-            disabled : !result.disabled
+            disabled: !result.disabled
         });
-        return res.status(200).json({success: 'Eliminated successfuly'});
+        return res.status(200).json({ success: 'Eliminated successfuly' });
     };
 
     //En el caso de que sea una receta
     result = await Recipe.findOne({
-        where:{
-            id : productId
+        where: {
+            id: productId
         }
     });
-    if(result){
+    if (result) {
         result.update({
-            disabled : !result.disabled
+            disabled: !result.disabled
         })
-        return res.status(200).json({success: 'Eliminated successfuly'});
+        return res.status(200).json({ success: 'Eliminated successfuly' });
     };
 
     //En el caso de que sea una rutina
     result = await Routine.findOne({
-        where:{
-            id : productId
+        where: {
+            id: productId
         }
     });
-    if(result){
+    if (result) {
         result.update({
-            disabled : !result.disabled
+            disabled: !result.disabled
         })
-        return res.status(200).json({success: 'Eliminated successfuly'});
+        return res.status(200).json({ success: 'Eliminated successfuly' });
     };
 
     //En el caso de que sea un ejercicio
     result = await Exercise.findOne({
-        where:{
-            id : productId
+        where: {
+            id: productId
         }
     });
-    if(result){
+    if (result) {
         result.update({
-            disabled : !result.disabled
+            disabled: !result.disabled
         })
-        return res.status(200).json({success: 'Eliminated successfuly'});
+        return res.status(200).json({ success: 'Eliminated successfuly' });
     }
 
     //En el caso de que sea una dieta
     result = await Diet.findOne({
-        where:{
-            id : productId
+        where: {
+            id: productId
         }
     });
-    if(result){
+    if (result) {
         result.update({
-            disabled : !result.disabled
+            disabled: !result.disabled
         })
-        return res.status(200).json({success: 'Eliminated successfuly'});
+        return res.status(200).json({ success: 'Eliminated successfuly' });
     };
 
-    res.status(400).json({error: 'Product not found'});
+    res.status(400).json({ error: 'Product not found' });
 });
 
 
 //ACTUALIZAR UN PRODUCTO
-router.put('/:productId', verifyAdminToken, async (req,res)=>{
-    res.send('Hola')
-});
+// router.put('/:productId', verifyAdminToken, async (req,res)=>{
+//     res.send('Hola')
+// });
 
-  
-module.exports = router;
+
+module.exports = router
