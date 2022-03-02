@@ -5,6 +5,7 @@ const { Diet, User, Recipe, Review } = sequelize.models;
 
 //CREAR DIETAS
 router.post("/:userId", verifyNutritionistToken, async (req, res) => {
+<<<<<<< HEAD
     const { title, price, plain } = req.body;
     const owner = req.params.userId;
 
@@ -40,6 +41,44 @@ router.post("/:userId", verifyNutritionistToken, async (req, res) => {
         console.log(error);
         return res.status(400).json(error);
     }
+=======
+  const { title, price, plain } = req.body;
+  const owner = req.params.userId;
+
+  if (!title || !price || !owner || !plain) {
+    return res
+      .status(400)
+      .json({ success: false, message: "Invalid data format." });
+  }
+  //BUSCAMOS EL USUARIO PARA COMPROBAR DE QUE ESTÉ REGISTRADO EN LA DB
+  const userResult = await User.findOne({
+    where: {
+      id: owner,
+    },
+  });
+  if (!userResult) return res.status(400).json({ error: "User not found" });
+
+  //Se busca que no exista una dieta con ese titulo
+  const dietResult = await Diet.findOne({
+    where: {
+      title,
+    },
+  });
+  if (dietResult)
+    return res
+      .status(200)
+      .json({ error: "Ya existe una dieta con ese titulo", dietResult });
+
+  //SE CREA LA DIETA CON LOS DATOS PROPORCIONADOS
+  try {
+    const diet = await Diet.create({ ...req.body, owner });
+    userResult.addDiet(diet);
+    return res.status(200).json("Successfuly created diet");
+  } catch (error) {
+    console.log(error);
+    return res.status(400).json(error);
+  }
+>>>>>>> 9d318bc3d6af77fb93206ff60974c9ff7199c611
 });
 
 
