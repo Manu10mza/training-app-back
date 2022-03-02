@@ -1,24 +1,36 @@
 const router = require('express').Router();
 const sequelize = require('../db');
-const { User, Recipe, Diet, Exercise, Routine } = sequelize.models; 
+const { User, Recipe, Diet, Exercise, Routine, Transaction } = sequelize.models; 
 const { verifyAdminToken } = require('../controllers/verifyToken');
 
 //TRAER TODOS LOS PRODUCTOS
-router.get('/products', verifyAdminToken, async (req,res)=>{
-    const diets = await Diet.findAll();
-    const routines = await Routine.findAll();
-    res.status(200).json([...diets,...routines]);
-});
+router.get('/stats/:type', verifyAdminToken, async (req, res) => {
+    const {type} = req.params
+    let mapType
 
-//TRAE TODOS LOS USUARIOS CREADOS EN LA BASE DE DATOS
-router.get('/users', verifyAdminToken, async (req, res) => {
-    const result = await User.findAll();
-    res.json(result)
-});
+    if(type==='transactions')
+    mapType = await Transaction.findAll();
 
-//TRAE ESTADÍSTICAS DE REGISTROS MENSUALES
-router.get('/monthlyUsers', verifyAdminToken, async (req, res) => {
-    const users = await User.findAll();
+    if(type==='users')
+    mapType = await User.findAll()
+
+    
+    if(type==='nutritionists')
+    mapType = await User.findAll({
+            where: {
+                is_nutritionist:true
+            }
+        });
+
+    if(type==='trainers')
+    mapType = await User.findAll({
+            where: {
+                is_personal_trainer:true
+            }
+        });
+    
+
+    //users, transactions, nutritionists, trainers, dietas, rutinas
 
     let months = [
             "Jan",
@@ -37,7 +49,7 @@ router.get('/monthlyUsers', verifyAdminToken, async (req, res) => {
 
     let result= {}
 
-    users.map(e=>{
+    mapType.map(e=>{
         let month = e.createdAt.toString().split(' ')[1]
         result.hasOwnProperty(month)?result[month]+=1:result[month]=1
     })
@@ -51,6 +63,21 @@ router.get('/monthlyUsers', verifyAdminToken, async (req, res) => {
     res.json(final)
 
 })
+
+router.get('/products', verifyAdminToken, async (req,res)=>{
+    const diets = await Diet.findAll();
+    const routines = await Routine.findAll();
+    res.status(200).json([...diets,...routines]);
+});
+
+//TRAE TODOS LOS USUARIOS CREADOS EN LA BASE DE DATOS
+router.get('/users', verifyAdminToken, async (req, res) => {
+    const result = await User.findAll();
+    res.json(result)
+});
+
+//TRAE ESTADÍSTICAS DE REGISTROS MENSUALES
+
 
 //OBTIENE LOS DETALLES DE CUALQUIER COSA DE LA CUAL SE PROPORCIONE EL ID
 router.get('/:productId', verifyAdminToken, async (req,res)=>{
