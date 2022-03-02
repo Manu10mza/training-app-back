@@ -10,15 +10,14 @@ const { verifyToken } = require('../controllers/verifyToken');
 //GENERA UNA NUEVA TRANSACCION
 router.post("/:productId/:userId", verifyToken, async (req, res) => {
     const { productId, userId } = req.params;
-    const { bill } = req.body;
+    const { id, amount, method, receipt } = req.body;
     let finding;
-
     //Buscamos el producto
     finding = await Routine.findOne({
         where:{
             id : productId
         }
-    });
+    }).catch(err => console.log(err));
 
     if(!finding){
         finding = await Diet.findOne({
@@ -28,7 +27,7 @@ router.post("/:productId/:userId", verifyToken, async (req, res) => {
         });
     }
 
-    if(!finding) return res.status(400).json({error: 'Product not found'});
+    if(!finding) return res.status(400).json({error: 'Product not found.'});
     const product = finding.dataValues;
 
     //Buscamos al dueño del producto
@@ -37,34 +36,30 @@ router.post("/:productId/:userId", verifyToken, async (req, res) => {
             id : product.owner
         }
     });
-    if(!userOwner) return res.status(400).json({error: 'Owner not found'});
+    if(!userOwner) return res.status(400).json({error: 'Owner not found.'});
 
     const userClient = await User.findOne({
         where:{
             id : userId
         }
-    });
+    }).catch(err => console.log(err));
 
-    if(!userClient) return res.status(400).json({error: 'User not found'});
+    if(!userClient) return res.status(400).json({error: 'User not found.'});
 
     try {
         const transactionClient = await Transaction.create({
-            amount : product.price,
-            product : product.id,
-            bill
-        });
-        const transactionOwner = await Transaction.create({
-            amount : product.price,
-            product : product.id,
-            isSold: true,
-            bill
+            productId : productId,
+            amount: amount,
+            method: method,
+            receipt: receipt,
         });
     
         await userClient.addTransaction(transactionClient.id);
         await userOwner.addTransaction(transactionOwner.id);
         
-        return res.status(200).json({success: 'Transaction successfuly'});
+        return res.status(200).json({success: 'Transaction added to the database.'});
     } catch (error) {
+        console.log(error);
         return res.status(400).json(error);
     }
 });
@@ -94,9 +89,9 @@ router.post('/payment', verifyToken ,(req, res) => {
         },
         (stripeErr, stripeRes) => {
             if (stripeErr) {
-                res.status(200).json(stripeErr);
+                res.status(500).json(stripeErr);
             } else {
-                res.status(500).json(stripeRes);
+                res.status(200).json(stripeRes);
             }
         }
     )
