@@ -41,9 +41,7 @@ router.get('/monthlyUsers', verifyAdminToken, async (req, res) => {
         result.hasOwnProperty(month)?result[month]+=1:result[month]=1
     })
 
-    let sorted = []
-
-    for(let key of Object.keys(result)) sorted.push(key)
+    let sorted = [...Object.keys(result)]
 
     sorted.sort((a,b)=>months.indexOf(a)-months.indexOf(b))
 
