@@ -14,8 +14,6 @@ router.get('/', async (req, res)=>{
             // console.log(error)
             return res.status(400).json({error})
       }
-      
-      res.status(200).json({health : health, sports: sports, combined : [...health, ...sports]})
+      res.status(200).json({ health: health, sports: sports, combined: [...health, ...sports] });
 });
 module.exports = router;
-

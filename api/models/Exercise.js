@@ -19,6 +19,10 @@ const Exercise = (sequelize) => {
       type: DataTypes.STRING,
       allowNull: true,
     },
+    image: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
     disabled: {
       type: DataTypes.BOOLEAN,
       defaultValue: false,
