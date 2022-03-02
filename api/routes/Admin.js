@@ -41,16 +41,13 @@ router.get('/monthlyUsers', verifyAdminToken, async (req, res) => {
         result.hasOwnProperty(month)?result[month]+=1:result[month]=1
     })
 
-    let sorted = [...Object.keys(result)]
-
-    sorted.sort((a,b)=>months.indexOf(a)-months.indexOf(b))
+    let sorted = [...Object.keys(result)].sort((a,b)=>months.indexOf(a)-months.indexOf(b))
 
     let final={}
 
     sorted.map(e=>{final[e]=result[e]})
 
     res.json(final)
-=======
 
 })
 
