@@ -1,5 +1,6 @@
 const router = require('express').Router();
 const sequelize = require('../db');
+const Op = sequelize.Op;
 const { verifyToken, verifyNutritionistToken } = require('../controllers/verifyToken');
 const Recipe = sequelize.models.Recipe;
 const User = sequelize.models.User;
@@ -24,7 +25,8 @@ router.post('/:userId', verifyNutritionistToken,async (req, res) => {
   //Nos aseguramos de que no existe algo con el mismo titulo
   const findRecipe = await Recipe.findOne({
     where:{
-      title : req.body.title
+      title : req.body.title,
+      disabled: false
     }
   })
 
@@ -52,14 +54,16 @@ router.get('/user/:userId', verifyToken, async (req, res) => {
   const user = await User.findOne({
     where:{
       id : req.params.userId,
-      disabled: false
+      // disabled: false
     },
-    include : Recipe
+    include : [{
+      model: Recipe,
+      where:{
+        disabled: false
+      }
+    }]
   });
-  if(user){
-    return res.status(200).json(user.dataValues.Recipes);
-  }
-  res.status(400).json({error: 'User not found'});
+  res.status(200).json(user?.dataValues.Recipes);
 });
 
 
@@ -86,6 +90,7 @@ router.put('/:userId/:recipeId', verifyNutritionistToken, async (req, res)=>{
   
   const {recipeId, userId} = req.params;
   const {carbohydrates, description, grease, grs, kcal, proteins, title} = req.body;
+  console.log(req.body)
   //Buscamos la receta
   const targetRecipe = await Recipe.findOne({
     where:{
@@ -156,7 +161,7 @@ router.put('/:userId/:recipeId', verifyNutritionistToken, async (req, res)=>{
 
 
 //ELIINAR UNA RECETA
-router.delete('/:recipeId', verifyNutritionistToken, async (req,res)=>{
+router.delete('/:userId/:recipeId', verifyNutritionistToken, async (req,res)=>{
   let recipe = await Recipe.findOne({
     where:{
       id : req.params.recipeId

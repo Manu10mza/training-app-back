@@ -8,10 +8,11 @@ const { verifyToken } = require('../controllers/verifyToken');
 
 
 //GENERA UNA NUEVA TRANSACCION
-router.post("/:productId/:userId", verifyToken, async (req, res) => {
+router.post("/:productId/:userId", async (req, res) => {
     const { productId, userId } = req.params;
     const { amount, method, receipt } = req.body;
-    let finding;
+    let finding, productType = "Routine";
+  
     //Buscamos el producto
     finding = await Routine.findOne({
         where:{
@@ -20,6 +21,7 @@ router.post("/:productId/:userId", verifyToken, async (req, res) => {
     }).catch(err => console.log(err));
 
     if(!finding){
+        productType="Diet"
         finding = await Diet.findOne({
             where:{
                 id : productId
@@ -37,7 +39,6 @@ router.post("/:productId/:userId", verifyToken, async (req, res) => {
         }
     });
     if(!userOwner) return res.status(400).json({error: 'Owner not found.'});
-
     const userClient = await User.findOne({
         where:{
             id : userId
@@ -56,12 +57,29 @@ router.post("/:productId/:userId", verifyToken, async (req, res) => {
     
         await userClient.addTransaction(transaction.id);
         await userOwner.addTransaction(transaction.id);
+        productType==="Routine"?await userClient.addRoutine(product.id):await userClient.addDiet(product.id);
         
         return res.status(200).json({success: transaction});
     } catch (error) {
         console.log(error);
         return res.status(500).json(error);
     }
+});
+
+//OBTIENE LOS USUARIOS QUE COMPRARON CIERTO PRODUCTO
+router.get('/users/:productId',async(req,res)=>{
+    const {productId}=req.params;
+    let users=await User.findAll({
+        include: {
+            model:Transaction,
+            where:{
+                product: productId,
+                isSold: false
+            }
+        }
+    });
+    users=users.filter(user=>user.Transactions.length).map(user=>{return {name:user.username,avatar:user.profile_img}});
+    res.status(200).send(users);
 });
 
 
