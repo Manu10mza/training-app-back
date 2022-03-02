@@ -85,6 +85,26 @@ router.get('/', verifyToken, async (req, res) => {
 });
 
 
+//OBTENER TODAS LAS DIETAS DE UN USUARIO
+router.get('/user/:userId', verifyToken, async (req, res) => {
+    const { userId } = req.params;
+    const userDiet = await User.findOne({
+        where: {
+            id: userId,
+            disabled: false
+        },
+        include: {
+            model: Diet,
+            where: {
+                disabled: false
+            }
+        }
+    });
+    if (userDiet) return res.status(200).json(userDiet.dataValues.Diets);
+    res.status(400).json({ error: 'User not found' });
+});
+
+
 //OBTENER DIETA SEGUN ID
 router.get("/:id", verifyToken, async (req, res) => {
     const { id } = req.params;
@@ -126,61 +146,99 @@ router.get("/:id", verifyToken, async (req, res) => {
 });
 
 
-//EDITAR UNA DIETA
-// router.put("/update/:userId/:dietId", verifyNutritionistToken, async (req, res) => {
-//     try {
-//         const { title, price, plan } = req.body;
-//         const { userId, dietId } = req.params;
-//         let updateValues = {};
-
-//         //Debe enviarse al menos un dato
-//         if (!title && !price && !userId && !plan) {
-//             return res
-//                 .status(400)
-//                 .json({ success: false, message: "Invalid data format" });
-//         }
-//         if (title) updateValues.title = title;
-//         //El precio debe ser mayor o igual a 0
-//         if (price && !isNaN(price * 1) && price >= 0) updateValues.price = price;
-
-//         let plain = {};
-
-//         //Se arma el plan de la dieta, con sus recetas
-//         if (plan) {
-//             for (const entry of plan) {
-//                 const day = entry.day;
-//                 const course = entry.meals;
-//                 for (const m in course) {
-//                     const meal = await Recipe.findByPk(course[m]).then(
-//                         (r) => r.dataValues
-//                     );
-//                     plain[day] = plain[day] || {};
-//                     plain[day][m] = meal;
-//                 }
-//             }
-//         }
-//     )
-
-//ELIMINAT DIETA
-router.delete("/:dietId", verifyNutritionistToken, async (req, res) => {
-  const { dietId } = req.params;
-  const result = await Diet.findOne({
-    where: {
-      id: dietId
-    }});
-
-  if(result){
+//EDITAR DIETA
+router.put("/update/:userId/:dietId", verifyNutritionistToken, async (req, res) => {
     try {
-      result.update({
-        disabled: true
-      });
+        const { title, price, plan } = req.body;
+        const { userId, dietId } = req.params;
+        let updateValues = {};
 
-      return res.status(200).json({success: 'Diet eliminated successfuly'});
+        //Debe enviarse al menos un dato
+        if (!title && !price && !userId && !plan) {
+            return res
+                .status(400)
+                .json({ success: false, message: "Invalid data format" });
+        }
+        if (title) updateValues.title = title;
+        //El precio debe ser mayor o igual a 0
+        if (price && !isNaN(price * 1) && price >= 0) updateValues.price = price;
+
+        let plain = {};
+
+        //Se arma el plan de la dieta, con sus recetas
+        if (plan) {
+            for (const entry of plan) {
+                const day = entry.day;
+                const course = entry.meals;
+                for (const m in course) {
+                    const meal = await Recipe.findByPk(course[m]).then(
+                        (r) => r.dataValues
+                    );
+                    plain[day] = plain[day] || {};
+                    plain[day][m] = meal;
+                }
+            }
+            updateValues.plain = plain;
+        }
+        const ownerModel = await User.findOne({
+            where: {
+                id: userId,
+            },
+        });
+
+        //Se verifica si el usuario existe
+        if (!ownerModel) {
+            return res
+                .status(400)
+                .json({ success: false, message: "Invalid owner ID." });
+        }
+
+        //Actualización de datos
+        for (const key in updateValues) {
+            let success = await Diet.update(
+                {
+                    [key]: updateValues[key],
+                },
+                {
+                    where: {
+                        id: dietId,
+                    },
+                }
+            );
+            if (!success)
+                return res
+                    .status(400)
+                    .json({ success: false, message: "Error updating exercise" });
+        }
+        let diet = await Diet.findByPk(dietId);
+        return res.status(200).send(diet);
     } catch (error) {
-      res.status(400).json(error);
+        return res.status(400).json({ error: error });
     }
-  }
-  return res.status(400).json({error: 'Diet not found'});
+}
+);
+
+//ELIMINAR DIETA
+router.delete("/:dietId", verifyNutritionistToken, async (req, res) => {
+    const { dietId } = req.params;
+    const result = await Diet.findOne({
+        where: {
+            id: dietId
+        }
+    });
+
+    if (result) {
+        try {
+            result.update({
+                disabled: true
+            });
+
+            return res.status(200).json({ success: 'Diet eliminated successfuly' });
+        } catch (error) {
+            res.status(400).json(error);
+        }
+    }
+    return res.status(400).json({ error: 'Diet not found' });
 });
 
 module.exports = router;

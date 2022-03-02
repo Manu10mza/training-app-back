@@ -17,8 +17,8 @@ const Transaction = (sequelize) => {
                   default : false
             },
             product: {
-                  type: DataTypes.JSON,
-                  allowNull: false
+                  type: DataTypes.UUID,
+                  allowNull: false,
             },
             bill:{
                   type: DataTypes.TEXT,

@@ -1,5 +1,6 @@
 const router = require('express').Router();
 const sequelize = require('../db');
+const Op = sequelize.Op;
 const { verifyToken, verifyNutritionistToken } = require('../controllers/verifyToken');
 const Recipe = sequelize.models.Recipe;
 const User = sequelize.models.User;
@@ -24,7 +25,8 @@ router.post('/:userId', verifyNutritionistToken, async (req, res) => {
     //Nos aseguramos de que no existe algo con el mismo titulo
     const findRecipe = await Recipe.findOne({
         where: {
-            title: req.body.title
+            title: req.body.title,
+            disabled: false
         }
     })
 
@@ -39,8 +41,11 @@ router.post('/:userId', verifyNutritionistToken, async (req, res) => {
             console.log(error)
             return res.status(400).json(error)
         }
-    };
-})
+
+    } else {
+        return res.status(401).json({ error: 'There is already a recipe with that title' })
+    }
+});
 
 
 //TRAER TODAS LAS RECETAS DE PERTENECIENTE A UN USUARIO
@@ -49,14 +54,16 @@ router.get('/user/:userId', verifyToken, async (req, res) => {
     const user = await User.findOne({
         where: {
             id: req.params.userId,
-            disabled: false
+            // disabled: false
         },
-        include: Recipe
+        include: [{
+            model: Recipe,
+            where: {
+                disabled: false
+            }
+        }]
     });
-    if (user) {
-        return res.status(200).json(user.dataValues.Recipes);
-    }
-    res.status(400).json({ error: 'User not found' });
+    res.status(200).json(user?.dataValues.Recipes);
 });
 
 
@@ -83,6 +90,7 @@ router.put('/:userId/:recipeId', verifyNutritionistToken, async (req, res) => {
 
     const { recipeId, userId } = req.params;
     const { carbohydrates, description, grease, grs, kcal, proteins, title } = req.body;
+    console.log(req.body)
     //Buscamos la receta
     const targetRecipe = await Recipe.findOne({
         where: {
@@ -146,15 +154,75 @@ router.put('/:userId/:recipeId', verifyNutritionistToken, async (req, res) => {
                 id: recipeId
             }
         });
-        if (!success) return res.status(500).json({ error: `Something went wrong when updating "${key}" with value "${value}". Please notify backend with code: REC149` })
-    }
 
-    return res.status(200).json({ success: 'Recipe updated successfully' })
+        //Evaluamos posibles conflictos
+
+        let strings = []
+
+        for (let [key, value] of Object.entries(targetRecipe.dataValues)) if (typeof value === 'string') strings.push(key)
+
+        let nonstrings = []
+
+        for (let [key, value] of Object.entries(req.body)) if (strings.includes(key) && typeof value !== 'string') nonstrings.push(key)
+        if (nonstrings.length) return res.status(400).json({ error: "These values should be strings: " + nonstrings.join(', ') });//Ver si tal campo debe ser un string
+
+        //----------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+        let numbers = []
+
+        for (let [key, value] of Object.entries(targetRecipe.dataValues)) if (typeof value === 'number') numbers.push(key)
+
+        let negatives = []
+
+        for (let [key, value] of Object.entries(req.body)) if (numbers.includes(key) && (Number(value) < 0 || Number(value) === NaN)) negatives.push(key)
+        if (negatives.length) return res.status(400).json({ error: "These values are either negative or non-numeric, when they should't: " + negatives.join(', ') });//Ver si tal campo debe ser un numero
+
+        //----------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+        if (targetRecipe.dataValues.UserId !== userId) {
+            return res.status(401).json({ error: 'This user doesn\'t own this recipe' });
+        }
+
+        //----------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+        let emptyFields = []
+
+        for (let [key, value] of Object.entries(req.body)) {
+            if (!value && value !== 0) emptyFields.push(key)
+        }
+
+        if (emptyFields.length) {
+            return res.status(400).json({ error: `No fields can be empty, please check: ${emptyFields.join(', ')}` }) //Ver que ningún campo esté vacio
+        }
+
+        //----------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+        for (value in req.body) if (!targetRecipe.dataValues.hasOwnProperty(value)) return res.status(400).json({ error: `Invalid field name: ${value}` }); //Ver que todos los campos enviados existan en el modelo
+
+        //----------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+        //Actualizamos la receta
+
+        for (let [key, value] of Object.entries(req.body)) {
+            const success = Recipe.update({
+                [key]: value
+            }, {
+                where: {
+                    id: recipeId
+                }
+            });
+            if (!success) return res.status(500).json({ error: `Something went wrong when updating "${key}" with value "${value}". Please notify backend with code: REC149` })
+        }
+
+        return res.status(200).json({ success: 'Recipe updated successfully' })
+
+
+    }
 });
 
 
 //ELIINAR UNA RECETA
-router.delete('/:recipeId', verifyNutritionistToken, async (req, res) => {
+router.delete('/:userId/:recipeId', verifyNutritionistToken, async (req, res) => {
     let recipe = await Recipe.findOne({
         where: {
             id: req.params.recipeId
@@ -171,7 +239,8 @@ router.delete('/:recipeId', verifyNutritionistToken, async (req, res) => {
         } catch (error) {
             return res.status(400).json(error);
         }
+        return res.status(400).json({ error: 'Recipe not found' });
     }
-    return res.status(400).json({ error: 'Recipe not found' });
-});
+})
+
 module.exports = router;

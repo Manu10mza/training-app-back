@@ -5,11 +5,17 @@ const {
   verifyToken,
 } = require("../controllers/verifyToken");
 
+
 //CREAR UNA RUTINA
 router.post("/:ownerId", async (req, res) => {
   try {
     const { title, exercises, price } = req.body;
     const { ownerId } = req.params;
+    const user = await User.findOne({
+      where: {
+        id: ownerId,
+      },
+    });
 
     //Se verifica si falta algun dato necesario
     if (!title || !exercises || !ownerId || !price) {
@@ -21,7 +27,7 @@ router.post("/:ownerId", async (req, res) => {
         error:
           "Array length should be 7 (at least one exercise per day, or Null on some day with no exercise)",
       });
-    if (!Array.isArray(exercises[0]))
+    if (!Array.isArray(exercises))
       return res.status(400).json({
         error:
           "Invalid exercise; Ej:[[{Exercise1-Monday},{Exercise2-Monday}],[{Exercise1-Tuesday},{Exercise2-Tuesday}]...]",
@@ -47,13 +53,14 @@ router.post("/:ownerId", async (req, res) => {
         days[weekDays[i]] = e;
       }
     });
-
+    
     const newRutine = await Routine.create({
       title,
       owner: ownerId,
       days,
       price,
     });
+    await user.addRoutine(newRutine);
     res.status(200).send(newRutine);
   } catch (error) {
     console.log(error);
@@ -61,22 +68,26 @@ router.post("/:ownerId", async (req, res) => {
   }
 });
 
+
 //TRAE TODAS LAS RUTINAS DE UN USUARIO
-router.get("/getUserRoutines/:userId", verifyToken, async (req, res) => {
+router.get("/user/:userId", verifyToken, async (req, res) => {
   const { userId } = req.params;
-  const userResult = await User.findOne({
-    include: Routine,
+  const user = await User.findOne({
     where: {
       id: userId,
       disabled: false,
     },
+    include:{
+      model : Routine,
+      where:{
+        disabled: false
+      }
+    }
   });
-
-  if (userResult) {
-    return res.json(userResult.Routines);
-  }
+  if(user) return res.json(user.dataValues.Routines);
   res.send(400).json({ error: "User not found" });
 });
+
 
 //BUSCAR RUTINA POR ID
 router.get("/get/:routineId", async (req, res) => {
@@ -90,6 +101,7 @@ router.get("/get/:routineId", async (req, res) => {
   if (result) return res.status(200).json(result);
   return res.status(400).json({ error: "Routine not found" });
 });
+
 
 //ACTUALIZAR UNA RUTINA YA EXISTENTE
 router.put(
@@ -192,6 +204,7 @@ router.put(
   }
 );
 
+
 //TRAER TODAS LAS RUTINAS DE LA DB
 router.get("/", async (req, res) => {
   const result = await Routine.findAll(
@@ -238,11 +251,8 @@ router.get("/", async (req, res) => {
   res.status(200).json(result);
 });
 
-/**
- * DELETE - Modifica el valor de la variable disabled: from false to true
- * @params  {id} routine's ID
- * @response "Routine eliminated"
- */
+
+//ELIMINAR UNA RUTINA
 router.delete("/:id", verifyPTrainerToken, async (req, res) => {
   const { id } = req.params;
   const routineID = await Routine.findOne({
@@ -255,13 +265,13 @@ router.delete("/:id", verifyPTrainerToken, async (req, res) => {
       routineID.update({
         disabled: true,
       });
-      return res.status(200).json({error: "Routine eliminated"});
+      return res.status(200).json({ error: "Routine eliminated" });
 
     } catch (error) {
       return res.status(400).json(error);
     }
   }
-  return res.status(404).json({error: "Routine not found"});
+  return res.status(404).json({ error: "Routine not found" });
 });
 
 module.exports = router;
