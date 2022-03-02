@@ -3,12 +3,56 @@ const sequelize = require('../db');
 const { User, Recipe, Diet, Exercise, Routine } = sequelize.models; 
 const { verifyAdminToken } = require('../controllers/verifyToken');
 
+//TRAER TODOS LOS PRODUCTOS
+router.get('/products', verifyAdminToken, async (req,res)=>{
+    const diets = await Diet.findAll();
+    const routines = await Routine.findAll();
+    res.status(200).json([...diets,...routines]);
+});
+
 //TRAE TODOS LOS USUARIOS CREADOS EN LA BASE DE DATOS
 router.get('/users', verifyAdminToken, async (req, res) => {
     const result = await User.findAll();
     res.json(result)
 });
 
+router.get('/monthlyUsers', verifyAdminToken, async (req, res) => {
+    const users = await User.findAll();
+
+    let months = [
+            "Jan",
+            "Feb",
+            "Mar",
+            "Apr",
+            "May",
+            "Jun",
+            "Jul",
+            "Agu",
+            "Sep",
+            "Oct",
+            "Nov",
+            "Dec"
+        ]
+
+    let result= {}
+
+    users.map(e=>{
+        let month = e.createdAt.toString().split(' ')[1]
+        result.hasOwnProperty(month)?result[month]+=1:result[month]=1
+    })
+
+    let sorted = []
+
+    for(let key of Object.keys(result)) sorted.push(key)
+
+    sorted.sort((a,b)=>months.indexOf(a)-months.indexOf(b))
+
+    let final={}
+
+    sorted.map(e=>{final[e]=result[e]})
+
+    res.json(final)
+})
 
 //OBTIENE LOS DETALLES DE CUALQUIER COSA DE LA CUAL SE PROPORCIONE EL ID
 router.get('/:productId', verifyAdminToken, async (req,res)=>{
@@ -44,11 +88,11 @@ router.get('/:productId', verifyAdminToken, async (req,res)=>{
     const dietResult = await Diet.findOne({
         where:{
                 id : req.params.productId
-        }
-    });
-    if(dietResult) return res.status(200).json({success: dietResult});
-    //Si llega a est punto sin retornar nada no se encuentra el producto
-    return res.status(400).json({error:'Product not found'});
+            }
+        });
+        if(dietResult) return res.status(200).json({success: dietResult});
+        //Si llega a est punto sin retornar nada no se encuentra el producto
+        return res.status(400).json({error:'Product not found'});
 });
 
 
@@ -132,12 +176,6 @@ router.put('/:productId', verifyAdminToken, async (req,res)=>{
 });
 
 
-//TRAER TODOS LOS PRODUCTOS
-router.get('/products', verifyAdminToken, async (req,res)=>{
-    const diets = await Diet.findAll();
-    const routines = await Routine.findAll();
-    res.status(200).json([...diets,...routines]);
-});
 
 
 module.exports = router;
