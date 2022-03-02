@@ -7,22 +7,21 @@ const Transaction = (sequelize) => {
                   defaultValue: DataTypes.UUIDV4,
                   primaryKey: true
             },
+            productId: {
+                  type: DataTypes.STRING,
+                  allowNull: false
+            },
             amount: {
                   type: DataTypes.FLOAT,
                   allowNull: false
             },
-            isSold: {
-                  type: DataTypes.BOOLEAN,
-                  allowNull: true,
-                  default : false
+            method: {
+                  type: DataTypes.JSON,
+                  allowNull: false
             },
-            product: {
-                  type: DataTypes.UUID,
-                  allowNull: false,
-            },
-            bill:{
+            receipt:{
                   type: DataTypes.TEXT,
-                  allowNull: true
+                  allowNull: false
             }
       });
 };
