@@ -9,6 +9,13 @@ router.get('/users', verifyAdminToken, async (req, res) => {
     res.json(result)
 });
 
+//TRAER TODOS LOS PRODUCTOS
+router.get('/products', verifyAdminToken, async (req,res)=>{
+    const diets = await Diet.findAll();
+    const routines = await Routine.findAll();
+
+    res.status(200).json([...diets, ...routines]);
+})
 
 //OBTIENE LOS DETALLES DE CUALQUIER COSA DE LA CUAL SE PROPORCIONE EL ID
 router.get('/:productId', verifyAdminToken, async (req,res)=>{
@@ -128,16 +135,7 @@ router.delete('/:productId', verifyAdminToken, async(req,res)=>{
 
 //ACTUALIZAR UN PRODUCTO
 router.put('/:productId', verifyAdminToken, async (req,res)=>{
-    
+    res.send('Hola')
 });
-
-
-//TRAER TODOS LOS PRODUCTOS
-router.get('/products', verifyAdminToken, async (req,res)=>{
-    const diets = await Diet.findAll();
-    const routines = await Routine.findAll();
-    res.status(200).json([...diets,...routines]);
-});
-
 
 module.exports = router;
