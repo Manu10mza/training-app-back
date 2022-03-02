@@ -128,6 +128,25 @@ router.get("/get/:routineId", async (req, res) => {
   return res.status(200).json(result);
 });
 
+//TRAER DETALLES DE UNA RUTINA
+router.get("/details/:routineId", async (req, res) => {
+  const id = req.params.routineId;
+  let result = await Routine.findOne({
+    where: {
+      id,
+      disabled: false,
+    },
+    include: {
+      model: Exercise,
+      attributes: ["title"],
+      through: {
+        attributes: [],
+      },
+    },
+  });
+  if (result) return res.status(200).json(result);
+  return res.status(400).json({ error: "Details not found" });
+});
 
 //ACTUALIZAR UNA RUTINA YA EXISTENTE
 router.put(
@@ -292,7 +311,6 @@ router.delete("/:id", verifyPTrainerToken, async (req, res) => {
         disabled: true,
       });
       return res.status(200).json({ error: "Routine eliminated" });
-
     } catch (error) {
       return res.status(400).json(error);
     }
