@@ -47,11 +47,10 @@ router.post("/:ownerId", async (req, res) => {
       "Saturday",
       "Sunday",
     ];
-    const days = [];
+    const days = {};
     exercises.forEach((e, i) => {
       if (e) {
-        let day = {title : weekDays[i], exercoses : e}
-        days.push(day)
+        days[weekDays[i]]=e
       }
     });
     
@@ -86,35 +85,47 @@ router.get("/user/:userId", verifyToken, async (req, res) => {
     }
   });
   if(user) return res.json(user.dataValues.Routines);
-  res.send(400).json({ error: "User not found" });
+  res.status(400).send({ error: "User not found" });
 });
 
 
 //BUSCAR RUTINA POR ID
 router.get("/get/:routineId", async (req, res) => {
   const id = req.params.routineId;
+
+  console.log(id)
+
+  if(!id) return res.status(400).send({error: 'No ID was provided'})
+  if(!/[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}/.test(id)) return res.status(400).send({error: 'Invalid ID'})
+
   let result = await Routine.findOne({
     where: {
       id,
       disabled: false,
     },
   });
-  let solution = result
+
+  if(!result) return res.status(400).send({error: 'No routine with the provided ID was found'})
 
   for(let key of Object.keys(result.days)) {
 
-        solution.days[key] = await Promise.all(result.days[key].map(async e=>{
-          return await Exercise.findOne({
-            where: {
-              id: e.id,
-              disabled: false
-            }
-          })
-        }))
+    result.days[key] = await Promise.all(result.days[key].map(async (e,i)=>{
 
+      if(!/[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}/.test(e)) return "This exercise had an invalid ID"
+      
+      let a = await Exercise.findOne({
+        where: {
+          id: e,
+          disabled: false
+        }
+      })
+
+      if(!a) a="Exercise not found"
+      return a
+    }))
   }
-
-  if (result) return res.status(200).json(solution);
+  //return {[position[i]]:a}
+  return res.status(200).json(result);
   return res.status(400).json({ error: "Routine not found" });
 });
 
