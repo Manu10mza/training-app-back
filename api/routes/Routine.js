@@ -1,5 +1,5 @@
 const router = require("express").Router();
-const { Routine, Review, User } = require("../db.js").models;
+const { Routine, Review, User, Exercise } = require("../db.js").models;
 const {
   verifyPTrainerToken,
   verifyToken,
@@ -89,6 +89,26 @@ router.get("/get/:routineId", async (req, res) => {
   });
   if (result) return res.status(200).json(result);
   return res.status(400).json({ error: "Routine not found" });
+});
+
+//TRAER DETALLES DE UNA RUTINA
+router.get("/details/:routineId", async (req, res) => {
+  const id = req.params.routineId;
+  let result = await Routine.findOne({
+    where: {
+      id,
+      disabled: false,
+    },
+    include: {
+      model: Exercise,
+      attributes: ["title"],
+      through: {
+        attributes: [],
+      },
+    },
+  });
+  if (result) return res.status(200).json(result);
+  return res.status(400).json({ error: "Details not found" });
 });
 
 //ACTUALIZAR UNA RUTINA YA EXISTENTE
