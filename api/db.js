@@ -24,16 +24,18 @@ const modelDefiners = [];
 //   });
 // modelDefiners.forEach((model) => model(sequelize));
 
-fs.readdirSync(path.join(__dirname, '/models'))
-  .filter((file) => (file.indexOf('.') !== 0) && (file !== dirName) && (file.slice(-3) === '.js'))
+fs.readdirSync(path.join(__dirname, "/models"))
+  .filter(
+    (file) =>
+      file.indexOf(".") !== 0 && file !== dirName && file.slice(-3) === ".js"
+  )
   .forEach((file) => {
-    modelDefiners.push(require(path.join(__dirname, '/models', file)));
+    modelDefiners.push(require(path.join(__dirname, "/models", file)));
   });
-modelDefiners.forEach(model => model(sequelize));
+modelDefiners.forEach((model) => model(sequelize));
 
-
-
-const { User, Exercise, Routine, Recipe, Diet, Transaction, Review } = sequelize.models;
+const { User, Exercise, Routine, Recipe, Diet, Transaction, Review } =
+  sequelize.models;
 //Generamos las relaciones
 User.hasMany(Exercise);
 Exercise.belongsTo(User);
@@ -49,6 +51,12 @@ Diet.belongsToMany(User, { through: "User_diets" });
 
 User.belongsToMany(Routine, { through: "User_routines" });
 Routine.belongsToMany(User, { through: "User_routines" });
+
+Exercise.belongsToMany(Routine, { through: "Routine_exercises" });
+Routine.belongsToMany(Exercise, { through: "Routine_exercises" });
+
+Recipe.belongsToMany(Diet, { through: "Diet_recipes" });
+Diet.belongsToMany(Recipe, { through: "Diet_recipes" });
 
 Diet.hasMany(Review);
 Routine.hasMany(Review);

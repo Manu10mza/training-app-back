@@ -10,15 +10,14 @@ const { verifyToken } = require('../controllers/verifyToken');
 //GENERA UNA NUEVA TRANSACCION
 router.post("/:productId/:userId", async (req, res) => {
     const { productId, userId } = req.params;
-    const { bill } = req.body;
-    let finding;
-    let productType = "Routine";
+    const { amount, method, receipt } = req.body;
+    let finding, productType = "Routine";
     //Buscamos el producto
     finding = await Routine.findOne({
         where: {
             id: productId
         }
-    });
+    }).catch(err => console.log(err));
     if (!finding) {
         productType = "Diet"
         finding = await Diet.findOne({
@@ -27,41 +26,35 @@ router.post("/:productId/:userId", async (req, res) => {
             }
         });
     }
-    if (!finding) return res.status(400).json({ error: 'Product not found' });
+    if (!finding) return res.status(400).json({ error: 'Product not found.' });
     const product = finding.dataValues;
-    // Buscamos al dueño del producto
+    //Buscamos al dueño del producto
     const userOwner = await User.findOne({
         where: {
             id: product.owner
         }
     });
-    if (!userOwner) return res.status(400).json({ error: 'Owner not found' });
+    if (!userOwner) return res.status(400).json({ error: 'Owner not found.' });
     const userClient = await User.findOne({
         where: {
             id: userId
         }
-    });
-    if (!userClient) return res.status(400).json({ error: 'User not found' });
+    }).catch(err => console.log(err));
+    if (!userClient) return res.status(400).json({ error: 'User not found.' });
     try {
-        const transactionClient = await Transaction.create({
-            amount: product.price,
-            product: product.id,
-            isSold: false,
-            bill
+        const transaction = await Transaction.create({
+            productId: productId,
+            amount: amount,
+            method: method,
+            receipt: receipt,
         });
-        const transactionOwner = await Transaction.create({
-            amount: product.price,
-            product: product.id,
-            isSold: true,
-            bill
-        });
-        await userClient.addTransaction(transactionClient.id);
+        await userClient.addTransaction(transaction.id);
+        await userOwner.addTransaction(transaction.id);
         productType === "Routine" ? await userClient.addRoutine(product.id) : await userClient.addDiet(product.id);
-        await userOwner.addTransaction(transactionOwner.id);
-
-        return res.status(200).json({ success: 'Transaction successfuly' });
+        return res.status(200).json({ success: transaction });
     } catch (error) {
-        return res.status(400).json(error);
+        console.log(error);
+        return res.status(500).json(error);
     }
 });
 
@@ -106,7 +99,7 @@ router.post('/payment', verifyToken, (req, res) => {
         },
         (stripeErr, stripeRes) => {
             if (stripeErr) {
-                res.status(200).json(stripeErr);
+                res.status(500).json(stripeErr);
             } else {
                 res.status(200).json(stripeRes);
             }
