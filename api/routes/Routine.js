@@ -1,5 +1,5 @@
 const router = require("express").Router();
-const { Routine, Review, User } = require("../db.js").models;
+const { Routine, Review, User, Exercise } = require("../db.js").models;
 const {
   verifyPTrainerToken,
   verifyToken,
@@ -47,10 +47,11 @@ router.post("/:ownerId", async (req, res) => {
       "Saturday",
       "Sunday",
     ];
-    const days = {};
+    const days = [];
     exercises.forEach((e, i) => {
       if (e) {
-        days[weekDays[i]] = e;
+        let day = {title : weekDays[i], exercoses : e}
+        days.push(day)
       }
     });
     
@@ -98,7 +99,22 @@ router.get("/get/:routineId", async (req, res) => {
       disabled: false,
     },
   });
-  if (result) return res.status(200).json(result);
+  let solution = result
+
+  for(let key of Object.keys(result.days)) {
+
+        solution.days[key] = await Promise.all(result.days[key].map(async e=>{
+          return await Exercise.findOne({
+            where: {
+              id: e.id,
+              disabled: false
+            }
+          })
+        }))
+
+  }
+
+  if (result) return res.status(200).json(solution);
   return res.status(400).json({ error: "Routine not found" });
 });
 
