@@ -1,6 +1,6 @@
 const router = require("express").Router();
 const sequelize = require("../db");
-const {verifyToken, verifyPTrainerToken } = require("../controllers/verifyToken");
+const { verifyToken, verifyPTrainerToken } = require("../controllers/verifyToken");
 const Exercise = sequelize.models.Exercise;
 const User = sequelize.models.User;
 
@@ -67,12 +67,12 @@ router.get("/user/:userId", verifyToken, async (req, res) => {
 //OBTENER UN EJERCICIO ESPECIFICO
 router.get("/:id", verifyToken, async (req, res) => {
   try {
-    let result = await Exercise.findAll({
+    let result = await Exercise.findOne({
       where: {
         id: req.params.id,
         disabled: false,
       },
-    });
+    }).then(data => data.dataValues);
     return res.status(200).send(result);
   } catch (error) {
     return res.status(400).json({ error });
@@ -133,17 +133,17 @@ router.delete("/:id", verifyPTrainerToken, async (req, res) => {
       id,
     },
   });
-    if (exerciseID) {
-      try {
-        exerciseID.update({
-          disabled: true,
-        });
+  if (exerciseID) {
+    try {
+      exerciseID.update({
+        disabled: true,
+      });
 
-        res.status(200).json({error: "Exercise eliminated"});
-      } catch (error) {
-        res.status(400).json(error);
-      }
+      res.status(200).json({ error: "Exercise eliminated" });
+    } catch (error) {
+      res.status(400).json(error);
     }
-    res.status(404).json({error: "Exercise not found"});
+  }
+  res.status(404).json({ error: "Exercise not found" });
 });
 module.exports = router;
