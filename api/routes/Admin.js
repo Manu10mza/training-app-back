@@ -1,6 +1,6 @@
 const router = require('express').Router();
 const sequelize = require('../db');
-const { User, Recipe, Diet, Exercise, Routine } = sequelize.models;
+const { User, Recipe, Diet, Exercise, Routine, Transaction } = sequelize.models;
 const { verifyAdminToken } = require('../controllers/verifyToken');
 
 //TRAER TODOS LOS PRODUCTOS
@@ -9,6 +9,15 @@ router.get('/products', verifyAdminToken, async (req, res) => {
     const routines = await Routine.findAll();
     res.status(200).json([...diets, ...routines]);
 });
+
+router.get('/orders', verifyAdminToken, async (req, res) => {
+    try {
+        const allOrders = await Transaction.findAll()
+        res.status(200).json(allOrders)
+    } catch (error) {
+        res.status(500).json(error)
+    }
+})
 
 //TRAE TODOS LOS USUARIOS CREADOS EN LA BASE DE DATOS
 router.get('/users', verifyAdminToken, async (req, res) => {
@@ -19,7 +28,6 @@ router.get('/users', verifyAdminToken, async (req, res) => {
 //TRAE ESTADÍSTICAS DE REGISTROS MENSUALES
 router.get('/monthlyUsers', verifyAdminToken, async (req, res) => {
     const users = await User.findAll();
-
     let months = [
         "Jan",
         "Feb",
@@ -34,22 +42,15 @@ router.get('/monthlyUsers', verifyAdminToken, async (req, res) => {
         "Nov",
         "Dec"
     ]
-
     let result = {}
-
     users.map(e => {
         let month = e.createdAt.toString().split(' ')[1]
         result.hasOwnProperty(month) ? result[month] += 1 : result[month] = 1
     })
-
     let sorted = [...Object.keys(result)].sort((a, b) => months.indexOf(a) - months.indexOf(b))
-
     let final = {}
-
     sorted.map(e => { final[e] = result[e] })
-
     res.json(final)
-
 })
 
 //OBTIENE LOS DETALLES DE CUALQUIER COSA DE LA CUAL SE PROPORCIONE EL ID
