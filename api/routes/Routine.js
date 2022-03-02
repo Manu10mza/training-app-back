@@ -86,31 +86,44 @@ router.get("/user/:userId", verifyToken, async (req, res) => {
     }
   });
   if(user) return res.json(user.dataValues.Routines);
-  res.send(400).json({ error: "User not found" });
+  res.status(400).send({ error: "User not found" });
 });
 
 
 //BUSCAR RUTINA POR ID
 router.get("/get/:routineId", async (req, res) => {
   const id = req.params.routineId;
+
+  console.log(id)
+
+  if(!id) return res.status(400).send({error: 'No ID was provided'})
+  if(!/[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}/.test(id)) return res.status(400).send({error: 'Invalid ID'})
+  //if(isUUID()) return res.send(400).json('The provided ID is invalid')
+  
+
   let result = await Routine.findOne({
     where: {
       id,
       disabled: false,
     },
   });
+  console.log(result)
+  if(!result) return res.status(400).send({error: 'No routine with the provided ID was found'})
+
   let solution = result
 
   for(let key of Object.keys(result.days)) {
 
-        solution.days[key] = await Promise.all(result.days[key].map(async e=>{
-          return await Exercise.findOne({
-            where: {
-              id: e.id,
-              disabled: false
-            }
-          })
-        }))
+    solution.days[key] = await Promise.all(result.days[key].map(async e=>{
+      let a = await Exercise.findOne({
+        where: {
+          id: e.id,
+          disabled: false
+        }
+      })
+      if(!a) a="Exercise not found"
+      return a
+    }))
 
   }
 
