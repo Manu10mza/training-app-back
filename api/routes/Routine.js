@@ -16,7 +16,6 @@ router.post("/:ownerId", async (req, res) => {
         id: ownerId,
       },
     });
-    console.log(user)
 
     //Se verifica si falta algun dato necesario
     if (!title || !exercises || !ownerId || !price) {
