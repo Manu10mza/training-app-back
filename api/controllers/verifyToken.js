@@ -50,7 +50,7 @@ const verifyAdminToken = (req, res, next) => {
             console.log('Estoy aqui2')
                   next();
             } else {
-                  return res.status(401).json({ error: 'You are not alowed to do that' });
+                  return res.status(401).json({ error: 'Invalid token' });
             }
       } else {
             return res.status(400).json({ error: 'You did not provide a token!' });
