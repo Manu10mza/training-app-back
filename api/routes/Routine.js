@@ -85,16 +85,13 @@ router.get("/user/:userId", verifyToken, async (req, res) => {
       }
     }
   });
-  if(user) return res.json(user.dataValues.Routines);
-  res.status(400).send({ error: "User not found" });
+  return res.json(user ? user.dataValues.Routines : []);
 });
 
 
 //BUSCAR RUTINA POR ID
-router.get("/get/:routineId", async (req, res) => {
+router.get("/get/:routineId", verifyToken, async (req, res) => {
   const id = req.params.routineId;
-
-  console.log(id)
 
   if(!id) return res.status(400).send({error: 'No ID was provided'})
   if(!/[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}/.test(id)) return res.status(400).send({error: 'Invalid ID'})

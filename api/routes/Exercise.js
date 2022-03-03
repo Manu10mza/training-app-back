@@ -21,7 +21,7 @@ router.post("/:userId", verifyToken, async (req, res) => {
         where: {
           title: title,
         },
-      });
+      }).catch(err => console.log(err));
 
       //Verificamos que no haya otro ejercicio con el mismo nombre
       if (!findExercise) {
@@ -72,10 +72,12 @@ router.get("/:id", verifyToken, async (req, res) => {
         id: req.params.id,
         disabled: false,
       },
-    }).then(data => data.dataValues);
-    return res.status(200).send(result);
+    })
+    if(result) return res.status(200).send(result.dataValues);
+    return res.status(400).json({error:'Exercise not found'})
   } catch (error) {
-    return res.status(400).json({ error });
+    console.log(error)
+    return res.status(400).json(error);
   }
 });
 
