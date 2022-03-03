@@ -62,6 +62,7 @@ router.post('/login', async (req, res) => {
                                                 profileImg: userDb.profile_img, 
                                                 PTrainer:userDb.is_personal_trainer, 
                                                 Nutritionist:userDb.is_nutritionist,
+                                                isAdmin:userDb.is_admin,
                                                 accessToken 
                                           });
             }
