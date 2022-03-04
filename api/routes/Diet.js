@@ -48,12 +48,13 @@ router.post("/:userId", verifyNutritionistToken, async (req, res) => {
 //TRAER TODAS LAS DIETAS DE LA DB
 router.get('/', verifyToken, async (req, res) => {
     const result = await Diet.findAll({
-        attributes: ["id", "price"],
         include: [
             {
                 model: User,
                 attributes: [
                     "id",
+                    "username",
+                    "email",
                     "is_nutritionist",
                     "is_personal_trainer",
                     "profile_img",

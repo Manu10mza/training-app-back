@@ -248,10 +248,9 @@ router.put(
 
 
 //TRAER TODAS LAS RUTINAS DE LA DB
-router.get("/", async (req, res) => {
+router.get("/", verifyToken, async (req, res) => {
   const result = await Routine.findAll(
     {
-      attributes: ["id", "price"],
       include: [
         {
           model: User,

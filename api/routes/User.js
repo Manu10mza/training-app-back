@@ -62,6 +62,7 @@ router.post('/login', async (req, res) => {
                                                 profileImg: userDb.profile_img, 
                                                 PTrainer:userDb.is_personal_trainer, 
                                                 Nutritionist:userDb.is_nutritionist,
+                                                isAdmin:userDb.is_admin,
                                                 accessToken 
                                           });
             }
@@ -82,6 +83,43 @@ router.get('/:userId', verifyToken, async (req, res) => {
       if (result) return res.status(200).json(result);
       return res.status(400).json({ error: 'User not found' });
 });
+
+
+//TRAE TODOS LOS NUTRISIONISTAS
+router.get('/get/nutritionist', verifyToken, async (req, res) => {
+      try {
+            const result = await User.findAll({
+                  attributes: ['id', 'profile_img','username', 'email','gender','country','is_nutritionist','is_personal_trainer'],
+                  where: {
+                        is_nutritionist : true,
+                        disabled : false
+                  }
+            });
+            return res.status(200).send(result);
+      } catch (error) {
+            console.log(error)
+            return res.status(400).json({error});
+      };
+});
+
+
+//TRAE TODOS LOS TRAINERS
+router.get('/get/trainers', verifyToken, async (req, res) => {
+      try {
+            const trainers = await User.findAll({
+                  attributes: ['id', 'profile_img','username', 'email','gender','country','is_nutritionist','is_personal_trainer'],
+                  where: {
+                        is_personal_trainer:true,
+                        disabled : false
+                  }
+            });
+            return res.status(200).json(trainers);
+      } catch (error) {
+            return res.status(200).json({error});
+      }
+});
+
+
 
 
 //MODIFICAR DATOS DEL USUARIO
@@ -122,31 +160,6 @@ router.put('/update/:userId', verifyToken, async (req, res) => {
             res.status(500).send({ error: 'There was an error processing your request.' });
       }
 });
-
-
-//TRAE TODOS LOS NUTRISIONISTAS
-router.get('/nutritionists', verifyToken, async (req, res) => {
-      const nutritionists = await User.findAll({
-            attributes: ['id', 'profile_img','username', 'email'],
-            where: {
-                  is_nutritionist:true
-            }
-      });
-      return res.status(200).send(nutritionists);
-});
-
-
-//TRAE TODOS LOS TRAINERS
-router.get('/get/trainers', verifyToken, async (req, res) => {
-      const trainers = await User.findAll({
-            attributes: ['id', 'profile_img','username', 'email'],
-            where: {
-                  is_personal_trainer:true
-            }
-      });
-      return res.status(200).send(trainers);
-});
-
 
 /*
       Todo: Crear ruta de eliminacion de usuario
