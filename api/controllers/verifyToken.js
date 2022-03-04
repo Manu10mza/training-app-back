@@ -42,7 +42,6 @@ const verifyPTrainerToken = (req, res, next) => {
 
 //Verifica que el usuario tenga el rol admin
 const verifyAdminToken = (req, res, next) => {
-      console.log('Estoy aqui')
       const token = req.headers.token;
       if (token) {
             const decoded = jwt.verify(token, process.env.JWT_KEY);
