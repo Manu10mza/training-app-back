@@ -12,6 +12,7 @@ const dietRoutes = require('./Diet');
 const reviewRoutes = require('./Review');
 const adminRoutes = require('./Admin');
 const newsRoutes = require('./News');
+const searchRoute = require('./Search');
 
 router.use('/register', registerRoute);
 router.use('/user', logInRoute);
@@ -23,5 +24,6 @@ router.use('/transaction', transactionRoute);
 router.use('/review', reviewRoutes);
 router.use('/admin', adminRoutes);
 router.use('/news', newsRoutes);
+router.use('/search', searchRoute);
 
 module.exports = router;
