@@ -7,9 +7,9 @@ const Routine = (sequelize) => {
       defaultValue: DataTypes.UUIDV4,
       primaryKey: true,
     },
-    image:{
+    image: {
       type: DataTypes.STRING,
-      allowNull: true
+      allowNull: true,
     },
     title: {
       type: DataTypes.STRING,
@@ -31,6 +31,10 @@ const Routine = (sequelize) => {
     disabled: {
       type: DataTypes.BOOLEAN,
       defaultValue: false,
+      allowNull: true,
+    },
+    description: {
+      type: DataTypes.TEXT,
       allowNull: true,
     },
   });
