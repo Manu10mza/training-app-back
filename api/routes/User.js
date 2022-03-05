@@ -138,7 +138,7 @@ router.put('/update/:userId', verifyToken, async (req, res) => {
             return res.status(400).send({ error: 'Invalid email format.' })
       
 
-      if(profile_img&&!/https?:\/\/.+\.(a?png|gif|p?jpe?g|jfif|pjp|webp|pdf|svg|avif|jxl|bmp|ico|cur|tiff?)$/i.test(profile_img))
+      if(profile_img&&!/https?:\/\/.+(\.(a?png|gif|p?jpe?g|jfif|pjp|webp|pdf|svg|avif|jxl|bmp|ico|cur|tiff?))+[\s\S]*(media)+[\s\S]*/i.test(profile_img))
             return res.status(400).send({ error: 'Invalid image link.' });
       
       if(username&&username.length<5) return res.status(400).send({ error: 'Username must be at least 5 characters long' });
