@@ -5,14 +5,16 @@ const { encrypt, decrypt } = require("../controllers/encrypt");
 
 router.post("/", async (req, res) => {
   //Encriptamos la contraseña antes de guardarla
-  req.body.password = encrypt(req.body.password);
+  let {email,username,password} = req.body
+  if(!email||!username||!password) return res.status(400).json({ error: "Some fields where empty" });
+  password = encrypt(req.body.password);
   req.body.nro_acount
     ? (req.body.nro_acount = encrypt(req.body.nro_acount))
     : "";
   //Comprueba que no exista un email igual en la base de datos
   const result = await User.findOne({
     where: {
-      email: req.body.email,
+      email
     },
   });
   if (!result) {
