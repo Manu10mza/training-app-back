@@ -16,7 +16,6 @@ router.post("/:ownerId", async (req, res) => {
         id: ownerId,
       },
     });
-
     //Se verifica si falta algun dato necesario
     if (!title || !exercises || !ownerId || !price) {
       return res.status(400).json({ error: "Missing required data" });
@@ -79,6 +78,7 @@ router.get("/user/:userId", verifyToken, async (req, res) => {
     },
     include:{
       model : Routine,
+      include : Review,
       where:{
         disabled: false
       }
@@ -102,26 +102,7 @@ router.get("/get/:routineId", verifyToken, async (req, res) => {
     },
   });
 
-  if(!result) return res.status(400).send({error: 'No routine with the provided ID was found'})
-
-  for(let key of Object.keys(result.days)) {
-
-    result.days[key] = await Promise.all(result.days[key].map(async (e,i)=>{
-
-      if(!/[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}/.test(e)) return "This exercise had an invalid ID"
-      
-      let a = await Exercise.findOne({
-        where: {
-          id: e,
-          disabled: false
-        }
-      })
-
-      if(!a) a="Exercise not found"
-      return a
-    }))
-  }
-
+  if(!result) return res.status(400).send({error: 'No routine with the provided ID was found'});
   return res.status(200).json(result);
 });
 
