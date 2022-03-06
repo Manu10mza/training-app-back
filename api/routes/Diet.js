@@ -7,7 +7,6 @@ const { Diet, User, Recipe, Review } = sequelize.models;
 router.post("/:userId", verifyNutritionistToken, async (req, res) => {
   const { title, price, plain } = req.body;
   const owner = req.params.userId;
-
   if (!title || !price || !owner || !plain) {
     return res
       .status(400)
@@ -98,13 +97,14 @@ router.get('/user/:userId', verifyToken, async (req, res) => {
         },
         include: {
             model: Diet,
+            include : Review,
             where: {
                 disabled: false
             }
         }
     });
     if (userDiet) return res.status(200).json(userDiet.dataValues.Diets);
-    res.status(400).json({ error: 'User not found' });
+    res.status(404).json({ error: 'User not found' });
 });
 
 
