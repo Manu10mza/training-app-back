@@ -59,20 +59,20 @@ router.post("/:productId/:userId", async (req, res) => {
 });
 
 //OBTIENE LOS USUARIOS QUE COMPRARON CIERTO PRODUCTO
-router.get('/users/:productId', async (req, res) => {
-    const { productId } = req.params;
-    let users = await User.findAll({
-        include: {
-            model: Transaction,
-            where: {
-                product: productId,
-                isSold: false
-            }
-        }
-    });
-    users = users.filter(user => user.Transactions.length).map(user => { return { name: user.username, avatar: user.profile_img } });
-    res.status(200).send(users);
-});
+// router.get('/users/:productId', async (req, res) => {
+//     const { productId } = req.params;
+//     let users = await User.findAll({
+//         include: {
+//             model: Transaction,
+//             where: {
+//                 product: productId,
+//                 isSold: false
+//             }
+//         }
+//     });
+//     users = users.filter(user => user.Transactions.length).map(user => { return { name: user.username, avatar: user.profile_img } });
+//     res.status(200).send(users);
+// });
 
 
 //OBTIENE EL HISTORIAL DE LAS TRANSACCIONES

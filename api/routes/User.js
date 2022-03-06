@@ -8,7 +8,6 @@ const { verifyToken } = require('../controllers/verifyToken');
 //LOGEO
 router.post('/login', async (req, res) => {
       //Para loguearse deben enviar Username o Mail
-      console.log(req.body)
       let result;
       if (req.body.username) {
             result = await User.findOne({
@@ -73,7 +72,7 @@ router.post('/login', async (req, res) => {
 
 
 //OBTENER TODOS LOS DATOS DE UN USUARIO
-router.get('/:userId', verifyToken, async (req, res) => {
+router.get('/:userId', async (req, res) => {
       const result = await User.findOne({ // findByPK
             attributes: ['id', 'username', 'email', 'profile_img', 'gender', 'country', 'training_days', 'height', 'weight', 'createdAt', 'is_nutritionist', 'is_personal_trainer'],
             where: {
@@ -86,7 +85,7 @@ router.get('/:userId', verifyToken, async (req, res) => {
 
 
 //TRAE TODOS LOS NUTRISIONISTAS
-router.get('/get/nutritionist', verifyToken, async (req, res) => {
+router.get('/get/nutritionist', async (req, res) => {
       try {
             const result = await User.findAll({
                   attributes: ['id', 'profile_img','username', 'email','gender','country','is_nutritionist','is_personal_trainer'],
@@ -104,7 +103,7 @@ router.get('/get/nutritionist', verifyToken, async (req, res) => {
 
 
 //TRAE TODOS LOS TRAINERS
-router.get('/get/trainers', verifyToken, async (req, res) => {
+router.get('/get/trainers', async (req, res) => {
       try {
             const trainers = await User.findAll({
                   attributes: ['id', 'profile_img','username', 'email','gender','country','is_nutritionist','is_personal_trainer'],
@@ -138,7 +137,7 @@ router.put('/update/:userId', verifyToken, async (req, res) => {
             return res.status(400).send({ error: 'Invalid email format.' })
       
 
-      if(profile_img&&!/https?:\/\/.+\.(a?png|gif|p?jpe?g|jfif|pjp|webp|pdf|svg|avif|jxl|bmp|ico|cur|tiff?)$/i.test(profile_img))
+      if(profile_img&&!/https?:\/\/.+(\.(a?png|gif|p?jpe?g|jfif|pjp|webp|pdf|svg|avif|jxl|bmp|ico|cur|tiff?))+[\s\S]*(media)+[\s\S]*/i.test(profile_img))
             return res.status(400).send({ error: 'Invalid image link.' });
       
       if(username&&username.length<5) return res.status(400).send({ error: 'Username must be at least 5 characters long' });

@@ -9,43 +9,41 @@ router.post("/:userId", verifyNutritionistToken, async (req, res) => {
   const owner = req.params.userId;
   if (!title || !price || !owner || !plain) {
     return res
-      .status(400)
-      .json({ success: false, message: "Invalid data format." });
-  }
-  //BUSCAMOS EL USUARIO PARA COMPROBAR DE QUE ESTÉ REGISTRADO EN LA DB
-  const userResult = await User.findOne({
-    where: {
-      id: owner,
-    },
-  });
-  if (!userResult) return res.status(400).json({ error: "User not found" });
+        .status(400)
+        .json({ success: false, message: "Invalid data format." });
+    }
+    //BUSCAMOS EL USUARIO PARA COMPROBAR DE QUE ESTÉ REGISTRADO EN LA DB
+    const userResult = await User.findOne({
+        where: {
+        id: owner,
+        },
+    });
+    if (!userResult) return res.status(400).json({ error: "User not found" });
 
-  //Se busca que no exista una dieta con ese titulo
-  const dietResult = await Diet.findOne({
+    //Se busca que no exista una dieta con ese titulo
+    const dietResult = await Diet.findOne({
     where: {
-      title,
+        title,
     },
-  });
-  if (dietResult)
+    });
+    if (dietResult)
     return res
-      .status(200)
-      .json({ error: "Ya existe una dieta con ese titulo", dietResult });
+        .status(200)
+        .json({ error: "Ya existe una dieta con ese titulo", dietResult });
 
-  //SE CREA LA DIETA CON LOS DATOS PROPORCIONADOS
-  try {
+    //SE CREA LA DIETA CON LOS DATOS PROPORCIONADOS
+    try {
     const diet = await Diet.create({ ...req.body, owner });
-    console.log(diet);
     await userResult.addDiet(diet);
     return res.status(200).json("Successfuly created diet");
-  } catch (error) {
-    console.log(error);
+    } catch (error) {
     return res.status(400).json(error);
-  }
+    }
 });
 
 
 //TRAER TODAS LAS DIETAS DE LA DB
-router.get('/', verifyToken, async (req, res) => {
+router.get('/', async (req, res) => {
     const result = await Diet.findAll({
         include: [
             {
@@ -68,14 +66,13 @@ router.get('/', verifyToken, async (req, res) => {
         where: {
             disabled: false
         }
-    }).then((result) =>
-        result.map((entry) => ({
+    }).then( result => result.map( (entry) => ({
             ...entry.dataValues,
             Reviews: undefined, // ignore unwanted properties
             Users: undefined,
             owner: { ...entry.dataValues.Users[0].dataValues, User_diets: undefined }, // *assuming Users has a single entry
             reviews: entry.dataValues.Reviews.length,
-            rating:
+            rating: 
                 entry.dataValues.Reviews.map((e) => e.points).reduce(
                     (p, c) => p + c,
                     0
@@ -220,6 +217,7 @@ router.put("/update/:userId/:dietId", verifyNutritionistToken, async (req, res) 
     }
 }
 );
+
 
 //ELIMINAR DIETA
 router.delete("/:dietId", verifyNutritionistToken, async (req, res) => {

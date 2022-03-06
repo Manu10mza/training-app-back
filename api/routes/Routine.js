@@ -229,7 +229,7 @@ router.put(
 
 
 //TRAER TODAS LAS RUTINAS DE LA DB
-router.get("/", verifyToken, async (req, res) => {
+router.get("/", async (req, res) => {
   const result = await Routine.findAll(
     {
       include: [
