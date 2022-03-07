@@ -1,155 +1,138 @@
-const router = require("express").Router();
-const sequelize = require("../db");
-const { verifyToken, verifyPTrainerToken } = require("../controllers/verifyToken");
+const router = require('express').Router();
+const sequelize = require('../db');
+const { verifyToken, verifyPTrainerToken } = require('../controllers/verifyToken');
 const Exercise = sequelize.models.Exercise;
 const User = sequelize.models.User;
 
 //CREAR UN EJERCICIO
-router.post("/:userId", verifyToken, async (req, res) => {
-  const { title, description, video } = req.body;
-  const user = await User.findOne({
-    where: {
-      id: req.params.userId,
-    },
-  });
+router.post('/:userId', verifyToken, async (req, res) => {
+	const { title, description, video } = req.body;
+	try {
+    if (!title || !description || !video) throw "Missing required data.";
+		const user = await User.findOne({
+			where: {
+				id: req.params.userId,
+			},
+		}).catch((err) => {throw err;});
 
-  //Verificamos que exista el usuario
-  if (user) {
-    //Verificamos que hayan enviado los datos
-    if (title && description && video) {
-      const findExercise = await Exercise.findOne({
-        where: {
-          title: title,
-        },
-      }).catch(err => console.log(err));
-
-      //Verificamos que no haya otro ejercicio con el mismo nombre
-      if (!findExercise) {
-        try {
-          const newExercise = await Exercise.create(req.body);
-          user.addExercise(newExercise);
-          return res.status(200).send(newExercise); //json({success: 'Exercise created successfully'}
-        } catch (error) {
-          console.log(error);
-          return res.status(400).json(error);
-        }
-      } else {
-        return res
-          .status(400)
-          .json({ error: "An exercise with that title already exists" });
-      }
-    } else {
-      return res.status(400).json({ error: "Missing required data" });
-    }
-  } else {
-    return res.status(400).json({ error: "User not found" });
-  }
+		//Verificamos que hayan enviado los datos
+		const foundExercise = await Exercise.findOne({
+			where: {
+				title: title,
+			},
+		});
+		//Verificamos que no haya otro ejercicio con el mismo nombre
+		if (foundExercise) throw "Exercise with given name already exists.";
+		const newExercise = await Exercise.create(req.body).catch((err) => {throw err;});
+		await user.addExercise(newExercise).catch((err) => {throw err;});
+		return res.status(200).send(newExercise);
+	} catch (error) {
+		console.log(error);
+		return res.status(400).json({ error: error });
+	}
 });
 
 //OBTENER TODOS LOS EJERICICIOS DE UN USUARIO
-router.get("/user/:userId", verifyToken, async (req, res) => {
-  try {
-    const exercises = await User.findOne({
-      where: {
-        id: req.params.userId,
-        disabled: false,
-      },
-      include: {
-        model: Exercise,
-      }
-    })
-      .then(({ Exercises }) => Exercises.filter(exercise => !exercise.disabled))
-      .catch(error => { throw error });
-    return res.status(200).json(exercises);
-  }
-  catch (error) {
-    console.log(error);
-    return res.status(400).json({ error: error });
-  }
+router.get('/user/:userId', verifyToken, async (req, res) => {
+	try {
+		const exercises = await User.findOne({
+			where: {
+				id: req.params.userId,
+				disabled: false,
+			},
+			include: {
+				model: Exercise,
+			},
+		})
+			.then(({ Exercises }) => Exercises.filter((exercise) => !exercise.disabled))
+			.catch((error) => {
+				throw error;
+			});
+		return res.status(200).json(exercises);
+	} catch (error) {
+		console.log(error);
+		return res.status(400).json({ error: error });
+	}
 });
 
 //OBTENER UN EJERCICIO ESPECIFICO
-router.get("/:id", verifyToken, async (req, res) => {
-  try {
-    let result = await Exercise.findOne({
-      where: {
-        id: req.params.id,
-        disabled: false,
-      },
-    })
-    if(result) return res.status(200).send(result.dataValues);
-    return res.status(400).json({error:'Exercise not found'})
-  } catch (error) {
-    console.log(error)
-    return res.status(400).json(error);
-  }
+router.get('/:id', verifyToken, async (req, res) => {
+	try {
+		let result = await Exercise.findOne({
+			where: {
+				id: req.params.id,
+				disabled: false,
+			},
+		});
+		if (result) return res.status(200).send(result.dataValues);
+		return res.status(400).json({ error: 'Exercise not found' });
+	} catch (error) {
+		console.log(error);
+		return res.status(400).json(error);
+	}
 });
 
 //EDITAR UNA PUBLICACION
-router.put("/update/:userId/:exerciseId", verifyToken, async (req, res) => {
-  const { exerciseId, userId } = req.params;
-  const { value } = req.body;
-  let updateValue = {};
-  let isOwner;
+router.put('/update/:userId/:exerciseId', verifyToken, async (req, res) => {
+	const { exerciseId, userId } = req.params;
+	const { value } = req.body;
+	let updateValue = {};
+	let isOwner;
 
-  if (!value) return res.status(400).send({ error: "Value is required" });
+	if (!value) return res.status(400).send({ error: 'Value is required' });
 
-  let user = await User.findOne({
-    include: Exercise,
-    where: {
-      id: userId,
-    },
-  })
-    .then((r) => r && r.dataValues)
-    .catch(() => false);
-  isOwner = user?.Exercises.find((e) => e.dataValues.id === exerciseId);
-  if (!isOwner)
-    return res
-      .status(400)
-      .send({ error: "The user does not own this exercise" });
+	let user = await User.findOne({
+		include: Exercise,
+		where: {
+			id: userId,
+		},
+	})
+		.then((r) => r && r.dataValues)
+		.catch(() => false);
+	isOwner = user?.Exercises.find((e) => e.dataValues.id === exerciseId);
+	if (!isOwner) return res.status(400).send({ error: 'The user does not own this exercise' });
 
-  if (value.title) updateValue.title = value.title;
-  if (value.description) updateValue.description = value.description;
-  if (value.video) updateValue.video = value.video;
+	if (value.title) updateValue.title = value.title;
+	if (value.description) updateValue.description = value.description;
+	if (value.video) updateValue.video = value.video;
 
-  for (const key in value) {
-    let success = await Exercise.update(
-      {
-        [key]: updateValue[key],
-      },
-      {
-        where: {
-          id: exerciseId,
-          disabled: false,
-        },
-      }
-    );
-    if (!success)
-      return res.status(400).send({ error: "Error updating exercise" });
-  }
-  let exercise = await Exercise.findByPk(exerciseId);
-  return res.status(200).send(exercise);
+	for (const key in value) {
+		let success = await Exercise.update(
+			{
+				[key]: updateValue[key],
+			},
+			{
+				where: {
+					id: exerciseId,
+					disabled: false,
+				},
+			}
+		);
+		if (!success) return res.status(400).send({ error: 'Error updating exercise' });
+	}
+	let exercise = await Exercise.findByPk(exerciseId);
+	return res.status(200).send(exercise);
 });
 
 //ELIMINAR EJERCICIO
-router.delete("/:id", verifyPTrainerToken, async (req, res) => {
-  const { id } = req.params;
-  const exerciseID = await Exercise.findOne({
-    where: {
-      id,
-    },
-  });
-  if (exerciseID) {
-    try {
-      exerciseID.update({
-        disabled: true,
-      });
+router.delete('/:id', verifyPTrainerToken, async (req, res) => {
+	const { id } = req.params;
+	const exerciseID = await Exercise.findOne({
+		where: {
+			id,
+		},
+	});
+	if (exerciseID) {
+		try {
+			exerciseID.update({
+				disabled: true,
+			});
 
-      res.status(200).json({ error: "Exercise eliminated" });
-    } catch (error) {
-      res.status(400).json(error);
-    }
-  }
-  res.status(404).json({ error: "Exercise not found" });
+			res.status(200).json({ error: 'Exercise eliminated' });
+		} catch (error) {
+			res.status(400).json(error);
+		}
+	}
+	res.status(404).json({ error: 'Exercise not found' });
 });
 module.exports = router;
