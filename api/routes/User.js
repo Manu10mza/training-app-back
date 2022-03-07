@@ -8,6 +8,7 @@ const { verifyToken } = require('../controllers/verifyToken');
 //LOGEO
 router.post('/login', async (req, res) => {
       //Para loguearse deben enviar Username o Mail
+      //console.log(req.body.password)
       let result;
       if (req.body.username) {
             result = await User.findOne({
@@ -25,10 +26,12 @@ router.post('/login', async (req, res) => {
             return res.status(400).json({ error: "The necessary data to enter was not sent" });
       }
       //De está manera accedemos a los valores 
+      //console.log(result)
       const userDb = result?.dataValues;
       if (userDb) {
             //Desencriptamos la contraseña
             const userPassword = decrypt(userDb.password);
+            console.log(userDb.password, userDb, decrypt(userDb.password))
             //Verificamos que sean las contraseñas iguales
             if (userPassword === req.body.password) {
                   userDb.password = userPassword;
