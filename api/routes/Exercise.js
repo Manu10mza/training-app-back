@@ -48,20 +48,24 @@ router.post("/:userId", verifyToken, async (req, res) => {
 
 //OBTENER TODOS LOS EJERICICIOS DE UN USUARIO
 router.get("/user/:userId", verifyToken, async (req, res) => {
-  const user = await User.findOne({
-    where: {
-      id: req.params.userId,
-      disabled: false,
-    },
-    include: {
-      model: Exercise,
-      where:{
-        disabled : false
+  try {
+    const exercises = await User.findOne({
+      where: {
+        id: req.params.userId,
+        disabled: false,
+      },
+      include: {
+        model: Exercise,
       }
-    }
-  });
-  if (user) return res.status(200).json(user.dataValues.Exercises);
-  res.status(400).json({ error: "User not found" });
+    })
+      .then(({ Exercises }) => Exercises.filter(exercise => !exercise.disabled))
+      .catch(error => { throw error });
+    return res.status(200).json(exercises);
+  }
+  catch (error) {
+    console.log(error);
+    return res.status(400).json({ error: error });
+  }
 });
 
 //OBTENER UN EJERCICIO ESPECIFICO
