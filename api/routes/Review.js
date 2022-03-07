@@ -51,5 +51,33 @@ router.post('/', verifyToken, async (req, res) => {
   }
 
 });
+//TRAE LA REVIEW (puntaje) DEL PRODUCTO
+router.get("/product/:productId", verifyToken, async (req, res) => {
+  const { productId } = req.params;
+  const product = await Routine.findOne({
+    where: {
+      id: productId,
+      disabled: false,
+    },
+    include: Review
+  }) ||
+  await Diet.findOne({
+    where: {
+      id: productId,
+      disabled: false,
+    },
+    include: Review
+  })
+  if(!product) res.send(["Product not found"])
+  let reviews=product.dataValues.Reviews;
+  if(!reviews.length)
+    return res.json(0);
+  let prom=0;
+  reviews.forEach(({points})=>{
+    prom+=points;
+  })
+  prom=prom/reviews.length
+  return res.json(prom);
+});
 
 module.exports = router;

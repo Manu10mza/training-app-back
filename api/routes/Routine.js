@@ -5,18 +5,16 @@ const {
   verifyToken,
 } = require("../controllers/verifyToken");
 
-
 //CREAR UNA RUTINA
 router.post("/:ownerId", async (req, res) => {
   try {
-    const { title, exercises, price } = req.body;
+    const { title, exercises, price, image, description } = req.body;
     const { ownerId } = req.params;
     const user = await User.findOne({
       where: {
         id: ownerId,
       },
     });
-
     //Se verifica si falta algun dato necesario
     if (!title || !exercises || !ownerId || !price) {
       return res.status(400).json({ error: "Missing required data" });
@@ -50,15 +48,17 @@ router.post("/:ownerId", async (req, res) => {
     const days = {};
     exercises.forEach((e, i) => {
       if (e) {
-        days[weekDays[i]]=e
+        days[weekDays[i]] = e;
       }
     });
-    
+
     const newRutine = await Routine.create({
       title,
       owner: ownerId,
       days,
       price,
+      image,
+      description,
     });
     await user.addRoutine(newRutine);
     res.status(200).send(newRutine);
@@ -68,7 +68,6 @@ router.post("/:ownerId", async (req, res) => {
   }
 });
 
-
 //TRAE TODAS LAS RUTINAS DE UN USUARIO
 router.get("/user/:userId", verifyToken, async (req, res) => {
   const { userId } = req.params;
@@ -77,23 +76,28 @@ router.get("/user/:userId", verifyToken, async (req, res) => {
       id: userId,
       disabled: false,
     },
-    include:{
-      model : Routine,
-      where:{
-        disabled: false
-      }
-    }
+    include: {
+      model: Routine,
+      include: Review,
+      where: {
+        disabled: false,
+      },
+    },
   });
   return res.json(user ? user.dataValues.Routines : []);
 });
-
 
 //BUSCAR RUTINA POR ID
 router.get("/get/:routineId", verifyToken, async (req, res) => {
   const id = req.params.routineId;
 
-  if(!id) return res.status(400).send({error: 'No ID was provided'})
-  if(!/[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}/.test(id)) return res.status(400).send({error: 'Invalid ID'})
+  if (!id) return res.status(400).send({ error: "No ID was provided" });
+  if (
+    !/[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}/.test(
+      id
+    )
+  )
+    return res.status(400).send({ error: "Invalid ID" });
 
   let result = await Routine.findOne({
     where: {
@@ -102,26 +106,10 @@ router.get("/get/:routineId", verifyToken, async (req, res) => {
     },
   });
 
-  if(!result) return res.status(400).send({error: 'No routine with the provided ID was found'})
-
-  for(let key of Object.keys(result.days)) {
-
-    result.days[key] = await Promise.all(result.days[key].map(async (e,i)=>{
-
-      if(!/[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}/.test(e)) return "This exercise had an invalid ID"
-      
-      let a = await Exercise.findOne({
-        where: {
-          id: e,
-          disabled: false
-        }
-      })
-
-      if(!a) a="Exercise not found"
-      return a
-    }))
-  }
-
+  if (!result)
+    return res
+      .status(400)
+      .send({ error: "No routine with the provided ID was found" });
   return res.status(200).json(result);
 });
 
@@ -246,7 +234,6 @@ router.put(
   }
 );
 
-
 //TRAER TODAS LAS RUTINAS DE LA DB
 router.get("/", async (req, res) => {
   const result = await Routine.findAll(
@@ -291,7 +278,6 @@ router.get("/", async (req, res) => {
   );
   res.status(200).json(result);
 });
-
 
 //ELIMINAR UNA RUTINA
 router.delete("/:id", verifyPTrainerToken, async (req, res) => {
