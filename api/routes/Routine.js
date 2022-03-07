@@ -10,6 +10,7 @@ router.post("/:ownerId", async (req, res) => {
   try {
     const { title, exercises, price, image, description } = req.body;
     const { ownerId } = req.params;
+    console.log(ownerId)
     const user = await User.findOne({
       where: {
         id: ownerId,
@@ -91,13 +92,8 @@ router.get("/user/:userId", verifyToken, async (req, res) => {
 router.get("/get/:routineId", verifyToken, async (req, res) => {
   const id = req.params.routineId;
 
-  if (!id) return res.status(400).send({ error: "No ID was provided" });
-  if (
-    !/[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}/.test(
-      id
-    )
-  )
-    return res.status(400).send({ error: "Invalid ID" });
+  if(!id) return res.status(400).send({error: 'No ID was provided'})
+  if(!/[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}/.test(id)) return res.status(400).send({error: 'Invalid ID'})
 
   let result = await Routine.findOne({
     where: {
@@ -106,10 +102,26 @@ router.get("/get/:routineId", verifyToken, async (req, res) => {
     },
   });
 
-  if (!result)
-    return res
-      .status(400)
-      .send({ error: "No routine with the provided ID was found" });
+  if(!result) return res.status(400).send({error: 'No routine with the provided ID was found'})
+
+  for(let key of Object.keys(result.days)) {
+
+    result.days[key] = await Promise.all(result.days[key].map(async (e,i)=>{
+
+      if(!/[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}/.test(e)) return "This exercise had an invalid ID"
+      
+      let a = await Exercise.findOne({
+        where: {
+          id: e,
+          disabled: false
+        }
+      })
+
+      if(!a) a="Exercise not found"
+      return a
+    }))
+  }
+
   return res.status(200).json(result);
 });
 
