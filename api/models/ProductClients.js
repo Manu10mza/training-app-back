@@ -7,9 +7,13 @@ const ProductClients = (sequelize) => {
                   defaultValue: DataTypes.UUIDV4,
                   primaryKey: true
             },
+            ownerId:{
+                  type: DataTypes.STRING,
+                  allowNull: false 
+            },
             productId: {
-                type: DataTypes.STRING,
-                allowNull: false
+                  type: DataTypes.STRING,
+                  allowNull: false
             },
             clientsData: {
                   type: DataTypes.ARRAY(DataTypes.JSON),

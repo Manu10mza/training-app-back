@@ -34,13 +34,13 @@ fs.readdirSync(path.join(__dirname, "/models"))
   });
 modelDefiners.forEach((model) => model(sequelize));
 
-const { User, Exercise, Routine, Recipe, Diet, Transaction, Review, /*ProductClients*/ } = sequelize.models;
+const { User, Exercise, Routine, Recipe, Diet, Transaction, Review, ProductClients} = sequelize.models;
 //Generamos las relaciones
 User.hasMany(Exercise);
 Exercise.belongsTo(User);
 
-// ProductClients.hasMany(User, { through: "ProductClients_clients" });
-// User.belongsToMany(ProductClients, { through: "ProductClients_clients" });
+ProductClients.belongsToMany(User, { through: "ProductClients_clients" });
+User.belongsToMany(ProductClients, { through: "ProductClients_clients" });
 
 User.hasMany(Recipe);
 Recipe.belongsTo(User);
