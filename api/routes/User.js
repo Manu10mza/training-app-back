@@ -7,6 +7,8 @@ const { verifyToken } = require('../controllers/verifyToken');
 const Sequelize = require('sequelize')
 const Op = Sequelize.Op
 
+let result=[User, Recipe, Routine, Exercise, Diet];
+
 //LOGEO
 router.post('/login', async (req, res) => {
       //Para loguearse deben enviar Username o Mail
