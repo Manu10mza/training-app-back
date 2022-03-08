@@ -170,7 +170,14 @@ router.put('/update/:userId', verifyToken, async (req, res) => {
       }
 });
 
-/*
-      Todo: Crear ruta de eliminacion de usuario
-*/
+router.get('/:productId', async (req, res) => {
+
+      for(let i=0;i<result.length;i++){
+          let a = result[i].findOne({where:{id:req.params.productId}})
+          if(a) return res.status(200).json({success: a})
+      };
+      
+      res.status(400).json({ error: 'No element matched the given ID' });
+})
+
 module.exports = router;

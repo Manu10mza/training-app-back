@@ -79,6 +79,7 @@ router.get('/:search', async (req, res)=>{
             }).then(data => data.map(item => item.dataValues))
             return res.status(200).json(result);
       }
+      res.status(400).json({error:"Nothing was found"})
 })
 
 module.exports = router;
