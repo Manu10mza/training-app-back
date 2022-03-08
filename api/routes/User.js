@@ -4,6 +4,8 @@ const jwt = require('jsonwebtoken'); //REQUIRE JSON WEB TOKEN PARA CREAR TOKEN D
 const sequelize = require('../db'); //LA BASE DE DATOS
 const { User, Recipe, Diet, Exercise, Routine } = sequelize.models; //EL MODELO USER
 const { verifyToken } = require('../controllers/verifyToken');
+const Sequelize = require('sequelize')
+const Op = Sequelize.Op
 
 //LOGEO
 router.post('/login', async (req, res) => {
@@ -66,6 +68,17 @@ router.post('/login', async (req, res) => {
       }
       return res.status(400).json({ error: "Invalid email" });
 });
+
+router.get('/find/:userData', async (req,res) => {
+      const result = await User.findOne({
+            where: {
+                  [Op.or]: [{email: req.params.userData}, {username: req.params.userData}]
+            }
+      })
+console.log(result)
+      if(result) return res.status(200).json(result)
+      res.status(200).json({error:"User not found"})
+})
 
 
 //OBTENER TODOS LOS DATOS DE UN USUARIO
