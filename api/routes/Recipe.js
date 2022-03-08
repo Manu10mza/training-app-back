@@ -51,6 +51,9 @@ router.post('/:userId', verifyNutritionistToken, async (req, res) => {
 //TRAER TODAS LAS RECETAS DE PERTENECIENTE A UN USUARIO
 router.get('/user/:userId', verifyToken, async (req, res) => {
     //Traemos todas las recetas que contenga un usuario
+
+    if(!/^[0-9a-fA-F]{8}\b-([0-9a-fA-F]{4}-){3}\b[0-9a-fA-F]{12}$/.test(req.params.userId)) return res.status(400).json({error: "Invalid ID"})
+
     const user = await User.findOne({
         where: {
             id: req.params.userId,
@@ -63,6 +66,9 @@ router.get('/user/:userId', verifyToken, async (req, res) => {
             }
         }]
     });
+
+    if(!user) return res.status(400).json({error: "User not found"});
+
     res.status(200).json(user?.dataValues.Recipes);
 });
 
@@ -239,8 +245,8 @@ router.delete('/:userId/:recipeId', verifyNutritionistToken, async (req, res) =>
         } catch (error) {
             return res.status(400).json(error);
         }
-        return res.status(400).json({ error: 'Recipe not found' });
     }
+    res.status(400).json({ error: 'Recipe not found' });
 })
 
 module.exports = router;
