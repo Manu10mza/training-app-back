@@ -13,6 +13,7 @@ const reviewRoutes = require('./Review');
 const adminRoutes = require('./Admin');
 const newsRoutes = require('./News');
 const searchRoute = require('./Search');
+const conversationRoute = require('./Conversation');
 
 router.use('/register', registerRoute);
 router.use('/user', logInRoute);
@@ -25,5 +26,6 @@ router.use('/review', reviewRoutes);
 router.use('/admin', adminRoutes);
 router.use('/news', newsRoutes);
 router.use('/search', searchRoute);
+router.use('/conversation', conversationRoute)
 
 module.exports = router;
