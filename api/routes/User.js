@@ -37,20 +37,14 @@ router.post('/login', async (req, res) => {
                   userDb.password = userPassword;
                   
                   //Evaluamos su rol
-                  let role;
-                  if (userDb.is_nutritionist) {
-                        if (userDb.is_personal_trainer) {
-                              role = 'Nutritionist PTrainer';
-                        } else {
-                              role = 'Nutritionist';
-                        };
-                  } else if (userDb.is_personal_trainer) {
-                        role = 'PTrainer';
-                  } else if (userDb.is_admin) {
-                        role = 'Admin';
-                  } else {
-                        role = 'Client';
-                  }
+                  let role=[]
+
+                  if(userDb.is_personal_trainer)role.push('PTrainer')
+                  if(userDb.is_nutritionist)role.push('Nutritionist')
+                  if(userDb.is_admin)role.push('Admin')
+                  if(!role) role.push('Client')
+
+                  role=role.join(' ')
                   
                   //Creamos el token de acceso
                   const accessToken = jwt.sign({
