@@ -83,29 +83,24 @@ router.get('/', async (req, res) => {
     res.status(200).json(result);
 });
 
-
-//OBTENER TODAS LAS DIETAS DE UN USUARIO
-router.get('/user/:userId', verifyToken, async (req, res) => {
-    const { userId } = req.params;
-    const userDiet = await User.findOne({
-        where: {
-            id: userId,
-            disabled: false
-        },
-        include: {
-            model: Diet,
-            include : Review,
-            where: {
+//OBTENER LOS DETALLES DE UNA RECETA
+router.ger('/:dietId', verifyToken, async (req, res)=>{
+    const {dietId} = req.params;
+    try {
+        const dietResult = await Diet.findOne({
+            where:{
+                id: dietId,
                 disabled: false
             }
-        }
-    });
-    if (userDiet) return res.status(200).json(userDiet.dataValues.Diets);
-    res.status(404).json({ error: 'User not found' });
-});
+        });
+        if(dietResult) return res.status(200).json(dietResult);
+        return res.status(400).json({error:'Diet not found'});
+    } catch (error) {
+        return res.status(400).json(error);
+    }
+})
 
-
-//OBTENER DIETA SEGUN ID
+//OBTENER TODAS LAS DIETAS DE UN USUARIO
 router.get("/:id", verifyToken, async (req, res) => {
     const { id } = req.params;
     if (!id) {
@@ -144,6 +139,8 @@ router.get("/:id", verifyToken, async (req, res) => {
             .json({ success: false, message: "User has not created any diets." });
     }
 });
+
+
 
 
 //EDITAR DIETA
