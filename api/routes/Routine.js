@@ -10,7 +10,7 @@ router.post("/:ownerId", async (req, res) => {
   try {
     const { title, exercises, price, image, description } = req.body;
     const { ownerId } = req.params;
-    console.log(ownerId)
+    console.log(ownerId);
     const user = await User.findOne({
       where: {
         id: ownerId,
@@ -108,13 +108,6 @@ router.get("/details/:routineId", async (req, res) => {
     where: {
       id,
       disabled: false,
-    },
-    include: {
-      model: Exercise,
-      attributes: ["title"],
-      through: {
-        attributes: [],
-      },
     },
   });
   if (result) return res.status(200).json(result);
