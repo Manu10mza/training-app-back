@@ -22,6 +22,7 @@ const User = (sequelize) => {
     profile_img: {
       type: DataTypes.STRING,
       allowNull: true,
+      defaultValue: 'https://i.imgur.com/UOk3zAg.png'
     },
     gender: {
       type: DataTypes.STRING,
