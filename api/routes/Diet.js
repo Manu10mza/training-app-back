@@ -4,7 +4,7 @@ const sequelize = require("../db");
 const { Diet, User, Recipe, Review } = sequelize.models;
 
 //CREAR DIETAS
-router.post("/:userId", verifyNutritionistToken, async (req, res) => {
+router.post("/:userId",verifyNutritionistToken, async (req, res) => {
   const { title, price, plain } = req.body;
   const owner = req.params.userId;
   if (!title || !price || !owner || !plain) {
@@ -84,7 +84,7 @@ router.get('/', async (req, res) => {
 });
 
 //OBTENER LOS DETALLES DE UNA RECETA
-router.ger('/:dietId', verifyToken, async (req, res)=>{
+router.get('/info/:dietId', verifyToken, async (req, res)=>{
     const {dietId} = req.params;
     try {
         const dietResult = await Diet.findOne({
@@ -93,7 +93,28 @@ router.ger('/:dietId', verifyToken, async (req, res)=>{
                 disabled: false
             }
         });
-        if(dietResult) return res.status(200).json(dietResult);
+        let plain=dietResult.plain;
+        let newPlain=plain.map(async foodDay=>{
+            let newMeals={}
+            for (const key in foodDay.meals) {
+                let foodType=foodDay.meals[key];
+                if(!Array.isArray(foodType)) foodType=[foodType]
+                newMeals[key]=foodType
+            }
+            for (const key in newMeals) {
+                newMeals[key]= await Promise.all( newMeals[key].map(async recipe=> 
+                    await Recipe.findOne({
+                                attributes: {exclude: ['id',"disabled"]},
+                                where: {id:recipe}
+                            })));
+            }
+            return {
+                day:foodDay.day,
+                meals:newMeals
+            }
+        })
+        newPlain = await Promise.all(newPlain);
+        if(dietResult) return res.status(200).json({...dietResult.dataValues,plain:newPlain});
         return res.status(400).json({error:'Diet not found'});
     } catch (error) {
         return res.status(400).json(error);
