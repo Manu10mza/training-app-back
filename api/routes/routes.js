@@ -14,6 +14,7 @@ const adminRoutes = require('./Admin');
 const newsRoutes = require('./News');
 const searchRoute = require('./Search');
 const conversationRoute = require('./Conversation');
+const messageRoute = require('./Message')
 
 router.use('/register', registerRoute);
 router.use('/user', logInRoute);
@@ -26,6 +27,7 @@ router.use('/review', reviewRoutes);
 router.use('/admin', adminRoutes);
 router.use('/news', newsRoutes);
 router.use('/search', searchRoute);
-router.use('/conversation', conversationRoute)
+router.use('/conversations', conversationRoute)
+router.use('/messages', messageRoute)
 
 module.exports = router;
