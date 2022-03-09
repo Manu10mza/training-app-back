@@ -2,27 +2,25 @@ const router = require('express').Router()
 const { request } = require('express')
 const Message = require('../models/Message')
 
-router.post('/', async (req,res)=>{
+router.post('/', async (req, res) => {
     const newMessage = new Message(req.body)
-    console.log(req.body, newMessage)
-    try{
+    try {
         const saveMessage = await newMessage.save()
-        console.log(saveMessage)
         res.status(200).json(saveMessage)
     }
-    catch(err){
+    catch (err) {
         res.status(500).json(err)
     }
 })
 
-router.get('/:conversationId', async (req,res)=>{
-    try{
+router.get('/:conversationId', async (req, res) => {
+    try {
         const messages = await Message.find({
             conversationId: req.params.conversationId
         })
         res.status(200).json(messages)
     }
-    catch(err){
+    catch (err) {
         res.status(500).json(err)
     }
 })
