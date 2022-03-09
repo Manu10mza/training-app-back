@@ -2,12 +2,12 @@ const mongoose = require("mongoose")
 
 const ConversationSchema = new mongoose.Schema(
     {
-        members:{
+        members: {
             type: Array
         }
     },
     {
-        timeStamp: true
+        timestamps: true
     }
 )
 
