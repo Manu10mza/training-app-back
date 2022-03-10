@@ -137,7 +137,7 @@ router.get("/info/:dietId", verifyToken, async (req, res) => {
 //TRAER DETALLES DE UNA DIETA
 router.get("/details/:dietId", async (req, res) => {
   const id = req.params.dietId;
-  let result = await Routine.findOne({
+  let result = await Diet.findOne({
     where: {
       id,
       disabled: false,
