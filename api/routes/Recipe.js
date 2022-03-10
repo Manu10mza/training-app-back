@@ -28,22 +28,23 @@ router.post('/:userId', verifyNutritionistToken, async (req, res) => {
             title: req.body.title,
             disabled: false
         }
-    })
+    });
 
     if (!findRecipe) {
         try {
             const recipe = await Recipe.create(req.body);
             //Vinculamos el usuario con la receta
             await user.addRecipe(recipe);
-            return res.status(200).json({ success: 'Recipe created successfully', recipe: recipe })
+            console.log('new recipe =>', recipe.dataValues.id);
+            return res.status(200).json({ success: 'Recipe created successfully', recipe: recipe });
 
         } catch (error) {
-            console.log(error)
-            return res.status(400).json(error)
+            console.log(error);
+            return res.status(400).json(error);
         }
 
     } else {
-        return res.status(401).json({ error: 'There is already a recipe with that title' })
+        return res.status(401).json({ error: 'There is already a recipe with that title' });
     }
 });
 
@@ -52,24 +53,22 @@ router.post('/:userId', verifyNutritionistToken, async (req, res) => {
 router.get('/user/:userId', verifyToken, async (req, res) => {
     //Traemos todas las recetas que contenga un usuario
 
-    if(!/^[0-9a-fA-F]{8}\b-([0-9a-fA-F]{4}-){3}\b[0-9a-fA-F]{12}$/.test(req.params.userId)) return res.status(400).json({error: "Invalid ID"})
+    if (!/^[0-9a-fA-F]{8}\b-([0-9a-fA-F]{4}-){3}\b[0-9a-fA-F]{12}$/.test(req.params.userId)) return res.status(400).json({ error: "Invalid ID" });
 
     const user = await User.findOne({
         where: {
             id: req.params.userId,
             // disabled: false
         },
-        include: [{
-            model: Recipe,
-            where: {
-                disabled: false
-            }
-        }]
+        include: Recipe
     });
 
-    if(!user) return res.status(400).json({error: "User not found"});
+    if (!user) return res.status(400).json({ error: "User not found" });
 
-    res.status(200).json(user?.dataValues.Recipes);
+    const recipes = user.dataValues.Recipes.map(e => e.dataValues);
+    const filtered = recipes.filter(recipe => !recipe.disabled);
+
+    res.status(200).json(filtered);
 });
 
 
@@ -96,7 +95,7 @@ router.put('/:userId/:recipeId', verifyNutritionistToken, async (req, res) => {
 
     const { recipeId, userId } = req.params;
     const { carbohydrates, description, grease, grs, kcal, proteins, title } = req.body;
-    console.log(req.body)
+    console.log(req.body);
     //Buscamos la receta
     const targetRecipe = await Recipe.findOne({
         where: {
@@ -106,24 +105,24 @@ router.put('/:userId/:recipeId', verifyNutritionistToken, async (req, res) => {
 
     //Evaluamos posibles conflictos
 
-    let strings = []
+    let strings = [];
 
-    for (let [key, value] of Object.entries(targetRecipe.dataValues)) if (typeof value === 'string') strings.push(key)
+    for (let [key, value] of Object.entries(targetRecipe.dataValues)) if (typeof value === 'string') strings.push(key);
 
-    let nonstrings = []
+    let nonstrings = [];
 
-    for (let [key, value] of Object.entries(req.body)) if (strings.includes(key) && typeof value !== 'string') nonstrings.push(key)
+    for (let [key, value] of Object.entries(req.body)) if (strings.includes(key) && typeof value !== 'string') nonstrings.push(key);
     if (nonstrings.length) return res.status(400).json({ error: "These values should be strings: " + nonstrings.join(', ') });//Ver si tal campo debe ser un string
 
     //----------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-    let numbers = []
+    let numbers = [];
 
-    for (let [key, value] of Object.entries(targetRecipe.dataValues)) if (typeof value === 'number') numbers.push(key)
+    for (let [key, value] of Object.entries(targetRecipe.dataValues)) if (typeof value === 'number') numbers.push(key);
 
-    let negatives = []
+    let negatives = [];
 
-    for (let [key, value] of Object.entries(req.body)) if (numbers.includes(key) && (Number(value) < 0 || Number(value) === NaN)) negatives.push(key)
+    for (let [key, value] of Object.entries(req.body)) if (numbers.includes(key) && (Number(value) < 0 || Number(value) === NaN)) negatives.push(key);
     if (negatives.length) return res.status(400).json({ error: "These values are either negative or non-numeric, when they should't: " + negatives.join(', ') });//Ver si tal campo debe ser un numero
 
     //----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -134,14 +133,14 @@ router.put('/:userId/:recipeId', verifyNutritionistToken, async (req, res) => {
 
     //----------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-    let emptyFields = []
+    let emptyFields = [];
 
     for (let [key, value] of Object.entries(req.body)) {
-        if (!value && value !== 0) emptyFields.push(key)
+        if (!value && value !== 0) emptyFields.push(key);
     }
 
     if (emptyFields.length) {
-        return res.status(400).json({ error: `No fields can be empty, please check: ${emptyFields.join(', ')}` }) //Ver que ningún campo esté vacio
+        return res.status(400).json({ error: `No fields can be empty, please check: ${emptyFields.join(', ')}` }); //Ver que ningún campo esté vacio
     }
 
     //----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -163,24 +162,24 @@ router.put('/:userId/:recipeId', verifyNutritionistToken, async (req, res) => {
 
         //Evaluamos posibles conflictos
 
-        let strings = []
+        let strings = [];
 
-        for (let [key, value] of Object.entries(targetRecipe.dataValues)) if (typeof value === 'string') strings.push(key)
+        for (let [key, value] of Object.entries(targetRecipe.dataValues)) if (typeof value === 'string') strings.push(key);
 
-        let nonstrings = []
+        let nonstrings = [];
 
-        for (let [key, value] of Object.entries(req.body)) if (strings.includes(key) && typeof value !== 'string') nonstrings.push(key)
+        for (let [key, value] of Object.entries(req.body)) if (strings.includes(key) && typeof value !== 'string') nonstrings.push(key);
         if (nonstrings.length) return res.status(400).json({ error: "These values should be strings: " + nonstrings.join(', ') });//Ver si tal campo debe ser un string
 
         //----------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-        let numbers = []
+        let numbers = [];
 
-        for (let [key, value] of Object.entries(targetRecipe.dataValues)) if (typeof value === 'number') numbers.push(key)
+        for (let [key, value] of Object.entries(targetRecipe.dataValues)) if (typeof value === 'number') numbers.push(key);
 
-        let negatives = []
+        let negatives = [];
 
-        for (let [key, value] of Object.entries(req.body)) if (numbers.includes(key) && (Number(value) < 0 || Number(value) === NaN)) negatives.push(key)
+        for (let [key, value] of Object.entries(req.body)) if (numbers.includes(key) && (Number(value) < 0 || Number(value) === NaN)) negatives.push(key);
         if (negatives.length) return res.status(400).json({ error: "These values are either negative or non-numeric, when they should't: " + negatives.join(', ') });//Ver si tal campo debe ser un numero
 
         //----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -191,14 +190,14 @@ router.put('/:userId/:recipeId', verifyNutritionistToken, async (req, res) => {
 
         //----------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-        let emptyFields = []
+        let emptyFields = [];
 
         for (let [key, value] of Object.entries(req.body)) {
-            if (!value && value !== 0) emptyFields.push(key)
+            if (!value && value !== 0) emptyFields.push(key);
         }
 
         if (emptyFields.length) {
-            return res.status(400).json({ error: `No fields can be empty, please check: ${emptyFields.join(', ')}` }) //Ver que ningún campo esté vacio
+            return res.status(400).json({ error: `No fields can be empty, please check: ${emptyFields.join(', ')}` }); //Ver que ningún campo esté vacio
         }
 
         //----------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -217,10 +216,10 @@ router.put('/:userId/:recipeId', verifyNutritionistToken, async (req, res) => {
                     id: recipeId
                 }
             });
-            if (!success) return res.status(500).json({ error: `Something went wrong when updating "${key}" with value "${value}". Please notify backend with code: REC149` })
+            if (!success) return res.status(500).json({ error: `Something went wrong when updating "${key}" with value "${value}". Please notify backend with code: REC149` });
         }
 
-        return res.status(200).json({ success: 'Recipe updated successfully' })
+        return res.status(200).json({ success: 'Recipe updated successfully' });
 
 
     }
@@ -240,13 +239,13 @@ router.delete('/:userId/:recipeId', verifyNutritionistToken, async (req, res) =>
             recipe.update({
                 disabled: true
             });
-            return res.status(200).json({ success: 'Recipe eliminated successfuly' })
+            return res.status(200).json({ success: 'Recipe eliminated successfuly' });
 
         } catch (error) {
             return res.status(400).json(error);
         }
     }
     res.status(400).json({ error: 'Recipe not found' });
-})
+});
 
 module.exports = router;
